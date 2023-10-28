@@ -1,6 +1,6 @@
 package br.unifor.ppgia.resiliencebench.resources.benchmark;
 
-import io.fabric8.kubernetes.model.annotation.PrinterColumn;
+import io.fabric8.crd.generator.annotation.PrinterColumn;
 
 public class BenchmarkStatus {
 
