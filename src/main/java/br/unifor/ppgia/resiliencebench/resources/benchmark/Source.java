@@ -1,4 +1,4 @@
-package br.unifor.ppgia.resiliencebench.resources.benchmark.scenario;
+package br.unifor.ppgia.resiliencebench.resources.benchmark;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;

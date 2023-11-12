@@ -1,0 +1,19 @@
+# Ignorar arquivos de compilação do Maven
+target/
+
+# Ignorar arquivos de configuração do Eclipse
+.classpath
+.project
+.settings/
+
+# Ignorar arquivos de log do Maven
+log/
+*.log
+
+# Ignorar arquivos de dependência do Maven
+dependency-reduced-pom.xml
+# Ignorar arquivos do IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr

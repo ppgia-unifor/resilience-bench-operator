@@ -1,0 +1,39 @@
+apiVersion: resiliencebench.io/v1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+spec:
+  rounds: 5
+  workload: example-workload
+  connections:
+    - name: connection-1
+      source:
+        patternConfig:
+          patternKey1: value1
+          patternKey2: value2
+        service: service-1
+      target:
+        delay:
+          duration: 100
+          percentage: [10,20]
+    - name: connection-2
+      source:
+        patternConfig:
+          patternKey3: value3
+          patternKey4: value4
+        service: service-2
+      target:
+        delay:
+          duration: 200
+          percentage: [10]
+    - name: connection-3
+      source:
+        patternConfig:
+          patternKey5: value5
+          patternKey6: value6
+        service: service-3
+      target:
+        delay:
+          duration: 150
+          percentage: [10]
+

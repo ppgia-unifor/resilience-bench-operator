@@ -1,4 +1,4 @@
-package br.unifor.ppgia.resiliencebench.resources.benchmark.scenario;
+package br.unifor.ppgia.resiliencebench.resources.benchmark;
 
 public class Connection {
 

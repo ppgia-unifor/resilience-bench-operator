@@ -1,0 +1,75 @@
+apiVersion: "resiliencebench.io/v1"
+kind: ResilientService
+metadata:
+  name: api-gateway
+  annotations:
+    resiliencebench.io/library: resilience4j
+spec:
+  selector:
+    matchLabels:
+      com.petclinic.service: api-gateway
+
+---
+
+apiVersion: "resiliencebench.io/v1"
+kind: ResilientService
+metadata:
+  name: customers-service
+  annotations:
+    resiliencebench.io/library: resilience4j
+spec:
+  selector:
+    matchLabels:
+      com.petclinic.service: customers-service
+
+---
+
+apiVersion: "resiliencebench.io/v1"
+kind: Workload
+metadata:
+  name: ten-users-linear-load
+spec:
+  users: [ 10 ]
+  duration: 30
+  targetUrl: "http://server:9211/bytes/1000"
+  locustFileConfigMap: "locustfile.py"
+#
+#---
+#
+#apiVersion: "resiliencebench.io/v1"
+#kind: Benchmark
+#metadata:
+#  name: bm-1
+#spec:
+#  rounds: 10
+#  workload: ten-users-linear-load
+#
+#  scenarios:
+#    - name: all-services-with-retry
+#      connections:
+#        - name: aresta-1
+#          source:
+#            service: api-gateway
+#            patternConfig:
+#              maxAttempts: 6
+#              multiplier: 1.5
+#              initialIntervalMillis: [ 50 ]
+#          target:
+#            service: customer-services
+#            fault:
+#              delay:
+#                percentage: [ 50, 75 ]
+#                duration: 100
+#        - name: aresta-2
+#          source:
+#            service: api-gateway
+#            patternConfig:
+#              maxAttempts: 6
+#              multiplier: 1.5
+#              initialIntervalMillis: [ 50 ]
+#          target:
+#            service: vets-services
+#            fault:
+#              delay:
+#                percentage: [ 50, 75 ]
+#                duration: 100

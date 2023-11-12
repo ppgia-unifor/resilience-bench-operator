@@ -1,21 +1,28 @@
-package br.unifor.ppgia.resiliencebench.resources.benchmark.scenario;
+package br.unifor.ppgia.resiliencebench.resources.benchmark;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DelayFault {
+public class Fault {
 
-  private int duration;
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private List<Integer> percentage = new ArrayList<>();
 
-  public int getDuration() {
-    return duration;
-  }
+  private DelayFault delay;
+  private AbortFault abort;
 
   public List<Integer> getPercentage() {
     return percentage;
   }
+
+  public DelayFault getDelay() {
+    return delay;
+  }
+
+  public AbortFault getAbort() {
+    return abort;
+  }
+
 }
