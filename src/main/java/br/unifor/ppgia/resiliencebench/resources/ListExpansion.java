@@ -15,17 +15,12 @@ public class ListExpansion {
             List<Object> valList = entry.getValue();
 
             if (configTemplate.containsKey(key)) {
-                // generate config instances for each key value
                 for (Object val : valList) {
                     Map<String, Object> config = new HashMap<>(configTemplate);
                     config.put(key, val);
-
-                    // check whether there are still keys to expand
                     if (keyExpansionList.size() > 1) {
-                        // recursively generate new config instances using current (expanded) config instance as template
                         configList.addAll(generateConfig(config, keyExpansionList.subList(1, keyExpansionList.size())));
                     } else {
-                        // add fully expanded config instance to config list
                         configList.add(config);
                     }
                 }
@@ -46,11 +41,8 @@ public class ListExpansion {
         }
 
         if (!keyExpansionList.isEmpty()) {
-            // generate all possible config instance combinations from
-            // the given config template and key expansion list
             return generateConfig(configTemplate, keyExpansionList);
         } else {
-            // no template expansion needed
             List<Map<String, Object>> configList = new ArrayList<>();
             configList.add(configTemplate);
             return configList;

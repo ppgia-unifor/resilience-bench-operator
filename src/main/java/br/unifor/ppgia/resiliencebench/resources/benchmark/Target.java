@@ -1,10 +1,15 @@
-package br.unifor.ppgia.resiliencebench.resources.benchmark.scenario;
+package br.unifor.ppgia.resiliencebench.resources.benchmark;
 
 public class Target {
 
-  private Fault fault;
+  private String service;
+  private BenchmarkFaultTemplate fault;
 
-  public Fault getFault() {
+  public BenchmarkFaultTemplate getFault() {
     return fault;
+  }
+
+  public String getService() {
+    return service;
   }
 }

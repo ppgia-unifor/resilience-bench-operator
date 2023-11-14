@@ -5,7 +5,7 @@ import io.fabric8.kubernetes.client.CustomResource;
 import io.fabric8.kubernetes.model.annotation.*;
 
 @Group("resiliencebench.io")
-@Version("v1")
+@Version("v1beta1")
 @ShortNames("bm")
 @Plural("benchmarks")
 @Kind("Benchmark")

@@ -1,19 +1,17 @@
-package br.unifor.ppgia.resiliencebench;
+package br.unifor.ppgia.resiliencebench.resources.scenario;
 
+import io.fabric8.kubernetes.api.model.Namespaced;
+import io.fabric8.kubernetes.client.CustomResource;
 import io.fabric8.kubernetes.model.annotation.*;
 
 @Group("resiliencebench.io")
-@Version("v1")
+@Version("v1beta1")
 @ShortNames("sc")
 @Plural("scenarios")
 @Kind("Scenario")
-public class Scenario {
+public class Scenario extends CustomResource<ScenarioSpec, ScenarioStatus> implements Namespaced {
 
-  private Object workload;
-
-  private Object targetService;
-  private Object sourceService;
-
-  private Object fault;
-  private Object patterParameters;
+  public Scenario(ScenarioSpec spec) {
+    setSpec(spec);
+  }
 }

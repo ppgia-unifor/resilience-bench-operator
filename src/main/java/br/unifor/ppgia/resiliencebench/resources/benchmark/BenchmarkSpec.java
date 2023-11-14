@@ -1,7 +1,5 @@
 package br.unifor.ppgia.resiliencebench.resources.benchmark;
 
-import br.unifor.ppgia.resiliencebench.resources.benchmark.scenario.Connection;
-
 import java.util.ArrayList;
 import java.util.List;
 
