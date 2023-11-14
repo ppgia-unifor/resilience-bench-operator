@@ -6,6 +6,7 @@ spec:
   rounds: 5
   workload: example-workload
   connections:
+
     - name: connection-1
       source:
         patternConfig:
@@ -13,9 +14,11 @@ spec:
           patternKey2: value2
         service: service-1
       target:
-        delay:
-          duration: 100
+        fault:
           percentage: [10,20]
+          delay:
+            duration: 100
+
     - name: connection-2
       source:
         patternConfig:
@@ -23,9 +26,11 @@ spec:
           patternKey4: value4
         service: service-2
       target:
-        delay:
-          duration: 200
+        fault:
           percentage: [10]
+          delay:
+            duration: 200
+
     - name: connection-3
       source:
         patternConfig:
@@ -33,7 +38,8 @@ spec:
           patternKey6: value6
         service: service-3
       target:
-        delay:
-          duration: 150
+        fault:
           percentage: [10]
+          delay:
+            duration: 150
 

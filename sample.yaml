@@ -1,4 +1,19 @@
 apiVersion: "resiliencebench.io/v1"
+kind: Workload
+metadata:
+  name: stress-test
+spec:
+  users: [10, 20, 30]
+  duration: 100 #seconds
+  targetUrl: "http://"
+  script:
+    configMap:
+      name: bookinfo-stress-test
+      file: bookinfo-stress-test.js
+
+---
+
+apiVersion: "resiliencebench.io/v1"
 kind: ResilientService
 metadata:
   name: api-gateway
@@ -8,9 +23,29 @@ spec:
   selector:
     matchLabels:
       com.petclinic.service: api-gateway
-
 ---
-
+apiVersion: "resiliencebench.io/v1"
+kind: ResilientService
+metadata:
+  name: vets-service
+  annotations:
+    resiliencebench.io/library: resilience4j
+spec:
+  selector:
+    matchLabels:
+      com.petclinic.service: vets-service
+---
+apiVersion: "resiliencebench.io/v1"
+kind: ResilientService
+metadata:
+  name: visits-service
+  annotations:
+    resiliencebench.io/library: resilience4j
+spec:
+  selector:
+    matchLabels:
+      com.petclinic.service: visits-service
+---
 apiVersion: "resiliencebench.io/v1"
 kind: ResilientService
 metadata:
