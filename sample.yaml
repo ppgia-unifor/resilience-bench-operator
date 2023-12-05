@@ -1,4 +1,4 @@
-apiVersion: "resiliencebench.io/v1"
+apiVersion: "resiliencebench.io/v1beta1"
 kind: Workload
 metadata:
   name: stress-test
@@ -13,7 +13,7 @@ spec:
 
 ---
 
-apiVersion: "resiliencebench.io/v1"
+apiVersion: "resiliencebench.io/v1beta1"
 kind: ResilientService
 metadata:
   name: api-gateway
@@ -24,7 +24,7 @@ spec:
     matchLabels:
       com.petclinic.service: api-gateway
 ---
-apiVersion: "resiliencebench.io/v1"
+apiVersion: "resiliencebench.io/v1beta1"
 kind: ResilientService
 metadata:
   name: vets-service
@@ -35,7 +35,7 @@ spec:
     matchLabels:
       com.petclinic.service: vets-service
 ---
-apiVersion: "resiliencebench.io/v1"
+apiVersion: "resiliencebench.io/v1beta1"
 kind: ResilientService
 metadata:
   name: visits-service
@@ -46,7 +46,7 @@ spec:
     matchLabels:
       com.petclinic.service: visits-service
 ---
-apiVersion: "resiliencebench.io/v1"
+apiVersion: "resiliencebench.io/v1beta1"
 kind: ResilientService
 metadata:
   name: customers-service
@@ -59,52 +59,41 @@ spec:
 
 ---
 
-apiVersion: "resiliencebench.io/v1"
-kind: Workload
+apiVersion: resiliencebench.io/v1beta1
+kind: Benchmark
 metadata:
-  name: ten-users-linear-load
+  name: example-benchmark
+  namespace: default
 spec:
-  users: [ 10 ]
-  duration: 30
-  targetUrl: "http://server:9211/bytes/1000"
-  locustFileConfigMap: "locustfile.py"
-#
-#---
-#
-#apiVersion: "resiliencebench.io/v1"
-#kind: Benchmark
-#metadata:
-#  name: bm-1
-#spec:
-#  rounds: 10
-#  workload: ten-users-linear-load
-#
-#  scenarios:
-#    - name: all-services-with-retry
-#      connections:
-#        - name: aresta-1
-#          source:
-#            service: api-gateway
-#            patternConfig:
-#              maxAttempts: 6
-#              multiplier: 1.5
-#              initialIntervalMillis: [ 50 ]
-#          target:
-#            service: customer-services
-#            fault:
-#              delay:
-#                percentage: [ 50, 75 ]
-#                duration: 100
-#        - name: aresta-2
-#          source:
-#            service: api-gateway
-#            patternConfig:
-#              maxAttempts: 6
-#              multiplier: 1.5
-#              initialIntervalMillis: [ 50 ]
-#          target:
-#            service: vets-services
-#            fault:
-#              delay:
-#                percentage: [ 50, 75 ]
-#                duration: 100
+  connections:
+    - name: connection-1
+      source:
+        patternConfig:
+          patternKey1: value1
+          patternKey2: value2
+        service: api-gateway
+      target:
+        service: vets-service
+        fault:
+          percentage:
+            - 10
+            - 20
+          delay:
+            duration: 100
+
+    - name: connection-2
+      source:
+        patternConfig:
+          patternKey3: value3
+          patternKey4: value4
+        service: api-gateway
+      target:
+        service: visits-service
+        fault:
+          percentage:
+            - 10
+          abort:
+            httpStatus: 503
+
+  rounds: 5
+  workload: stress-test

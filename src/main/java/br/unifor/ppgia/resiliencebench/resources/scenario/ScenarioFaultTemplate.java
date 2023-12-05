@@ -10,7 +10,21 @@ public class ScenarioFaultTemplate extends FaultTemplate<Integer> {
     super();
   }
 
-  public ScenarioFaultTemplate(Integer percentage, DelayFault delay, AbortFault abort) {
-    super(percentage, delay, abort);
+  public ScenarioFaultTemplate(Integer percentage, AbortFault abort) {
+    super(percentage, abort);
+  }
+
+  public ScenarioFaultTemplate(Integer percentage, DelayFault delay) {
+    super(percentage, delay);
+  }
+
+  public static ScenarioFaultTemplate from(Integer percentage, DelayFault delay, AbortFault abort) {
+    if (delay != null) {
+      return new ScenarioFaultTemplate(percentage, delay);
+    } else if (abort != null) {
+      return new ScenarioFaultTemplate(percentage, abort);
+    } else {
+      return null;
+    }
   }
 }

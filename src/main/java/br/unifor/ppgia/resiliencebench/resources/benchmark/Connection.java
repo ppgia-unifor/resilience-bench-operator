@@ -6,6 +6,15 @@ public class Connection {
   private Source source;
   private Target target;
 
+  public Connection() {
+  }
+
+  public Connection(String name, Source source, Target target) {
+    this.name = name;
+    this.source = source;
+    this.target = target;
+  }
+
   public String getName() {
     return name;
   }

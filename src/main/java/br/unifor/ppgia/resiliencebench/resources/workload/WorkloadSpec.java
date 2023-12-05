@@ -13,6 +13,16 @@ public class WorkloadSpec {
   private String targetUrl;
   private ScriptConfig script;
 
+  public WorkloadSpec() {
+  }
+
+  public WorkloadSpec(List<Integer> users, int duration, String targetUrl, ScriptConfig script) {
+    this.users = users;
+    this.duration = duration;
+    this.targetUrl = targetUrl;
+    this.script = script;
+  }
+
   public List<Integer> getUsers() {
     return users;
   }

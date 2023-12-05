@@ -8,6 +8,16 @@ public class BenchmarkSpec {
   private String workload;
   private List<Connection> connections = new ArrayList<>();
 
+  public BenchmarkSpec() {
+  }
+
+  public BenchmarkSpec(int rounds, String workload, List<Connection> connections) {
+    this();
+    this.rounds = rounds;
+    this.workload = workload;
+    this.connections = connections;
+  }
+
   public int getRounds() {
     return rounds;
   }

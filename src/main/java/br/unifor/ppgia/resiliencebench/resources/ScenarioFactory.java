@@ -10,11 +10,12 @@ import br.unifor.ppgia.resiliencebench.resources.scenario.ScenarioWorkload;
 import br.unifor.ppgia.resiliencebench.resources.workload.Workload;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static br.unifor.ppgia.resiliencebench.resources.ListExpansion.expandConfigTemplate;
-import static java.util.Collections.*;
-import static java.util.stream.Collectors.*;
 
 public final class ScenarioFactory {
   private static Map<String, Object> convertJsonNodeToMap(JsonNode jsonNode) {
@@ -50,8 +51,9 @@ public final class ScenarioFactory {
     return jsonNode;
   }
 
-  static List<Map<String, Object>> expandServices(Source serviceSource) {
-    var patternConfigTemplate = convertJsonNodeToMap(serviceSource.getPatternConfig().get("patternConfig"));
+  public static List<Map<String, Object>> expandServiceParameters(Source serviceSource) {
+    var patternConfigTemplate =
+            convertJsonNodeToMap(serviceSource.getPatternConfig().get("patternConfig"));
     return expandConfigTemplate(patternConfigTemplate);
   }
 
@@ -65,27 +67,34 @@ public final class ScenarioFactory {
       var source = connection.getSource();
 
       for (var faultPercentage : target.getFault().getPercentage()) {
-        var fault = new ScenarioFaultTemplate(faultPercentage, target.getFault().getDelay(),
-                target.getFault().getAbort());
+        var fault =
+                ScenarioFaultTemplate.from(faultPercentage, target.getFault().getDelay(), target.getFault().getAbort());
 
-        for (var sourcePatternsParameters : expandServices(source)) {
+        for (var sourcePatternsParameters : expandServiceParameters(source)) {
           for (var workloadUser : workloadUsers) {
             scenarios.add(createScenario(workloadName, target, source, fault, sourcePatternsParameters, workloadUser));
           }
         }
       }
     }
-    return scenarios.stream().flatMap(obj -> nCopies(benchmark.getSpec().getRounds(), obj).stream()).collect(toList());
+    return scenarios;
   }
 
-  private static Scenario createScenario(String workloadName, Target target, Source source, ScenarioFaultTemplate fault, Map<String, Object> sourcePatternsParameters, Integer workloadUser) {
+  private static Scenario createScenario(
+          String workloadName,
+          Target target,
+          Source source,
+          ScenarioFaultTemplate fault,
+          Map<String, Object> sourcePatternsParameters, Integer workloadUser
+  ) {
     return new Scenario(
             new ScenarioSpec(
                     target.getService(),
                     source.getService(),
                     sourcePatternsParameters,
                     new ScenarioWorkload(workloadName, workloadUser),
-                    fault)
+                    fault
+            )
     );
   }
 }

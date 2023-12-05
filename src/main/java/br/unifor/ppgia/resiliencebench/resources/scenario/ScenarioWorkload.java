@@ -27,4 +27,8 @@ public class ScenarioWorkload {
   public void setUsers(int users) {
     this.users = users;
   }
+
+  public String toString() {
+    return String.format("%s-%d", workloadName, users);
+  }
 }

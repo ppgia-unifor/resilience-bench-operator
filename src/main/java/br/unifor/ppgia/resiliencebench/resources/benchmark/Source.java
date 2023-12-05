@@ -12,6 +12,13 @@ public class Source {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private Map<String, JsonNode> patternConfig = new LinkedHashMap<>();
 
+  public Source() { }
+
+  public Source(String service, Map<String, JsonNode> patternConfig) {
+    this.service = service;
+    this.patternConfig = patternConfig;
+  }
+
   public String getService() {
     return service;
   }
