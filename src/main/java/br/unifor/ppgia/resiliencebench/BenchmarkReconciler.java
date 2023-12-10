@@ -3,6 +3,7 @@ package br.unifor.ppgia.resiliencebench;
 import br.unifor.ppgia.resiliencebench.resources.CustomResourceRepository;
 import br.unifor.ppgia.resiliencebench.resources.ScenarioFactory;
 import br.unifor.ppgia.resiliencebench.resources.benchmark.Benchmark;
+import br.unifor.ppgia.resiliencebench.resources.benchmark.BenchmarkStatus;
 import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
 import br.unifor.ppgia.resiliencebench.resources.workload.Workload;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
@@ -28,7 +29,7 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
 
     for (var scenario : scenariosList) {
       var meta = new ObjectMeta();
-      meta.setName(scenario.toString());
+      meta.setName(scenario.toString()); // TODO criar classe para geração de nomes
       meta.setNamespace(benchmark.getMetadata().getNamespace());
       meta.setAnnotations(of("resiliencebench.io/owned-by", benchmark.getMetadata().getName()));
       scenario.setMetadata(meta);
@@ -38,20 +39,10 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
       } else {
         scenarioRepository.create(scenario);
       }
-
     }
 
-//    var status = new BenchmarkStatus(scenariosList.size());
-//    benchmark.setStatus(status);
-
-//    var scenarioOperations = context.getClient().resources(Scenario.class);
-//    scenariosList.forEach(scenario -> scenarioOperations.inNamespace(benchmark.getMetadata().getNamespace()).resource(scenario).create());
-
-//    for (var scenario : scenariosList) {
-//      scenario.getMetadata().setName(scenario.getSpec().getId());
-//      scenarioOperations.inNamespace(benchmark.getMetadata().getNamespace()).resource(scenario).create();
-//    }
-//    return UpdateControl.updateStatus(benchmark);
-    return UpdateControl.noUpdate();
+    var status = new BenchmarkStatus(scenariosList.size(), 0);
+    benchmark.setStatus(status);
+    return UpdateControl.updateStatus(benchmark);
   }
 }

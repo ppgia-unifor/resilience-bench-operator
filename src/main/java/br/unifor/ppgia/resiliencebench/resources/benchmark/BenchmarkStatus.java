@@ -5,12 +5,15 @@ import io.fabric8.crd.generator.annotation.PrinterColumn;
 public class BenchmarkStatus {
 
     @PrinterColumn
-    private final int totalExecutions;
+    private int totalExecutions;
     @PrinterColumn
     private int executions;
 
-    public BenchmarkStatus(int totalExecutions) {
+    public BenchmarkStatus() { }
+
+    public BenchmarkStatus(int totalExecutions, int executions) {
         this.totalExecutions = totalExecutions;
+        this.executions = executions;
     }
 
     public void incrementExecutions(int executions) {

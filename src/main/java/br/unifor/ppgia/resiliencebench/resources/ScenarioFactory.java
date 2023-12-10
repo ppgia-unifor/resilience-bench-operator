@@ -18,6 +18,11 @@ import java.util.Map;
 import static br.unifor.ppgia.resiliencebench.resources.ListExpansion.expandConfigTemplate;
 
 public final class ScenarioFactory {
+
+  public ScenarioFactory() {
+    throw new IllegalStateException("Utility class");
+  }
+
   private static Map<String, Object> convertJsonNodeToMap(JsonNode jsonNode) {
     Map<String, Object> resultMap = new HashMap<>();
 
@@ -43,6 +48,7 @@ public final class ScenarioFactory {
         return jsonNode.doubleValue();
       } else {
         return jsonNode.longValue();
+
       }
     } else if (jsonNode.isNull()) {
       return null;
@@ -68,7 +74,7 @@ public final class ScenarioFactory {
 
       for (var faultPercentage : target.getFault().getPercentage()) {
         var fault =
-                ScenarioFaultTemplate.from(faultPercentage, target.getFault().getDelay(), target.getFault().getAbort());
+                ScenarioFaultTemplate.create(faultPercentage, target.getFault().getDelay(), target.getFault().getAbort());
 
         for (var sourcePatternsParameters : expandServiceParameters(source)) {
           for (var workloadUser : workloadUsers) {

@@ -18,7 +18,7 @@ public class ScenarioFaultTemplate extends FaultTemplate<Integer> {
     super(percentage, delay);
   }
 
-  public static ScenarioFaultTemplate from(Integer percentage, DelayFault delay, AbortFault abort) {
+  public static ScenarioFaultTemplate create(Integer percentage, DelayFault delay, AbortFault abort) {
     if (delay != null) {
       return new ScenarioFaultTemplate(percentage, delay);
     } else if (abort != null) {
