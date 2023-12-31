@@ -10,33 +10,35 @@ import io.fabric8.kubernetes.client.utils.Serialization;
 import java.util.HashMap;
 import java.util.Map;
 
-public class K6Runner {
+public class K6TestRunner {
 
-  public void createCustomResource(String namespace, String crInstanceName, Map<String, Object> customResourceSpec) {
-    try (KubernetesClient client = new DefaultKubernetesClient()) {
-      // Define the Custom Resource instance as a generic Kubernetes resource
-      Map<String, Object> crMap = new HashMap<>();
-      crMap.put("apiVersion", "k6.io/v1alpha1"); // Replace with actual API version
-      crMap.put("kind", "K6");
-      crMap.put("metadata", Map.of("name", crInstanceName, "namespace", namespace));
+//  public void createCustomResource(String namespace, String crInstanceName, Map<String, Object> customResourceSpec) {
+//    try (KubernetesClient client = new DefaultKubernetesClient()) {
+//      // Define the Custom Resource instance as a generic Kubernetes resource
+//      Map<String, Object> crMap = new HashMap<>();
+//      crMap.put("apiVersion", "k6.io/v1alpha1"); // Replace with actual API version
+//      crMap.put("kind", "K6");
+//      crMap.put("metadata", Map.of("name", crInstanceName, "namespace", namespace));
+//
+//      // Add the spec if provided
+//      if (customResourceSpec != null && !customResourceSpec.isEmpty()) {
+//        crMap.put("spec", customResourceSpec);
+//      }
+//
+//      // Convert the map to a generic Kubernetes resource
+//      HasMetadata customResource = Serialization.unmarshal(Serialization.asJson(crMap), HasMetadata.class);
+//
+//      // Apply the Custom Resource instance to the Kubernetes cluster
+//      Resource<HasMetadata> resource = client.resource(customResource);
+//      resource.create();
+//      System.out.println("Custom Resource created or updated successfully");
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//      System.err.println("Error creating Custom Resource: " + e.getMessage());
+//    }
+//  }
 
-      // Add the spec if provided
-      if (customResourceSpec != null && !customResourceSpec.isEmpty()) {
-        crMap.put("spec", customResourceSpec);
-      }
 
-      // Convert the map to a generic Kubernetes resource
-      HasMetadata customResource = Serialization.unmarshal(Serialization.asJson(crMap), HasMetadata.class);
-
-      // Apply the Custom Resource instance to the Kubernetes cluster
-      Resource<HasMetadata> resource = client.resource(customResource);
-      resource.create();
-      System.out.println("Custom Resource created or updated successfully");
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.err.println("Error creating Custom Resource: " + e.getMessage());
-    }
-  }
 
   public HasMetadata createResource(Workload workload) {
     var spec = Map.of(
@@ -57,7 +59,10 @@ public class K6Runner {
             "spec", spec
     );
 
-    return Serialization.unmarshal(Serialization.asJson(customResource), HasMetadata.class);
+    var resource = Serialization.unmarshal(Serialization.asJson(customResource), HasMetadata.class);
+    KubernetesClient client = null;
+    client.resource(resource).inNamespace(workload.getMetadata().getNamespace()).create();
+    return resource;
   }
 
 

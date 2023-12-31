@@ -17,7 +17,7 @@ public class ResilienceServiceReconciler implements Reconciler<ResilientService>
   @Override
   public UpdateControl<ResilientService> reconcile(ResilientService resilientService, Context<ResilientService> context) throws Exception {
 
-    return null;
+    return UpdateControl.noUpdate();
   }
 
   public VirtualService findVirtualService(IstioClient client, String namespace, String name) {

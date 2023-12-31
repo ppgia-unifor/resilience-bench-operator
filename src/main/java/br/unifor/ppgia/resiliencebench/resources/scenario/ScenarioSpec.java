@@ -1,7 +1,12 @@
 package br.unifor.ppgia.resiliencebench.resources.scenario;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -48,7 +53,21 @@ public class ScenarioSpec {
     return fault;
   }
 
+  @JsonAnySetter
+  public void setPatternConfig(Map<String, Object> patternConfig) {
+    this.patternConfig = patternConfig;
+  }
+
+  @JsonAnyGetter
   public Map<String, Object> getPatternConfig() {
+//    Map<String, JsonNode> jsonMap = new HashMap<>();
+//    ObjectMapper objectMapper = new ObjectMapper();
+//
+//    for (Map.Entry<String, Object> entry : patternConfig.entrySet()) {
+//      JsonNode jsonNode = objectMapper.valueToTree(entry.getValue());
+//      jsonMap.put(entry.getKey(), jsonNode);
+//    }
+//    return jsonMap;
     return patternConfig;
   }
 }

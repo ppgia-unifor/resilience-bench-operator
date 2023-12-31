@@ -10,6 +10,7 @@ import io.fabric8.kubernetes.client.dsl.Replaceable;
 import io.fabric8.kubernetes.client.dsl.Resource;
 
 import java.util.List;
+import java.util.Optional;
 
 public class CustomResourceRepository<T extends CustomResource> {
 
@@ -17,7 +18,6 @@ public class CustomResourceRepository<T extends CustomResource> {
   private final Class<T> resourceClass;
   private final MixedOperation<T, KubernetesResourceList<T>, Resource<T>> resources;
 
-  @SuppressWarnings("unchecked")
   public CustomResourceRepository(KubernetesClient kubernetesClient, Class<T> resourceClass) {
     this.kubernetesClient = kubernetesClient;
     this.resourceClass = resourceClass;
@@ -40,8 +40,14 @@ public class CustomResourceRepository<T extends CustomResource> {
     inNamespace(resource).resource(resource).delete();
   }
 
-  public T get(ObjectMeta meta) {
-    return this.resources.inNamespace(meta.getNamespace()).withName(meta.getName()).get();
+  public Optional<T> get(ObjectMeta meta) {
+    return this.get(meta.getNamespace(), meta.getName());
+  }
+
+  public Optional<T> get(String namespace, String name) {
+    return Optional.ofNullable(
+            this.resources.inNamespace(namespace).withName(name).get()
+    );
   }
 
   public List<T> list(String namespace) {

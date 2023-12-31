@@ -7,15 +7,12 @@ import br.unifor.ppgia.resiliencebench.resources.benchmark.BenchmarkStatus;
 import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
 import br.unifor.ppgia.resiliencebench.resources.workload.Workload;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
 import io.javaoperatorsdk.operator.api.reconciler.Reconciler;
 import io.javaoperatorsdk.operator.api.reconciler.UpdateControl;
 
-import java.util.Map;
-
-import static java.util.Map.*;
+import static java.util.Map.of;
 
 @ControllerConfiguration
 public class BenchmarkReconciler implements Reconciler<Benchmark> {

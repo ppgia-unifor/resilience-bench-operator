@@ -1,4 +1,4 @@
-package br.unifor.ppgia.resiliencebench;
+package br.unifor.ppgia.resiliencebench.istio;
 
 import br.unifor.ppgia.resiliencebench.resources.CustomResourceRepository;
 import br.unifor.ppgia.resiliencebench.resources.resilientservice.ResilientService;
@@ -23,40 +23,40 @@ public class IstioScenarioRunner {
   }
 
   public void runScenario(Scenario scenario) {
-    var spec = scenario.getSpec();
-    var targetServiceMeta = new ObjectMeta();
-    targetServiceMeta.setName(spec.getTargetServiceName());
-    targetServiceMeta.setNamespace(scenario.getMetadata().getNamespace());
-
-    var serviceRepository = new CustomResourceRepository<>(kubernetesClient, ResilientService.class);
-    var targetService = serviceRepository.get(targetServiceMeta);
-
-    var virtualServiceName =
-            targetService.getMetadata().getAnnotations().get("resiliencebench.io/virtual-service");
-
-    var virtualService = istioClient
-            .v1beta1()
-            .virtualServices()
-            .inNamespace(scenario.getMetadata().getNamespace())
-            .withName(virtualServiceName)
-            .get();
-
-    var newVirtualService = virtualService
-            .edit()
-            .editSpec()
-            .editFirstHttp()
-            .withFault(configureFault(spec.getFault()))
-            .withRetries(configureRetryPattern(spec.getPatternConfig()))
-            .endHttp()
-            .endSpec()
-            .build();
-
-    istioClient
-            .v1beta1()
-            .virtualServices()
-            .inNamespace(scenario.getMetadata().getNamespace())
-            .resource(newVirtualService)
-            .update();
+//    var spec = scenario.getSpec();
+//    var targetServiceMeta = new ObjectMeta();
+//    targetServiceMeta.setName(spec.getTargetServiceName());
+//    targetServiceMeta.setNamespace(scenario.getMetadata().getNamespace());
+//
+//    var serviceRepository = new CustomResourceRepository<>(kubernetesClient, ResilientService.class);
+//    var targetService = serviceRepository.get(targetServiceMeta);
+//
+//    var virtualServiceName =
+//            targetService.getMetadata().getAnnotations().get("resiliencebench.io/virtual-service");
+//
+//    var virtualService = istioClient
+//            .v1beta1()
+//            .virtualServices()
+//            .inNamespace(scenario.getMetadata().getNamespace())
+//            .withName(virtualServiceName)
+//            .get();
+//
+//    var newVirtualService = virtualService
+//            .edit()
+//            .editSpec()
+//            .editFirstHttp()
+//            .withFault(configureFault(spec.getFault()))
+//            .withRetries(configureRetryPattern(spec.getPatternConfig()))
+//            .endHttp()
+//            .endSpec()
+//            .build();
+//
+//    istioClient
+//            .v1beta1()
+//            .virtualServices()
+//            .inNamespace(scenario.getMetadata().getNamespace())
+//            .resource(newVirtualService)
+//            .update();
   }
 
   public HTTPRetry configureRetryPattern(Map<String, Object> patternConfig) {
