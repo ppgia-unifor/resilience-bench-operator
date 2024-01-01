@@ -36,12 +36,10 @@ public class ScenarioRunnerE2ETest {
             new ScenarioWorkload("workloadName", 100),
             new ScenarioFaultTemplate(25, new DelayFault(100))
     );
-
     var scenario = new Scenario(spec);
     scenario.setMetadata(new ObjectMetaBuilder().withName("scenario-test").build());
     operator.create(scenario);
-    await().atMost(5, MINUTES).untilAsserted(() -> {
-      assertNotNull(operator.get(Scenario.class, "scenario-test"));
-    });
+    await().atMost(5, MINUTES).untilAsserted(() ->
+            assertNotNull(operator.get(Scenario.class, "scenario-test")));
   }
 }
