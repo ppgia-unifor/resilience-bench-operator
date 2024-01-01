@@ -12,6 +12,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.Map;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ScenarioRunnerE2ETest {
@@ -38,6 +40,8 @@ public class ScenarioRunnerE2ETest {
     var scenario = new Scenario(spec);
     scenario.setMetadata(new ObjectMetaBuilder().withName("scenario-test").build());
     operator.create(scenario);
-    assertNotNull(operator.get(Scenario.class, "scenario-test"));
+    await().atMost(5, MINUTES).untilAsserted(() -> {
+      assertNotNull(operator.get(Scenario.class, "scenario-test"));
+    });
   }
 }
