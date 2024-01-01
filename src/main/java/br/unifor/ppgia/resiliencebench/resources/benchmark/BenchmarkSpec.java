@@ -1,9 +1,14 @@
 package br.unifor.ppgia.resiliencebench.resources.benchmark;
 
+import io.fabric8.generator.annotation.Max;
+import io.fabric8.generator.annotation.Min;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class BenchmarkSpec {
+
+  @Min(1) @Max(100)
   private int rounds;
   private String workload;
   private List<Connection> connections = new ArrayList<>();
@@ -16,10 +21,6 @@ public class BenchmarkSpec {
     this.rounds = rounds;
     this.workload = workload;
     this.connections = connections;
-  }
-
-  public int getRounds() {
-    return rounds;
   }
 
   public List<Connection> getConnections() {

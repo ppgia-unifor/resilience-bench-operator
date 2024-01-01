@@ -1,6 +1,8 @@
 package br.unifor.ppgia.resiliencebench.resources.fault;
 
-public record DelayFault(int duration) {
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+
+public record DelayFault(@JsonPropertyDescription("Delay duration in milliseconds") int duration) {
   @Override
   public String toString() {
     return "delay-" + duration + "ms";

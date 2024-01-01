@@ -5,7 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ListExpansion {
+public final class ListExpansion {
+    public ListExpansion() {
+        throw new IllegalStateException("Utility class");
+    }
     public static List<Map<String, Object>> generateConfig(Map<String, Object> configTemplate, List<Map.Entry<String, List<Object>>> keyExpansionList) {
         List<Map<String, Object>> configList = new ArrayList<>();
 

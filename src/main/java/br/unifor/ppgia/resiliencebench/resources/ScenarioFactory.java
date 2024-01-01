@@ -69,8 +69,8 @@ public final class ScenarioFactory {
     var workloadName = workload.getMetadata().getName();
 
     for (var connection : benchmark.getSpec().getConnections()) {
-      var target = connection.getTarget();
-      var source = connection.getSource();
+      var target = connection.target();
+      var source = connection.source();
 
       for (var faultPercentage : target.getFault().getPercentage()) {
         var fault =
