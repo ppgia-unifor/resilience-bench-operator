@@ -1,5 +1,6 @@
 package br.unifor.ppgia.resiliencebench.resources.benchmark;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -23,6 +24,7 @@ public class Source {
     return service;
   }
 
+  @JsonAnyGetter
   public Map<String, JsonNode> getPatternConfig() {
     return patternConfig;
   }
