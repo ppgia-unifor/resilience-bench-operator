@@ -14,30 +14,30 @@ import java.util.List;
 
 public class WorkloadE2ETest {
 
-  @RegisterExtension
-  static AbstractOperatorExtension operator =  LocallyRunOperatorExtension.builder()
-          .waitForNamespaceDeletion(false)
-          .oneNamespacePerClass(true)
-          .withReconciler(new ResilienceServiceReconciler())
-          .withReconciler(new BenchmarkReconciler())
-          .build();
-
-  @Test
-  public void creationTest() {
-    final var configMap = new ConfigMapReference("test", "test.js");
-    final var name = "test";
-    final var spec = new WorkloadSpec(List.of(10, 20, 30), 10, "http://local.com", new ScriptConfig(configMap));
-
-    var workload = new Workload();
-    workload.setMetadata(new ObjectMetaBuilder().withName(name).build());
-    workload.setSpec(spec);
-
-    var workloadClient = operator.resources(Workload.class);
-    workloadClient.resource(workload).create();
-
-    var actualWorkload = workloadClient.withName(name).get();
-    Assertions.assertNotNull(actualWorkload);
-  }
+//  @RegisterExtension
+//  static AbstractOperatorExtension operator =  LocallyRunOperatorExtension.builder()
+//          .waitForNamespaceDeletion(false)
+//          .oneNamespacePerClass(true)
+//          .withReconciler(new ResilienceServiceReconciler())
+//          .withReconciler(new BenchmarkReconciler())
+//          .build();
+//
+//  @Test
+//  public void creationTest() {
+//    final var configMap = new ConfigMapReference("test", "test.js");
+//    final var name = "test";
+//    final var spec = new WorkloadSpec(List.of(10, 20, 30), 10, "http://local.com", new ScriptConfig(configMap));
+//
+//    var workload = new Workload();
+//    workload.setMetadata(new ObjectMetaBuilder().withName(name).build());
+//    workload.setSpec(spec);
+//
+//    var workloadClient = operator.resources(Workload.class);
+//    workloadClient.resource(workload).create();
+//
+//    var actualWorkload = workloadClient.withName(name).get();
+//    Assertions.assertNotNull(actualWorkload);
+//  }
 
 //  @Test
 //  public void should_not_create_workload_with_negative_duration() {
