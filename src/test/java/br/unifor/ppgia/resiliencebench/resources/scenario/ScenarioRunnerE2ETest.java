@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class ScenarioRunnerE2ETest {
 
   @RegisterExtension
-  static AbstractOperatorExtension operator = LocallyRunOperatorExtension.builder()
+  AbstractOperatorExtension operator = LocallyRunOperatorExtension.builder()
           .waitForNamespaceDeletion(false)
           .withReconciler(new ResilienceServiceReconciler())
           .withReconciler(new BenchmarkReconciler())

@@ -15,7 +15,7 @@ import java.util.Map;
 public class ResilientServiceE2ETest {
 
   @RegisterExtension
-  static AbstractOperatorExtension operator =  LocallyRunOperatorExtension.builder()
+  AbstractOperatorExtension operator =  LocallyRunOperatorExtension.builder()
           .waitForNamespaceDeletion(false)
           .withReconciler(new ResilienceServiceReconciler())
           .withReconciler(new BenchmarkReconciler())
