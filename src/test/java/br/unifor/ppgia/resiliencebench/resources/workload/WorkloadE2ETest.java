@@ -15,8 +15,9 @@ import java.util.List;
 public class WorkloadE2ETest {
 
   @RegisterExtension
-  AbstractOperatorExtension operator =  LocallyRunOperatorExtension.builder()
+  static AbstractOperatorExtension operator =  LocallyRunOperatorExtension.builder()
           .waitForNamespaceDeletion(false)
+          .oneNamespacePerClass(true)
           .withReconciler(new ResilienceServiceReconciler())
           .withReconciler(new BenchmarkReconciler())
           .build();
