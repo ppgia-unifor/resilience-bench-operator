@@ -26,6 +26,6 @@ jobs:
       run: | 
         kubectl cluster-info --context kind-chart-testing
         mvn -B compile --file pom.xml
-        kubectl apply -f ./target/classes/META-INF/fabric8
+        find ./target/classes/META-INF/fabric8 -name "*v1" -exec kubectl apply -f {} + 
         kubectl get crd
         mvn -B test --file pom.xml
