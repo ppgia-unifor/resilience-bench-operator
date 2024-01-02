@@ -17,7 +17,7 @@
         <fabric8-client.version>6.9.2</fabric8-client.version>
         <jib-maven-plugin.version>3.3.2</jib-maven-plugin.version>
         <operator.version>4.4.1</operator.version>
-        <junit.version>5.9.2</junit.version>
+        <junit.version>5.9.3</junit.version>
     </properties>
 
     <dependencyManagement>
@@ -93,6 +93,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
             <version>4.2.0</version>
@@ -103,12 +109,7 @@
             <artifactId>operator-framework-junit-5</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>kubernetes-server-mock</artifactId>
-            <version>${fabric8-client.version}</version>
-            <scope>test</scope>
-        </dependency>
+
     </dependencies>
 
     <build>

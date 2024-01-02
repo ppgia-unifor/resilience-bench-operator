@@ -1,14 +1,14 @@
 package br.unifor.ppgia.resiliencebench.resources.scenario;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ScenarioSpec {
 
@@ -19,6 +19,8 @@ public class ScenarioSpec {
   private String sourceServiceName;
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private Map<String, JsonNode> patternConfig = new LinkedHashMap<>();
+  @JsonIgnore
+  private Map<String, Object> internalPatternConfig = new LinkedHashMap<>();
 
   private ScenarioWorkload workload;
   private ScenarioFaultTemplate fault;
@@ -34,11 +36,7 @@ public class ScenarioSpec {
     this.sourceServiceName = sourceServiceName;
     this.workload = workload;
     this.fault = fault;
-    this.patternConfig = patternConfig.entrySet().stream()
-            .collect(Collectors.toMap(
-                    Map.Entry::getKey,
-                    entry -> mapper.valueToTree(entry.getValue())
-            ));
+    patternConfig.forEach(this::addToPatternConfig);
   }
 
   public ScenarioSpec() {
@@ -60,27 +58,27 @@ public class ScenarioSpec {
     return fault;
   }
 
-  @JsonAnySetter
-  public void setPatternConfig(String name, JsonNode value) {
-    this.patternConfig.put(name, value);
+  public void addToPatternConfig(String name, Object value) {
+    internalPatternConfig.put(name, mapper.valueToTree(value));
+    patternConfig.put("patternConfig", mapper.valueToTree(internalPatternConfig));
   }
 
-  @JsonAnyGetter
-  public Map<String, JsonNode> getPatternConfig() {
-    return patternConfig;
+  public Map<String, Object> getPatternConfig() {
+    return toObjectMap(patternConfig.get("patternConfig"));
   }
 
+  /**
+   * Returns a copy of the given expanded patternConfig
+   */
   public Map<String, Object> patternConfigInObject() {
-    return toObjectMap(getPatternConfig().get("patternConfig"));
+    return toObjectMap(patternConfig.get("patternConfig"));
   }
 
   private static Map<String, Object> toObjectMap(JsonNode jsonNode) {
-    Map<String, Object> resultMap = new HashMap<>();
-
+    Map<String, Object> resultMap = new LinkedHashMap<>();
     if (jsonNode != null && jsonNode.isObject()) {
       jsonNode.fields().forEachRemaining(entry -> resultMap.put(entry.getKey(), toObject(entry.getValue())));
     }
-
     return resultMap;
   }
 
@@ -98,6 +96,8 @@ public class ScenarioSpec {
     } else if (jsonNode.isNumber()) {
       if (jsonNode.isDouble() || jsonNode.isFloatingPointNumber()) {
         return jsonNode.doubleValue();
+      } else if (jsonNode.isInt()) {
+        return jsonNode.intValue();
       } else {
         return jsonNode.longValue();
       }
