@@ -1,6 +1,7 @@
 package br.unifor.ppgia.resiliencebench.resources.benchmark;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -27,5 +28,10 @@ public class Source {
   @JsonAnyGetter
   public Map<String, JsonNode> getPatternConfig() {
     return patternConfig;
+  }
+
+  @JsonAnySetter
+  public void setPatternConfig(String key, JsonNode value) {
+    this.patternConfig.put(key, value);
   }
 }
