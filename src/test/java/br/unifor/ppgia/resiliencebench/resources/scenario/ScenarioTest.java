@@ -16,12 +16,12 @@ public class ScenarioTest {
     var spec = new ScenarioSpec(
             "target-service-name",
             "source-service-name",
-            Map.of("maxAttempts", 10),
+            Map.of("za", 1.1, "maxAttempts", 10, "perRetryTimeout", 100),
             new ScenarioWorkload("workloadName", 100),
             new ScenarioFaultTemplate(25, new DelayFault(100))
     );
     var scenario = new Scenario(spec);
-    assertEquals("source-service-name.target-service-name.maxattempts-10.workloadname-100.delay-100ms-25p", scenario.toString());
+    assertEquals("source-service-name.target-service-name.maxattempts-10.perretrytimeout-100.za-1.1.workloadname-100.delay-100ms-25p", scenario.toString());
     assertTrue(scenario.toString().matches(regex));
   }
 

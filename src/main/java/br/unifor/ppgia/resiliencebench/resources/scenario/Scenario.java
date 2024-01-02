@@ -27,9 +27,10 @@ public class Scenario extends CustomResource<ScenarioSpec, ScenarioStatus> imple
   @Override
   public String toString() {
     var delimiter = ".";
-    var patternConfigSerialized = spec.getPatternConfig().entrySet().stream()
-            .map(e -> e.getKey() + "-" + e.getValue().toString())
-            .collect(joining(","));
+    var keys = spec.getPatternConfig().keySet().stream().sorted(String::compareTo);
+    var patternConfigSerialized = keys
+            .map(k ->  k + "-" + spec.getPatternConfig().get(k))
+            .collect(joining("."));
     if (patternConfigSerialized.isEmpty()) {
       patternConfigSerialized = "none";
     }
