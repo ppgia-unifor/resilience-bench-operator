@@ -30,4 +30,8 @@ public class BenchmarkSpec {
   public String getWorkload() {
     return workload;
   }
+
+  public int getRounds() {
+    return rounds;
+  }
 }
