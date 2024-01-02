@@ -6,13 +6,11 @@ import br.unifor.ppgia.resiliencebench.resources.benchmark.Benchmark;
 import br.unifor.ppgia.resiliencebench.resources.benchmark.BenchmarkStatus;
 import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
 import br.unifor.ppgia.resiliencebench.resources.workload.Workload;
-import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
 import io.javaoperatorsdk.operator.api.reconciler.Reconciler;
 import io.javaoperatorsdk.operator.api.reconciler.UpdateControl;
-
-import static java.util.Map.of;
 
 @ControllerConfiguration
 public class BenchmarkReconciler implements Reconciler<Benchmark> {
@@ -20,26 +18,31 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
   @Override
   public UpdateControl<Benchmark> reconcile(Benchmark benchmark, Context<Benchmark> context) {
     var scenarioRepository = new CustomResourceRepository<>(context.getClient(), Scenario.class);
+    var workloadRepository = new CustomResourceRepository<>(context.getClient(), Workload.class);
 
-    var workload = context.getClient().resources(Workload.class).inNamespace(benchmark.getMetadata().getNamespace()).withName(benchmark.getSpec().getWorkload()).get();
-    var scenariosList = ScenarioFactory.create(benchmark, workload);
-
-    for (var scenario : scenariosList) {
-      var meta = new ObjectMeta();
-      meta.setName(scenario.toString()); // TODO criar classe para geração de nomes
-      meta.setNamespace(benchmark.getMetadata().getNamespace());
-      meta.setAnnotations(of("resiliencebench.io/owned-by", benchmark.getMetadata().getName()));
-      scenario.setMetadata(meta);
-      var foundScenario = scenarioRepository.get(meta);
-      if (foundScenario != null) {
-        scenarioRepository.update(scenario);
-      } else {
-        scenarioRepository.create(scenario);
-      }
+    var workload = workloadRepository.get(benchmark.getMetadata().getNamespace(), benchmark.getSpec().getWorkload());
+    if (workload.isEmpty()) {
+      return UpdateControl.noUpdate();
     }
-
+    var scenariosList = ScenarioFactory.create(benchmark, workload.get());
+    scenariosList.forEach(scenario -> createOrUpdateScenario(benchmark, scenario, scenarioRepository));
     var status = new BenchmarkStatus(scenariosList.size(), 0);
     benchmark.setStatus(status);
     return UpdateControl.updateStatus(benchmark);
+  }
+
+  private void createOrUpdateScenario(Benchmark benchmark, Scenario scenario, CustomResourceRepository<Scenario> scenarioRepository) {
+    scenario.setMetadata(new ObjectMetaBuilder()
+            .withName(scenario.toString())
+            .withNamespace(benchmark.getMetadata().getNamespace())
+            .addToAnnotations("resiliencebench.io/owned-by", benchmark.getMetadata().getName())
+            .addToAnnotations("resiliencebench.io/scenario-uid", scenario.toString())
+            .build());
+    var foundScenario = scenarioRepository.get(scenario.getMetadata());
+    if (foundScenario.isPresent()) {
+      scenarioRepository.update(scenario);
+    } else {
+      scenarioRepository.create(scenario);
+    }
   }
 }
