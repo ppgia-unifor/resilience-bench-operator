@@ -58,9 +58,7 @@ public final class ScenarioFactory {
   }
 
   public static List<Map<String, Object>> expandServiceParameters(Source serviceSource) {
-    var patternConfigTemplate =
-            convertJsonNodeToMap(serviceSource.getPatternConfig().get("patternConfig"));
-    return expandConfigTemplate(patternConfigTemplate);
+    return expandConfigTemplate(serviceSource.getPatternConfig());
   }
 
   public static List<Scenario> create(Benchmark benchmark, Workload workload) {

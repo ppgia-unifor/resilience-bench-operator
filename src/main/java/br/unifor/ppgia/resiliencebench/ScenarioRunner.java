@@ -108,7 +108,7 @@ public class ScenarioRunner {
             .edit()
             .editSpec()
             .editFirstHttp()
-            .withRetries(configureRetryPattern(spec.patternConfigInObject()))
+            .withRetries(configureRetryPattern(spec.getPatternConfig()))
             .endHttp()
             .endSpec()
             .build();

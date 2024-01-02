@@ -63,14 +63,10 @@ public class ScenarioSpec {
     patternConfig.put("patternConfig", mapper.valueToTree(internalPatternConfig));
   }
 
-  public Map<String, Object> getPatternConfig() {
-    return toObjectMap(patternConfig.get("patternConfig"));
-  }
-
   /**
    * Returns a copy of the given expanded patternConfig
    */
-  public Map<String, Object> patternConfigInObject() {
+  public Map<String, Object> getPatternConfig() {
     return toObjectMap(patternConfig.get("patternConfig"));
   }
 
