@@ -1,31 +1,25 @@
-apiVersion: "resiliencebench.io/v1"
+apiVersion: resiliencebench.io/v1
 kind: Benchmark
 metadata:
-  name: benchmark-sample
+  name: example-benchmark
 spec:
-  rounds: 10
-
-  workload:
-    users: [10]
-    duration: 30
-    locust:
-      target: "http://server:9211/bytes/1000"
-      configMap: "locustfile"
-
-  scenarios:
-    - name: scenario-retry-1
-      services:
-
-        - name: api-gateway-timeout
-          strategy: retry
-          patternConfig:
-            maxAttempts: 6
-            multiplier: 1.5
-            initialIntervalMillis: [ 50, 100 ]
-
-        - name: api-gateway-timeout-2
-            strategy: retry
-            patternConfig:
-              maxAttempts: 5
-              multiplier: 2
-              initialIntervalMillis: [ 100, 150 ]
+  rounds: 5
+  workload: example-workload
+  connections:
+    - name: connection-1
+      source:
+        patternConfigs:
+          - name: intValue
+            value: 1
+          - name: stringValue
+            value: "value"
+          - name: floatValue
+            value: 1.0
+          - name: boolValue
+            value: true
+        service: service-1
+      target:
+        fault:
+          percentage: [10,20]
+          delay:
+            duration: 100
