@@ -92,6 +92,22 @@ public class ListExpansionTest {
   }
 
   @Test
+  public void should_expand_simple_template_as_patternConfig() {
+    List<PatternConfig> configTemplate = new ArrayList<>();
+
+    configTemplate.add(new PatternConfig("slowCallRateThreshold",100));
+    configTemplate.add(new PatternConfig("slowCallDurationThreshold",1000));
+    configTemplate.add(new PatternConfig("waitDurationInOpenState", 200));
+
+    var expandedConfigs = ListExpansion.expandConfigTemplate(configTemplate);
+
+    Assertions.assertEquals(1, expandedConfigs.size());
+    Assertions.assertEquals(expandedConfigs.get(0).get("slowCallRateThreshold"), 100);
+    Assertions.assertEquals(expandedConfigs.get(0).get("slowCallDurationThreshold"), 1000);
+    Assertions.assertEquals(expandedConfigs.get(0).get("waitDurationInOpenState"), 200);
+  }
+
+  @Test
   public void should_expand_multiple_templates_as_patternConfig() {
     List<PatternConfig> configTemplate = new ArrayList<>();
     configTemplate.add(new PatternConfig("slowCallRateThreshold", objectMapper.valueToTree(100)));
