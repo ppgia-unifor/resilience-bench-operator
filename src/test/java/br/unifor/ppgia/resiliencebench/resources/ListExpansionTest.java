@@ -110,9 +110,9 @@ public class ListExpansionTest {
   @Test
   public void should_expand_multiple_templates_as_patternConfig() {
     List<PatternConfig> configTemplate = new ArrayList<>();
-    configTemplate.add(new PatternConfig("slowCallRateThreshold", objectMapper.valueToTree(100)));
-    configTemplate.add(new PatternConfig("slowCallDurationThreshold", objectMapper.valueToTree(List.of(1000, 2000))));
-    configTemplate.add(new PatternConfig("waitDurationInOpenState", objectMapper.valueToTree(List.of(50, 100, 200))));
+    configTemplate.add(new PatternConfig("slowCallRateThreshold", 100));
+    configTemplate.add(new PatternConfig("slowCallDurationThreshold", List.of(1000, 2000)));
+    configTemplate.add(new PatternConfig("waitDurationInOpenState", List.of(50, 100, 200)));
     var expandedConfigs = ListExpansion.expandConfigTemplate(configTemplate);
 
     Assertions.assertEquals(6, expandedConfigs.size());

@@ -58,7 +58,7 @@ public class PatternConfigTest {
 
   @Test
   void testGetValueAsObjectNumeric() {
-    PatternConfig numericConfig = new PatternConfig(testName, 123);
+    PatternConfig numericConfig = new PatternConfig(testName, 123L);
     assertEquals(123L, numericConfig.getValueAsObject());
   }
 
