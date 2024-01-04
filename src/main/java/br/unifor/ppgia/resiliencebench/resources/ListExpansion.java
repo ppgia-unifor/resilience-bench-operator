@@ -52,6 +52,27 @@ public final class ListExpansion {
         return resultList;
     }
 
+    public static List<Map<String, Object>> expandConfigTemplate(List<PatternConfig> patternConfigs) {
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        resultList.add(new HashMap<>());
+
+        for (PatternConfig config : patternConfigs) {
+            String key = config.getName();
+            JsonNode value = config.getValue();
+
+            if (value.isArray()) {
+                ArrayNode arrayNode = (ArrayNode) value;
+                resultList = multiplyList(resultList, key, arrayNode);
+            } else {
+                for (Map<String, Object> map : resultList) {
+                    map.put(key, jsonNodeToObject(value));
+                }
+            }
+        }
+
+        return resultList;
+    }
+
     private static List<Map<String, Object>> generateConfig(Map<String, Object> configTemplate, List<Map.Entry<String, List<Object>>> keyExpansionList) {
         List<Map<String, Object>> configList = new ArrayList<>();
 
