@@ -27,9 +27,9 @@ public class ScenarioFactoryTest {
 
   public static Connection createConnection(String connectionName) {
     var source = new Source("api-gateway",
-            List.of(
-                    new PatternConfig("maxAttempts", List.of(1, 2, 3)),
-                    new PatternConfig("backoffLimit", List.of(1000, 2000, 3000))
+            new PatternConfig(
+                    new PatternConfig.Attribute("maxAttempts", List.of(1, 2, 3)),
+                    new PatternConfig.Attribute("backoffLimit", List.of(1000, 2000, 3000))
             )
     );
     var delay = new DelayFault(1000);
@@ -52,9 +52,9 @@ public class ScenarioFactoryTest {
     var parameters =
     ScenarioFactory.expandServiceParameters(
             new Source("api-gateway",
-                    List.of(
-                            new PatternConfig("maxAttempts", List.of(1, 2, 3)),
-                            new PatternConfig("backoffLimit", List.of(1000, 2000, 3000))
+                    new PatternConfig(
+                            new PatternConfig.Attribute("maxAttempts", List.of(1, 2, 3)),
+                            new PatternConfig.Attribute("backoffLimit", List.of(1000, 2000, 3000))
                     )
             ));
     assertEquals(9, parameters.size());

@@ -8,7 +8,7 @@ spec:
   connections:
     - name: connection-1
       source:
-        patternConfigs:
+        patternConfig:
           - name: intValue
             value: 1
           - name: stringValue

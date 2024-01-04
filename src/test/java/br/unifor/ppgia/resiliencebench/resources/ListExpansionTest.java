@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,11 +76,11 @@ public class ListExpansionTest {
 
   @Test
   public void should_expand_template_as_patternConfig() {
-    List<PatternConfig> configTemplate = new ArrayList<>();
+    PatternConfig configTemplate = new PatternConfig();
 
-    configTemplate.add(new PatternConfig("slowCallRateThreshold", objectMapper.valueToTree(100)));
-    configTemplate.add(new PatternConfig("slowCallDurationThreshold", objectMapper.valueToTree(1000)));
-    configTemplate.add(new PatternConfig("waitDurationInOpenState", objectMapper.valueToTree(List.of(50, 100, 200))));
+    configTemplate.add(new PatternConfig.Attribute("slowCallRateThreshold", objectMapper.valueToTree(100)));
+    configTemplate.add(new PatternConfig.Attribute("slowCallDurationThreshold", objectMapper.valueToTree(1000)));
+    configTemplate.add(new PatternConfig.Attribute("waitDurationInOpenState", objectMapper.valueToTree(List.of(50, 100, 200))));
 
     var expandedConfigs = ListExpansion.expandConfigTemplate(configTemplate);
 
@@ -93,11 +92,11 @@ public class ListExpansionTest {
 
   @Test
   public void should_expand_simple_template_as_patternConfig() {
-    List<PatternConfig> configTemplate = new ArrayList<>();
+    PatternConfig configTemplate = new PatternConfig();
 
-    configTemplate.add(new PatternConfig("slowCallRateThreshold",100));
-    configTemplate.add(new PatternConfig("slowCallDurationThreshold",1000));
-    configTemplate.add(new PatternConfig("waitDurationInOpenState", 200));
+    configTemplate.add(new PatternConfig.Attribute("slowCallRateThreshold",100));
+    configTemplate.add(new PatternConfig.Attribute("slowCallDurationThreshold",1000));
+    configTemplate.add(new PatternConfig.Attribute("waitDurationInOpenState", 200));
 
     var expandedConfigs = ListExpansion.expandConfigTemplate(configTemplate);
 
@@ -109,10 +108,10 @@ public class ListExpansionTest {
 
   @Test
   public void should_expand_multiple_templates_as_patternConfig() {
-    List<PatternConfig> configTemplate = new ArrayList<>();
-    configTemplate.add(new PatternConfig("slowCallRateThreshold", 100));
-    configTemplate.add(new PatternConfig("slowCallDurationThreshold", List.of(1000, 2000)));
-    configTemplate.add(new PatternConfig("waitDurationInOpenState", List.of(50, 100, 200)));
+    PatternConfig configTemplate = new PatternConfig();
+    configTemplate.add(new PatternConfig.Attribute("slowCallRateThreshold", 100));
+    configTemplate.add(new PatternConfig.Attribute("slowCallDurationThreshold", List.of(1000, 2000)));
+    configTemplate.add(new PatternConfig.Attribute("waitDurationInOpenState", List.of(50, 100, 200)));
     var expandedConfigs = ListExpansion.expandConfigTemplate(configTemplate);
 
     Assertions.assertEquals(6, expandedConfigs.size());

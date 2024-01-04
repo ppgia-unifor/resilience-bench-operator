@@ -52,11 +52,11 @@ public final class ListExpansion {
         return resultList;
     }
 
-    public static List<Map<String, Object>> expandConfigTemplate(List<PatternConfig> patternConfigs) {
+    public static List<Map<String, Object>> expandConfigTemplate(PatternConfig patternConfigs) {
         List<Map<String, Object>> resultList = new ArrayList<>();
         resultList.add(new HashMap<>());
 
-        for (PatternConfig config : patternConfigs) {
+        for (var config : patternConfigs) {
             String key = config.getName();
             JsonNode value = config.getValue();
 

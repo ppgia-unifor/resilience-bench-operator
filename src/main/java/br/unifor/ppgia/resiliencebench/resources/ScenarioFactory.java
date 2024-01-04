@@ -58,7 +58,7 @@ public final class ScenarioFactory {
   }
 
   public static List<Map<String, Object>> expandServiceParameters(Source serviceSource) {
-    return expandConfigTemplate(serviceSource.getPatternConfigs());
+    return expandConfigTemplate(serviceSource.getPatternConfig());
   }
 
   public static List<Scenario> create(Benchmark benchmark, Workload workload) {
