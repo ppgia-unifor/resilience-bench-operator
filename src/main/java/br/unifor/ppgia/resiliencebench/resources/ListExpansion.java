@@ -115,7 +115,13 @@ public final class ListExpansion {
         if (jsonNode.isTextual()) {
             return jsonNode.asText();
         } else if (jsonNode.isNumber()) {
-            return jsonNode.numberValue();
+            if (jsonNode.isDouble() || jsonNode.isFloatingPointNumber()) {
+                return jsonNode.doubleValue();
+            } else if (jsonNode.isLong()) {
+                return jsonNode.longValue();
+            } else {
+                return jsonNode.intValue();
+            }
         } else if (jsonNode.isBoolean()) {
             return jsonNode.asBoolean();
         } else {
