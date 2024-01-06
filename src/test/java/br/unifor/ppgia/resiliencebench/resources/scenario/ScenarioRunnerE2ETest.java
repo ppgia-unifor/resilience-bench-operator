@@ -42,4 +42,13 @@ public class ScenarioRunnerE2ETest {
     await().atMost(5, MINUTES).untilAsserted(() ->
             assertNotNull(operator.get(Scenario.class, "scenario-test")));
   }
+
+  @Test
+  public void creationTestFromFile() {
+    var resource = operator.resources(Scenario.class).load(getClass().getResourceAsStream("/scenario-sample.yaml"));
+    var created = resource.create();
+
+    await().atMost(5, MINUTES).untilAsserted(() ->
+            assertNotNull(operator.get(Scenario.class, "example-scenario")));
+  }
 }
