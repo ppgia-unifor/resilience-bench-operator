@@ -13,45 +13,6 @@ public final class ListExpansion {
         throw new IllegalStateException("Utility class");
     }
 
-    public static List<Map<String, Object>> expandConfigTemplate(Map<String, Object> configTemplate) {
-        List<Map.Entry<String, List<Object>>> keyExpansionList = new ArrayList<>();
-
-        for (Map.Entry<String, Object> entry : configTemplate.entrySet()) {
-            if (entry.getValue() instanceof List) {
-                List<Object> valList = (List<Object>) entry.getValue();
-                keyExpansionList.add(Map.entry(entry.getKey(), valList));
-            }
-        }
-
-        if (!keyExpansionList.isEmpty()) {
-            return generateConfig(configTemplate, keyExpansionList);
-        } else {
-            List<Map<String, Object>> configList = new ArrayList<>();
-            configList.add(configTemplate);
-            return configList;
-        }
-    }
-
-    public static List<Map<String, Object>> expandConfigTemplateJson(Map<String, JsonNode> inputMap) {
-        List<Map<String, Object>> resultList = new ArrayList<>();
-        resultList.add(new HashMap<>());
-
-        for (Map.Entry<String, JsonNode> entry : inputMap.entrySet()) {
-            JsonNode value = entry.getValue();
-
-            if (value.isArray()) {
-                ArrayNode arrayNode = (ArrayNode) value;
-                resultList = multiplyList(resultList, entry.getKey(), arrayNode);
-            } else {
-                for (Map<String, Object> map : resultList) {
-                    map.put(entry.getKey(), jsonNodeToObject(value));
-                }
-            }
-        }
-
-        return resultList;
-    }
-
     public static List<Map<String, Object>> expandConfigTemplate(PatternConfig patternConfigs) {
         List<Map<String, Object>> resultList = new ArrayList<>();
         resultList.add(new HashMap<>());
@@ -71,30 +32,6 @@ public final class ListExpansion {
         }
 
         return resultList;
-    }
-
-    private static List<Map<String, Object>> generateConfig(Map<String, Object> configTemplate, List<Map.Entry<String, List<Object>>> keyExpansionList) {
-        List<Map<String, Object>> configList = new ArrayList<>();
-
-        if (!keyExpansionList.isEmpty()) {
-            Map.Entry<String, List<Object>> entry = keyExpansionList.get(0);
-            String key = entry.getKey();
-            List<Object> valList = entry.getValue();
-
-            if (configTemplate.containsKey(key)) {
-                for (Object val : valList) {
-                    Map<String, Object> config = new HashMap<>(configTemplate);
-                    config.put(key, val);
-                    if (keyExpansionList.size() > 1) {
-                        configList.addAll(generateConfig(config, keyExpansionList.subList(1, keyExpansionList.size())));
-                    } else {
-                        configList.add(config);
-                    }
-                }
-            }
-        }
-
-        return configList;
     }
 
     private static List<Map<String, Object>> multiplyList(List<Map<String, Object>> currentList, String key, ArrayNode valueArray) {
@@ -125,8 +62,7 @@ public final class ListExpansion {
         } else if (jsonNode.isBoolean()) {
             return jsonNode.asBoolean();
         } else {
-            // For other types, you can add more conditions as needed.
-            return jsonNode; // Fallback, returns the JsonNode itself.
+            return jsonNode;
         }
     }
 }
