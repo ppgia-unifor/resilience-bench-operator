@@ -46,9 +46,13 @@ public class ScenarioE2ETest {
   @Test
   public void testGetPatternConfig() {
     var resources = operator.resources(Scenario.class);
-    var resource = resources.load(getClass().getResourceAsStream("/scenario-sample.yaml")).create();
+    var resource = resources.load(getClass().getResourceAsStream("/scenario-test-get-pattern-config.yaml")).create();
     var patternConfigExpected = resource.getSpec().getPatternConfig();
     assertFalse(patternConfigExpected.isEmpty());
+
+    await().atMost(5, MINUTES).untilAsserted(() ->
+            assertNotNull(operator.get(Scenario.class, resource.getMetadata().getName())));
+
     var createdResource = resources.withName(resource.getMetadata().getName()).get();
     var patternConfigActual = createdResource.getSpec().getPatternConfig();
     assertFalse(patternConfigActual.isEmpty());
