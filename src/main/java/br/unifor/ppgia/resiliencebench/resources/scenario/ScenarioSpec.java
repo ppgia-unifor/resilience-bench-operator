@@ -36,7 +36,10 @@ public class ScenarioSpec {
     this.sourceServiceName = sourceServiceName;
     this.workload = workload;
     this.fault = fault;
-    patternConfig.forEach(this::addToPatternConfig);
+    this.patternConfig = patternConfig.entrySet().stream()
+            .collect(LinkedHashMap::new,
+                    (map, entry) -> map.put(entry.getKey(), mapper.valueToTree(entry.getValue())),
+                    LinkedHashMap::putAll);
   }
 
   public ScenarioSpec() {
@@ -58,30 +61,18 @@ public class ScenarioSpec {
     return fault;
   }
 
-  public void addToPatternConfig(String name, Object value) {
-    internalPatternConfig.put(name, mapper.valueToTree(value));
-    patternConfig.put("patternConfig", mapper.valueToTree(internalPatternConfig));
-  }
-
   /**
    * Returns a copy of the given expanded patternConfig
    */
   public Map<String, Object> getPatternConfig() {
-    return toObjectMap(patternConfig.get("patternConfig"));
-  }
-
-  private static Map<String, Object> toObjectMap(JsonNode jsonNode) {
-    Map<String, Object> resultMap = new LinkedHashMap<>();
-    if (jsonNode != null && jsonNode.isObject()) {
-      jsonNode.fields().forEachRemaining(entry -> resultMap.put(entry.getKey(), toObject(entry.getValue())));
-    }
-    return resultMap;
+    return patternConfig.entrySet().stream()
+            .collect(LinkedHashMap::new,
+                    (map, entry) -> map.put(entry.getKey(), toObject(entry.getValue())),
+                    LinkedHashMap::putAll);
   }
 
   private static Object toObject(JsonNode jsonNode) {
-    if (jsonNode.isObject()) {
-      return toObjectMap(jsonNode);
-    } else if (jsonNode.isArray()) {
+    if (jsonNode.isArray()) {
       List<Object> list = new ArrayList<>();
       jsonNode.elements().forEachRemaining(element -> list.add(toObject(element)));
       return list;
