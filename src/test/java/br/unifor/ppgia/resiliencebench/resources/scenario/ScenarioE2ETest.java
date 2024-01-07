@@ -14,9 +14,9 @@ import java.util.Map;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ScenarioRunnerE2ETest {
+public class ScenarioE2ETest {
 
   @RegisterExtension
   static AbstractOperatorExtension operator = LocallyRunOperatorExtension.builder()
@@ -41,6 +41,18 @@ public class ScenarioRunnerE2ETest {
     operator.create(scenario);
     await().atMost(5, MINUTES).untilAsserted(() ->
             assertNotNull(operator.get(Scenario.class, "scenario-test")));
+  }
+
+  @Test
+  public void testGetPatternConfig() {
+    var resources = operator.resources(Scenario.class);
+    var resource = resources.load(getClass().getResourceAsStream("/scenario-sample.yaml")).create();
+    var patternConfigExpected = resource.getSpec().getPatternConfig();
+    assertFalse(patternConfigExpected.isEmpty());
+    var createdResource = resources.withName(resource.getMetadata().getName()).get();
+    var patternConfigActual = createdResource.getSpec().getPatternConfig();
+    assertFalse(patternConfigActual.isEmpty());
+    assertEquals(patternConfigExpected, patternConfigActual);
   }
 
   @Test
