@@ -36,7 +36,7 @@
         <dependency>
             <groupId>io.javaoperatorsdk</groupId>
             <artifactId>operator-framework</artifactId>
-            <version>4.4.1</version>
+            <version>4.6.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.fabric8</groupId>
