@@ -1,0 +1,12 @@
+apiVersion: "resiliencebench.io/v1beta1"
+kind: Workload
+metadata:
+  name: istio-workload
+spec:
+  users: [10, 20, 30]
+  duration: 100 #seconds
+  targetUrl: "http://istio.com"
+  script:
+    configMap:
+      name: bookinfo-stress-test
+      file: bookinfo-stress-test.js

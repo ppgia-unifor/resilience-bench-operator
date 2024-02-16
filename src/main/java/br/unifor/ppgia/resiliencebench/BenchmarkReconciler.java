@@ -11,9 +11,13 @@ import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
 import io.javaoperatorsdk.operator.api.reconciler.Reconciler;
 import io.javaoperatorsdk.operator.api.reconciler.UpdateControl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ControllerConfiguration
 public class BenchmarkReconciler implements Reconciler<Benchmark> {
+
+  private static final Logger logger = LoggerFactory.getLogger(BenchmarkReconciler.class);
 
   @Override
   public UpdateControl<Benchmark> reconcile(Benchmark benchmark, Context<Benchmark> context) {
@@ -22,6 +26,7 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
 
     var workload = workloadRepository.get(benchmark.getMetadata().getNamespace(), benchmark.getSpec().getWorkload());
     if (workload.isEmpty()) {
+      logger.warn("Workload not found: {}", benchmark.getSpec().getWorkload());
       return UpdateControl.noUpdate();
     }
     var scenariosList = ScenarioFactory.create(benchmark, workload.get());

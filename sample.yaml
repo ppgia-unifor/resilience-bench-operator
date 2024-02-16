@@ -65,35 +65,34 @@ metadata:
   name: example-benchmark
   namespace: default
 spec:
+  rounds: 5
+  workload: stress-test
   connections:
     - name: connection-1
       source:
-        patternConfig:
-          patternKey1: value1
-          patternKey2: value2
         service: api-gateway
+        patternConfig:
+          - name: patternKey1
+            value: value1
+          - name: patternKey2
+            value: value2
       target:
         service: vets-service
         fault:
-          percentage:
-            - 10
-            - 20
+          percentage: [10, 20]
           delay:
             duration: 100
-
     - name: connection-2
       source:
-        patternConfig:
-          patternKey3: value3
-          patternKey4: value4
         service: api-gateway
+        patternConfig:
+          - name: patternKey3
+            value: value3
+          - name: patternKey4
+            value: value4
       target:
         service: visits-service
         fault:
-          percentage:
-            - 10
+          percentage: [10, 20]
           abort:
             httpStatus: 503
-
-  rounds: 5
-  workload: stress-test

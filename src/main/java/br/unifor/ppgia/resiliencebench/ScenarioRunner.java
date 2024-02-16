@@ -1,19 +1,19 @@
 package br.unifor.ppgia.resiliencebench;
 
+import br.unifor.ppgia.resiliencebench.k6.K6WorkloadAdapter;
 import br.unifor.ppgia.resiliencebench.resources.CustomResourceRepository;
 import br.unifor.ppgia.resiliencebench.resources.resilientservice.ResilientService;
 import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
 import br.unifor.ppgia.resiliencebench.resources.scenario.ScenarioFaultTemplate;
 import br.unifor.ppgia.resiliencebench.resources.scenario.ScenarioSpec;
+import br.unifor.ppgia.resiliencebench.resources.scenario.ScenarioWorkload;
 import br.unifor.ppgia.resiliencebench.resources.workload.Workload;
 import io.fabric8.istio.api.networking.v1beta1.HTTPFaultInjection;
 import io.fabric8.istio.api.networking.v1beta1.HTTPRetry;
 import io.fabric8.istio.api.networking.v1beta1.VirtualService;
+import io.fabric8.istio.client.DefaultIstioClient;
 import io.fabric8.istio.client.IstioClient;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.utils.Serialization;
 
 import java.util.Map;
 
@@ -25,17 +25,17 @@ public class ScenarioRunner {
   private final IstioClient istioClient;
 
   public ScenarioRunner(KubernetesClient kubernetesClient, IstioClient istioClient) {
+    this.istioClient = new DefaultIstioClient();
     this.kubernetesClient = kubernetesClient;
-    this.istioClient = istioClient;
   }
 
-  public void run(String name, String namespace) {
+  public void run(String namespace, String name) {
     var scenarioRepository = new CustomResourceRepository<>(kubernetesClient, Scenario.class);
-    var scenario = scenarioRepository.get(name, namespace);
+    var scenario = scenarioRepository.get(namespace, name);
     if (scenario.isPresent()) {
       internalRun(scenario.get());
     } else {
-      throw new RuntimeException(format("Scenario %s.%s not found", namespace, name));
+      throw new RuntimeException(format("Scenario not found: %s.%s", namespace, name));
     }
   }
 
@@ -45,47 +45,47 @@ public class ScenarioRunner {
     // get services
     var targetService =
             findVirtualService(
-                    spec.getTargetServiceName(),
-                    scenario.getMetadata().getNamespace()
+                    scenario.getMetadata().getNamespace(),
+                    spec.getTargetServiceName()
             );
 
     var sourceService =
             findVirtualService(
-                    spec.getSourceServiceName(),
-                    scenario.getMetadata().getNamespace()
+                    scenario.getMetadata().getNamespace(),
+                    spec.getSourceServiceName()
             );
 
     // prepare retry pattern
-    prepareRetry(scenario.getMetadata().getNamespace(), spec, sourceService);
+    prepareRetry(spec, sourceService);
 
     // prepare fault
-    prepareFault(scenario.getMetadata().getNamespace(), spec, targetService);
+    prepareFault(spec, targetService);
 
     // run workload
-    CustomResourceRepository<Workload> workloadRepository = new CustomResourceRepository(kubernetesClient, Workload.class);
-    var workload = workloadRepository.get("default", scenario.getSpec().getWorkload().getWorkloadName());
-    runWorkload(workload.get());
+    var workloadRepository = new CustomResourceRepository<>(kubernetesClient, Workload.class);
+    var workload = workloadRepository.get(scenario.getMetadata().getNamespace(), scenario.getSpec().getWorkload().getWorkloadName());
+    runWorkload(workload.get(), scenario.getSpec().getWorkload());
   }
 
   private VirtualService findVirtualService(String namespace, String name) {
-    var meta = new ObjectMetaBuilder().withName(name).withNamespace(namespace).build();
     var serviceRepository = new CustomResourceRepository<>(kubernetesClient, ResilientService.class);
-    var targetService = serviceRepository.get(meta);
+    var targetService = serviceRepository.get(namespace, name);
 
     if (targetService.isPresent()) {
       var virtualServiceName = targetService.get().getMetadata().getAnnotations().get("resiliencebench.io/virtual-service");
+      var virtualServiceNamespace = targetService.get().getMetadata().getAnnotations().getOrDefault("resiliencebench.io/virtual-service-ns", "default");
       return istioClient
         .v1beta1()
         .virtualServices()
-        .inNamespace(namespace)
+        .inNamespace(virtualServiceNamespace)
         .withName(virtualServiceName)
         .get();
     } else {
-      throw new RuntimeException(format("Service %s.%s not found", namespace, name));
+      throw new RuntimeException(format("Service not found: %s.%s", namespace, name));
     }
   }
 
-  private void prepareFault(String namespace, ScenarioSpec spec, VirtualService targetService) {
+  private void prepareFault(ScenarioSpec spec, VirtualService targetService) {
     var newVirtualService = targetService
             .edit()
             .editSpec()
@@ -98,12 +98,12 @@ public class ScenarioRunner {
     istioClient
             .v1beta1()
             .virtualServices()
-            .inNamespace(namespace)
+            .inNamespace(targetService.getMetadata().getNamespace() )
             .resource(newVirtualService)
             .update();
   }
 
-  private void prepareRetry(String namespace, ScenarioSpec spec, VirtualService targetService) {
+  private void prepareRetry(ScenarioSpec spec, VirtualService targetService) {
     var newVirtualService = targetService
             .edit()
             .editSpec()
@@ -116,7 +116,7 @@ public class ScenarioRunner {
     istioClient
             .v1beta1()
             .virtualServices()
-            .inNamespace(namespace)
+            .inNamespace(targetService.getMetadata().getNamespace())
             .resource(newVirtualService)
             .update();
   }
@@ -154,26 +154,9 @@ public class ScenarioRunner {
     return builder.build();
   }
 
-  public void runWorkload(Workload workload) {
-    var spec = Map.of(
-            "parallelism", 1,
-            "arguments", "--tag workloadName=" + workload.getMetadata().getName(),
-            "script", Map.of(
-                    "config", Map.of(
-                            "name", workload.getSpec().getScript().getConfigMap().getName(),
-                            "file", workload.getSpec().getScript().getConfigMap().getFile()
-                    )
-            )
-    );
-
-    var customResource = Map.of(
-            "apiVersion", "k6.io/v1alpha1",
-            "kind", "K6",
-            "metadata", Map.of("name", workload.getMetadata().getName(), "namespace", workload.getMetadata().getNamespace()),
-            "spec", spec
-    );
-
-    var resource = Serialization.unmarshal(Serialization.asJson(customResource), HasMetadata.class);
-    this.kubernetesClient.resource(resource).inNamespace(workload.getMetadata().getNamespace()).create();
+  public void runWorkload(Workload workload, ScenarioWorkload scenarioWorkload) {
+    var resource = new K6WorkloadAdapter().adapt(workload, scenarioWorkload);
+    var created = this.kubernetesClient.resource(resource).inNamespace(workload.getMetadata().getNamespace()).create();
+    System.out.println("Created: " + created);
   }
 }
