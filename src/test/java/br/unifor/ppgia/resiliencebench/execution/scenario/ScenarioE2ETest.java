@@ -2,10 +2,6 @@ package br.unifor.ppgia.resiliencebench.execution.scenario;
 
 import br.unifor.ppgia.resiliencebench.BenchmarkReconciler;
 import br.unifor.ppgia.resiliencebench.ResilienceServiceReconciler;
-import br.unifor.ppgia.resiliencebench.execution.scenario.Scenario;
-import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioFaultTemplate;
-import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioSpec;
-import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioWorkload;
 import br.unifor.ppgia.resiliencebench.fault.DelayFault;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.javaoperatorsdk.operator.junit.AbstractOperatorExtension;

@@ -1,10 +1,10 @@
 package br.unifor.ppgia.resiliencebench.modeling.benchmark;
 
-import java.util.List;
-
 import br.unifor.ppgia.resiliencebench.fault.AbortFault;
 import br.unifor.ppgia.resiliencebench.fault.DelayFault;
 import br.unifor.ppgia.resiliencebench.fault.FaultTemplate;
+
+import java.util.List;
 
 public class BenchmarkFaultTemplate extends FaultTemplate<List<Integer>> {
 

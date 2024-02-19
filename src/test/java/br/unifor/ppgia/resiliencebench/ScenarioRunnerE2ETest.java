@@ -1,8 +1,8 @@
 package br.unifor.ppgia.resiliencebench;
 
+import br.unifor.ppgia.resiliencebench.execution.scenario.Scenario;
 import br.unifor.ppgia.resiliencebench.modeling.benchmark.Benchmark;
 import br.unifor.ppgia.resiliencebench.modeling.service.ResilientService;
-import br.unifor.ppgia.resiliencebench.execution.scenario.Scenario;
 import br.unifor.ppgia.resiliencebench.modeling.workload.Workload;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.javaoperatorsdk.operator.junit.AbstractOperatorExtension;
@@ -15,7 +15,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ScenarioRunnerTest {
+public class ScenarioRunnerE2ETest {
   @RegisterExtension
   static AbstractOperatorExtension operator = LocallyRunOperatorExtension.builder()
           .waitForNamespaceDeletion(true)

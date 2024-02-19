@@ -1,12 +1,12 @@
 package br.unifor.ppgia.resiliencebench.execution;
 
-import br.unifor.ppgia.resiliencebench.modeling.benchmark.Benchmark;
-import br.unifor.ppgia.resiliencebench.modeling.benchmark.Source;
-import br.unifor.ppgia.resiliencebench.modeling.benchmark.Target;
 import br.unifor.ppgia.resiliencebench.execution.scenario.Scenario;
 import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioFaultTemplate;
 import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioSpec;
 import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioWorkload;
+import br.unifor.ppgia.resiliencebench.modeling.benchmark.Benchmark;
+import br.unifor.ppgia.resiliencebench.modeling.benchmark.Source;
+import br.unifor.ppgia.resiliencebench.modeling.benchmark.Target;
 import br.unifor.ppgia.resiliencebench.modeling.workload.Workload;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.fabric8.kubernetes.api.model.ObjectMeta;

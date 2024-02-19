@@ -1,8 +1,7 @@
-package br.unifor.ppgia.resiliencebench.support.benchmark;
+package br.unifor.ppgia.resiliencebench.modeling.benchmark;
 
 import br.unifor.ppgia.resiliencebench.BenchmarkReconciler;
 import br.unifor.ppgia.resiliencebench.ResilienceServiceReconciler;
-import br.unifor.ppgia.resiliencebench.modeling.benchmark.Benchmark;
 import io.javaoperatorsdk.operator.junit.AbstractOperatorExtension;
 import io.javaoperatorsdk.operator.junit.LocallyRunOperatorExtension;
 import org.junit.jupiter.api.Test;

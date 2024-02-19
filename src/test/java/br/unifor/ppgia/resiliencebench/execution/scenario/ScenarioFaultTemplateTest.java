@@ -1,11 +1,11 @@
 package br.unifor.ppgia.resiliencebench.execution.scenario;
 
-import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioFaultTemplate;
 import br.unifor.ppgia.resiliencebench.fault.AbortFault;
 import br.unifor.ppgia.resiliencebench.fault.DelayFault;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class ScenarioFaultTemplateTest {
 

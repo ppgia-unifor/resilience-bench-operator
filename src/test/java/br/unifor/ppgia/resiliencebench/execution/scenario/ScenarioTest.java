@@ -1,15 +1,12 @@
 package br.unifor.ppgia.resiliencebench.execution.scenario;
 
-import br.unifor.ppgia.resiliencebench.execution.scenario.Scenario;
-import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioFaultTemplate;
-import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioSpec;
-import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioWorkload;
 import br.unifor.ppgia.resiliencebench.fault.DelayFault;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ScenarioTest {
 

@@ -1,9 +1,8 @@
 package br.unifor.ppgia.resiliencebench.execution.scenario;
 
-import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioWorkload;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ScenarioWorkloadTest {
 

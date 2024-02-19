@@ -1,11 +1,8 @@
-package br.unifor.ppgia.resiliencebench.support.workload;
+package br.unifor.ppgia.resiliencebench.modeling.workload;
 
 import br.unifor.ppgia.resiliencebench.BenchmarkReconciler;
 import br.unifor.ppgia.resiliencebench.ResilienceServiceReconciler;
 import br.unifor.ppgia.resiliencebench.support.ConfigMapReference;
-import br.unifor.ppgia.resiliencebench.modeling.workload.ScriptConfig;
-import br.unifor.ppgia.resiliencebench.modeling.workload.Workload;
-import br.unifor.ppgia.resiliencebench.modeling.workload.WorkloadSpec;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.javaoperatorsdk.operator.junit.AbstractOperatorExtension;

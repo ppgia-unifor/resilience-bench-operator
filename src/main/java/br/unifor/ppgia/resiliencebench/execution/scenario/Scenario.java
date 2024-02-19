@@ -6,8 +6,8 @@ import io.fabric8.kubernetes.model.annotation.*;
 
 import java.util.Arrays;
 
-import static java.lang.String.*;
-import static java.util.stream.Collectors.*;
+import static java.lang.String.join;
+import static java.util.stream.Collectors.joining;
 
 @Group("resiliencebench.io")
 @Version("v1beta1")

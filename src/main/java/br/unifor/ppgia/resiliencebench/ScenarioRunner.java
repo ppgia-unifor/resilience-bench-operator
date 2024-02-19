@@ -1,13 +1,13 @@
 package br.unifor.ppgia.resiliencebench;
 
-import br.unifor.ppgia.resiliencebench.external.k6.K6WorkloadAdapter;
-import br.unifor.ppgia.resiliencebench.support.CustomResourceRepository;
-import br.unifor.ppgia.resiliencebench.modeling.service.ResilientService;
 import br.unifor.ppgia.resiliencebench.execution.scenario.Scenario;
 import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioFaultTemplate;
 import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioSpec;
 import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioWorkload;
+import br.unifor.ppgia.resiliencebench.external.k6.K6WorkloadAdapter;
+import br.unifor.ppgia.resiliencebench.modeling.service.ResilientService;
 import br.unifor.ppgia.resiliencebench.modeling.workload.Workload;
+import br.unifor.ppgia.resiliencebench.support.CustomResourceRepository;
 import io.fabric8.istio.api.networking.v1beta1.HTTPFaultInjection;
 import io.fabric8.istio.api.networking.v1beta1.HTTPRetry;
 import io.fabric8.istio.api.networking.v1beta1.VirtualService;

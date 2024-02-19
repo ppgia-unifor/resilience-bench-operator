@@ -10,7 +10,7 @@ import io.fabric8.kubernetes.client.utils.Serialization;
 import java.util.Arrays;
 import java.util.Map;
 
-import static br.unifor.ppgia.resiliencebench.support.Annotations.*;
+import static br.unifor.ppgia.resiliencebench.support.Annotations.CREATED_BY;
 
 public class K6WorkloadAdapter implements WorkloadResourceAdapter {
   @Override
