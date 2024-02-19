@@ -1,4 +1,4 @@
-package br.unifor.ppgia.resiliencebench.resources.scenario;
+package br.unifor.ppgia.resiliencebench.resources.execution.scenario;
 
 public class ScenarioWorkload {
   private String workloadName;

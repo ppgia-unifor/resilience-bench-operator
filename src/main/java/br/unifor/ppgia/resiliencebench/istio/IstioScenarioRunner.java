@@ -1,13 +1,10 @@
 package br.unifor.ppgia.resiliencebench.istio;
 
-import br.unifor.ppgia.resiliencebench.resources.CustomResourceRepository;
-import br.unifor.ppgia.resiliencebench.resources.resilientservice.ResilientService;
-import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
-import br.unifor.ppgia.resiliencebench.resources.scenario.ScenarioFaultTemplate;
+import br.unifor.ppgia.resiliencebench.resources.execution.scenario.Scenario;
+import br.unifor.ppgia.resiliencebench.resources.execution.scenario.ScenarioFaultTemplate;
 import io.fabric8.istio.api.networking.v1beta1.HTTPFaultInjection;
 import io.fabric8.istio.api.networking.v1beta1.HTTPRetry;
 import io.fabric8.istio.client.IstioClient;
-import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.client.KubernetesClient;
 
 import java.util.Map;

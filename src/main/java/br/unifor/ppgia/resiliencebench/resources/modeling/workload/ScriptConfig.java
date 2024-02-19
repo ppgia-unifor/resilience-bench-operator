@@ -1,4 +1,4 @@
-package br.unifor.ppgia.resiliencebench.resources.workload;
+package br.unifor.ppgia.resiliencebench.resources.modeling.workload;
 
 import br.unifor.ppgia.resiliencebench.resources.ConfigMapReference;
 

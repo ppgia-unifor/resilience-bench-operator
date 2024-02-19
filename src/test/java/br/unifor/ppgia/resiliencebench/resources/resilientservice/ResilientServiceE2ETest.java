@@ -2,6 +2,8 @@ package br.unifor.ppgia.resiliencebench.resources.resilientservice;
 
 import br.unifor.ppgia.resiliencebench.BenchmarkReconciler;
 import br.unifor.ppgia.resiliencebench.ResilienceServiceReconciler;
+import br.unifor.ppgia.resiliencebench.resources.modeling.service.ResilientService;
+import br.unifor.ppgia.resiliencebench.resources.modeling.service.ResilientServiceSpec;
 import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.javaoperatorsdk.operator.junit.AbstractOperatorExtension;

@@ -1,4 +1,4 @@
-package br.unifor.ppgia.resiliencebench.resources.workload;
+package br.unifor.ppgia.resiliencebench.resources.modeling.service;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.kubernetes.api.model.Namespaced;
@@ -8,10 +8,10 @@ import io.fabric8.kubernetes.model.annotation.*;
 
 @Group("resiliencebench.io")
 @Version("v1beta1")
-@ShortNames("wl")
-@Plural("workloads")
-@Kind("Workload")
-public class Workload extends CustomResource<WorkloadSpec, WorkloadStatus> implements Namespaced {
+@ShortNames("rsvc")
+@Plural("resilientservices")
+@Kind("ResilientService")
+public class ResilientService extends CustomResource<ResilientServiceSpec, ResilientServiceStatus> implements Namespaced {
 
   @JsonProperty("metadata")
   private ObjectMeta metadata;

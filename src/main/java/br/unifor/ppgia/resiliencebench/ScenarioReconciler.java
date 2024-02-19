@@ -1,9 +1,8 @@
 package br.unifor.ppgia.resiliencebench;
 
-import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
+import br.unifor.ppgia.resiliencebench.resources.execution.scenario.Scenario;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
-import io.fabric8.kubernetes.api.model.batch.v1.JobList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
@@ -13,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
-import java.util.Random;
 import java.util.UUID;
 
 @ControllerConfiguration

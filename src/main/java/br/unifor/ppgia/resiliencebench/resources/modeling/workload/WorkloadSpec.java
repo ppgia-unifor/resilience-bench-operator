@@ -1,4 +1,4 @@
-package br.unifor.ppgia.resiliencebench.resources.workload;
+package br.unifor.ppgia.resiliencebench.resources.modeling.workload;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;

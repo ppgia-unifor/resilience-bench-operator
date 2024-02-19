@@ -1,13 +1,13 @@
 package br.unifor.ppgia.resiliencebench.resources;
 
-import br.unifor.ppgia.resiliencebench.resources.benchmark.Benchmark;
-import br.unifor.ppgia.resiliencebench.resources.benchmark.Source;
-import br.unifor.ppgia.resiliencebench.resources.benchmark.Target;
-import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
-import br.unifor.ppgia.resiliencebench.resources.scenario.ScenarioFaultTemplate;
-import br.unifor.ppgia.resiliencebench.resources.scenario.ScenarioSpec;
-import br.unifor.ppgia.resiliencebench.resources.scenario.ScenarioWorkload;
-import br.unifor.ppgia.resiliencebench.resources.workload.Workload;
+import br.unifor.ppgia.resiliencebench.resources.modeling.benchmark.Benchmark;
+import br.unifor.ppgia.resiliencebench.resources.modeling.benchmark.Source;
+import br.unifor.ppgia.resiliencebench.resources.modeling.benchmark.Target;
+import br.unifor.ppgia.resiliencebench.resources.execution.scenario.Scenario;
+import br.unifor.ppgia.resiliencebench.resources.execution.scenario.ScenarioFaultTemplate;
+import br.unifor.ppgia.resiliencebench.resources.execution.scenario.ScenarioSpec;
+import br.unifor.ppgia.resiliencebench.resources.execution.scenario.ScenarioWorkload;
+import br.unifor.ppgia.resiliencebench.resources.modeling.workload.Workload;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.ArrayList;

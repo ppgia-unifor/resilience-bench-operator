@@ -1,11 +1,9 @@
 package br.unifor.ppgia.resiliencebench;
 
-import br.unifor.ppgia.resiliencebench.resources.resilientservice.ResilientService;
+import br.unifor.ppgia.resiliencebench.resources.modeling.service.ResilientService;
 import io.fabric8.istio.api.networking.v1beta1.VirtualService;
 import io.fabric8.istio.api.networking.v1beta1.VirtualServiceBuilder;
-import io.fabric8.istio.client.DefaultIstioClient;
 import io.fabric8.istio.client.IstioClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
 import io.javaoperatorsdk.operator.api.reconciler.Reconciler;

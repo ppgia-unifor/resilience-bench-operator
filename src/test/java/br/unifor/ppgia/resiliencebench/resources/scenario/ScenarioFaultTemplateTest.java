@@ -1,5 +1,6 @@
 package br.unifor.ppgia.resiliencebench.resources.scenario;
 
+import br.unifor.ppgia.resiliencebench.resources.execution.scenario.ScenarioFaultTemplate;
 import br.unifor.ppgia.resiliencebench.resources.fault.AbortFault;
 import br.unifor.ppgia.resiliencebench.resources.fault.DelayFault;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package br.unifor.ppgia.resiliencebench.resources.benchmark;
+package br.unifor.ppgia.resiliencebench.resources.modeling.benchmark;
 
 public class Target {
 

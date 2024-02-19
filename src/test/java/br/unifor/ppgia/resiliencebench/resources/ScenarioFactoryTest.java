@@ -1,9 +1,9 @@
 package br.unifor.ppgia.resiliencebench.resources;
 
-import br.unifor.ppgia.resiliencebench.resources.benchmark.*;
 import br.unifor.ppgia.resiliencebench.resources.fault.DelayFault;
-import br.unifor.ppgia.resiliencebench.resources.workload.Workload;
-import br.unifor.ppgia.resiliencebench.resources.workload.WorkloadSpec;
+import br.unifor.ppgia.resiliencebench.resources.modeling.benchmark.*;
+import br.unifor.ppgia.resiliencebench.resources.modeling.workload.Workload;
+import br.unifor.ppgia.resiliencebench.resources.modeling.workload.WorkloadSpec;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import org.junit.jupiter.api.Test;
 

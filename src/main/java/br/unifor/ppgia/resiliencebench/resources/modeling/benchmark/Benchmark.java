@@ -1,4 +1,4 @@
-package br.unifor.ppgia.resiliencebench.resources.benchmark;
+package br.unifor.ppgia.resiliencebench.resources.modeling.benchmark;
 
 import io.fabric8.kubernetes.api.model.Namespaced;
 import io.fabric8.kubernetes.client.CustomResource;

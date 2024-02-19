@@ -1,13 +1,10 @@
 package br.unifor.ppgia.resiliencebench;
 
-import br.unifor.ppgia.resiliencebench.resources.workload.Workload;
+import br.unifor.ppgia.resiliencebench.resources.modeling.workload.Workload;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.dsl.Resource;
 import io.fabric8.kubernetes.client.utils.Serialization;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class K6TestRunner {

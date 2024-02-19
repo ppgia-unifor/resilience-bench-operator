@@ -1,4 +1,4 @@
-package br.unifor.ppgia.resiliencebench.resources.resilientservice;
+package br.unifor.ppgia.resiliencebench.resources.modeling.service;
 
 import io.fabric8.kubernetes.api.model.LabelSelector;
 

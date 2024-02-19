@@ -1,11 +1,10 @@
-package br.unifor.ppgia.resiliencebench.resources.scenario;
+package br.unifor.ppgia.resiliencebench.resources.execution.scenario;
 
 import io.fabric8.kubernetes.api.model.Namespaced;
 import io.fabric8.kubernetes.client.CustomResource;
 import io.fabric8.kubernetes.model.annotation.*;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 import static java.lang.String.*;
 import static java.util.stream.Collectors.*;

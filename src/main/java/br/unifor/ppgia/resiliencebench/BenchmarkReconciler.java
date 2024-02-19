@@ -2,10 +2,10 @@ package br.unifor.ppgia.resiliencebench;
 
 import br.unifor.ppgia.resiliencebench.resources.CustomResourceRepository;
 import br.unifor.ppgia.resiliencebench.resources.ScenarioFactory;
-import br.unifor.ppgia.resiliencebench.resources.benchmark.Benchmark;
-import br.unifor.ppgia.resiliencebench.resources.benchmark.BenchmarkStatus;
-import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
-import br.unifor.ppgia.resiliencebench.resources.workload.Workload;
+import br.unifor.ppgia.resiliencebench.resources.modeling.benchmark.Benchmark;
+import br.unifor.ppgia.resiliencebench.resources.modeling.benchmark.BenchmarkStatus;
+import br.unifor.ppgia.resiliencebench.resources.execution.scenario.Scenario;
+import br.unifor.ppgia.resiliencebench.resources.modeling.workload.Workload;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;

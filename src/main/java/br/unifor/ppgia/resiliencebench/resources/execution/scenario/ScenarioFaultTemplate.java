@@ -1,4 +1,4 @@
-package br.unifor.ppgia.resiliencebench.resources.scenario;
+package br.unifor.ppgia.resiliencebench.resources.execution.scenario;
 
 import br.unifor.ppgia.resiliencebench.resources.fault.AbortFault;
 import br.unifor.ppgia.resiliencebench.resources.fault.DelayFault;
