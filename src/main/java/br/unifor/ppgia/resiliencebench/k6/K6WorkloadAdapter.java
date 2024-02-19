@@ -1,8 +1,8 @@
 package br.unifor.ppgia.resiliencebench.k6;
 
-import br.unifor.ppgia.resiliencebench.resources.execution.scenario.ScenarioWorkload;
-import br.unifor.ppgia.resiliencebench.resources.modeling.workload.Workload;
-import br.unifor.ppgia.resiliencebench.resources.modeling.workload.WorkloadResourceAdapter;
+import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioWorkload;
+import br.unifor.ppgia.resiliencebench.modeling.workload.Workload;
+import br.unifor.ppgia.resiliencebench.modeling.workload.WorkloadResourceAdapter;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.client.utils.Serialization;

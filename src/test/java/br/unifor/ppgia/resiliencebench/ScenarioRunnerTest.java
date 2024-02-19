@@ -1,9 +1,9 @@
 package br.unifor.ppgia.resiliencebench;
 
-import br.unifor.ppgia.resiliencebench.resources.modeling.benchmark.Benchmark;
-import br.unifor.ppgia.resiliencebench.resources.modeling.service.ResilientService;
-import br.unifor.ppgia.resiliencebench.resources.execution.scenario.Scenario;
-import br.unifor.ppgia.resiliencebench.resources.modeling.workload.Workload;
+import br.unifor.ppgia.resiliencebench.modeling.benchmark.Benchmark;
+import br.unifor.ppgia.resiliencebench.modeling.service.ResilientService;
+import br.unifor.ppgia.resiliencebench.execution.scenario.Scenario;
+import br.unifor.ppgia.resiliencebench.modeling.workload.Workload;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.javaoperatorsdk.operator.junit.AbstractOperatorExtension;
 import io.javaoperatorsdk.operator.junit.LocallyRunOperatorExtension;

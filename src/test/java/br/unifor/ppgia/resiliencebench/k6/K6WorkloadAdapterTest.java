@@ -1,10 +1,10 @@
 package br.unifor.ppgia.resiliencebench.k6;
 
-import br.unifor.ppgia.resiliencebench.resources.ConfigMapReference;
-import br.unifor.ppgia.resiliencebench.resources.execution.scenario.ScenarioWorkload;
-import br.unifor.ppgia.resiliencebench.resources.modeling.workload.ScriptConfig;
-import br.unifor.ppgia.resiliencebench.resources.modeling.workload.Workload;
-import br.unifor.ppgia.resiliencebench.resources.modeling.workload.WorkloadSpec;
+import br.unifor.ppgia.resiliencebench.support.ConfigMapReference;
+import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioWorkload;
+import br.unifor.ppgia.resiliencebench.modeling.workload.ScriptConfig;
+import br.unifor.ppgia.resiliencebench.modeling.workload.Workload;
+import br.unifor.ppgia.resiliencebench.modeling.workload.WorkloadSpec;
 import io.fabric8.kubernetes.api.model.GenericKubernetesResource;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import org.assertj.core.util.Lists;
