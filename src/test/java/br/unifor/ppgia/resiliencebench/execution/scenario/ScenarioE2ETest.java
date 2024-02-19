@@ -1,4 +1,4 @@
-package br.unifor.ppgia.resiliencebench.support.scenario;
+package br.unifor.ppgia.resiliencebench.execution.scenario;
 
 import br.unifor.ppgia.resiliencebench.BenchmarkReconciler;
 import br.unifor.ppgia.resiliencebench.ResilienceServiceReconciler;

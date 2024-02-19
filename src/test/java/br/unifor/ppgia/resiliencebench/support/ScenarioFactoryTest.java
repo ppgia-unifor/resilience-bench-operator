@@ -2,6 +2,7 @@ package br.unifor.ppgia.resiliencebench.support;
 
 import br.unifor.ppgia.resiliencebench.execution.ScenarioFactory;
 import br.unifor.ppgia.resiliencebench.fault.DelayFault;
+import br.unifor.ppgia.resiliencebench.modeling.PatternConfig;
 import br.unifor.ppgia.resiliencebench.modeling.benchmark.*;
 import br.unifor.ppgia.resiliencebench.modeling.workload.Workload;
 import br.unifor.ppgia.resiliencebench.modeling.workload.WorkloadSpec;

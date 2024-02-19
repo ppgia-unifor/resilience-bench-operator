@@ -1,6 +1,7 @@
-package br.unifor.ppgia.resiliencebench.support;
+package br.unifor.ppgia.resiliencebench.execution;
 
 
+import br.unifor.ppgia.resiliencebench.modeling.PatternConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

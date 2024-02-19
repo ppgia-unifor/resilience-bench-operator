@@ -1,4 +1,4 @@
-package br.unifor.ppgia.resiliencebench.k6;
+package br.unifor.ppgia.resiliencebench.external.k6;
 
 import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioWorkload;
 import br.unifor.ppgia.resiliencebench.modeling.workload.Workload;
@@ -9,6 +9,8 @@ import io.fabric8.kubernetes.client.utils.Serialization;
 
 import java.util.Arrays;
 import java.util.Map;
+
+import static br.unifor.ppgia.resiliencebench.support.Annotations.*;
 
 public class K6WorkloadAdapter implements WorkloadResourceAdapter {
   @Override
@@ -33,7 +35,7 @@ public class K6WorkloadAdapter implements WorkloadResourceAdapter {
     var meta = new ObjectMetaBuilder()
             .withName(workload.getMetadata().getName())
             .withNamespace(workload.getMetadata().getNamespace())
-            .addToAnnotations("resiliencebench.io/created-by", "resiliencebench-operator")
+            .addToAnnotations(CREATED_BY, "resiliencebench-operator")
             .addToAnnotations("resiliencebench.io/workload", workload.getMetadata().getName())
             .build();
 

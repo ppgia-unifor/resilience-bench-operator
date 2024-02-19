@@ -1,12 +1,12 @@
 package br.unifor.ppgia.resiliencebench;
 
+import br.unifor.ppgia.resiliencebench.execution.ExecutionQueueFactory;
 import br.unifor.ppgia.resiliencebench.execution.ScenarioFactory;
-import br.unifor.ppgia.resiliencebench.support.CustomResourceRepository;
-import br.unifor.ppgia.resiliencebench.modeling.benchmark.Benchmark;
-import br.unifor.ppgia.resiliencebench.modeling.benchmark.BenchmarkStatus;
+import br.unifor.ppgia.resiliencebench.execution.queue.ExecutionQueue;
 import br.unifor.ppgia.resiliencebench.execution.scenario.Scenario;
+import br.unifor.ppgia.resiliencebench.modeling.benchmark.Benchmark;
 import br.unifor.ppgia.resiliencebench.modeling.workload.Workload;
-import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
+import br.unifor.ppgia.resiliencebench.support.CustomResourceRepository;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
 import io.javaoperatorsdk.operator.api.reconciler.Reconciler;
@@ -23,26 +23,36 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
   public UpdateControl<Benchmark> reconcile(Benchmark benchmark, Context<Benchmark> context) {
     var scenarioRepository = new CustomResourceRepository<>(context.getClient(), Scenario.class);
     var workloadRepository = new CustomResourceRepository<>(context.getClient(), Workload.class);
+    var executionRepository = new CustomResourceRepository<>(context.getClient(), ExecutionQueue.class);
 
     var workload = workloadRepository.get(benchmark.getMetadata().getNamespace(), benchmark.getSpec().getWorkload());
     if (workload.isEmpty()) {
       logger.warn("Workload not found: {}", benchmark.getSpec().getWorkload());
       return UpdateControl.noUpdate();
     }
-    var scenariosList = ScenarioFactory.create(benchmark, workload.get());
-    scenariosList.forEach(scenario -> createOrUpdateScenario(benchmark, scenario, scenarioRepository));
-    var status = new BenchmarkStatus(scenariosList.size(), 0);
-    benchmark.setStatus(status);
-    return UpdateControl.updateStatus(benchmark);
+
+    var scenariosList = ScenarioFactory.create(benchmark, workload.get()); // TODO handle empty list
+
+    var executionQueueOpt = executionRepository.get(benchmark.getMetadata().getNamespace(), benchmark.getMetadata().getName());
+    ExecutionQueue executionQueue = null;
+    if (executionQueueOpt.isPresent()) {
+      logger.debug("ExecutionQueue already exists: {}", benchmark.getMetadata().getName());
+      executionQueue = executionQueueOpt.get();
+    } else {
+      executionQueue = ExecutionQueueFactory.create(benchmark, scenariosList);
+      executionRepository.create(executionQueue);
+    }
+
+    scenariosList.forEach(scenario -> createOrUpdateScenario(scenario, scenarioRepository));
+
+    var scheduler = new Scheduler(context.getClient());
+    scheduler.run(executionQueue);
+
+    logger.info("Benchmark reconciled: {}", benchmark.getMetadata().getName());
+    return UpdateControl.noUpdate();
   }
 
-  private void createOrUpdateScenario(Benchmark benchmark, Scenario scenario, CustomResourceRepository<Scenario> scenarioRepository) {
-    scenario.setMetadata(new ObjectMetaBuilder()
-            .withName(scenario.toString())
-            .withNamespace(benchmark.getMetadata().getNamespace())
-            .addToAnnotations("resiliencebench.io/owned-by", benchmark.getMetadata().getName())
-            .addToAnnotations("resiliencebench.io/scenario-uid", scenario.toString())
-            .build());
+  private void createOrUpdateScenario(Scenario scenario, CustomResourceRepository<Scenario> scenarioRepository) {
     var foundScenario = scenarioRepository.get(scenario.getMetadata());
     if (foundScenario.isEmpty()) {
       scenarioRepository.create(scenario);

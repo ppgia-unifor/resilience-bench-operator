@@ -1,6 +1,6 @@
 package br.unifor.ppgia.resiliencebench.modeling.benchmark;
 
-import br.unifor.ppgia.resiliencebench.support.PatternConfig;
+import br.unifor.ppgia.resiliencebench.modeling.PatternConfig;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 public class Source {

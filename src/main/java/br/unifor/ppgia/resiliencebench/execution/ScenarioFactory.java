@@ -9,13 +9,16 @@ import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioSpec;
 import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioWorkload;
 import br.unifor.ppgia.resiliencebench.modeling.workload.Workload;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static br.unifor.ppgia.resiliencebench.support.ListExpansion.expandConfigTemplate;
+import static br.unifor.ppgia.resiliencebench.execution.ListExpansion.expandConfigTemplate;
+import static br.unifor.ppgia.resiliencebench.support.Annotations.OWNED_BY;
 
 public final class ScenarioFactory {
 
@@ -76,7 +79,9 @@ public final class ScenarioFactory {
 
         for (var sourcePatternsParameters : expandServiceParameters(source)) {
           for (var workloadUser : workloadUsers) {
-            scenarios.add(createScenario(workloadName, target, source, fault, sourcePatternsParameters, workloadUser));
+            var scenario = createScenario(workloadName, target, source, fault, sourcePatternsParameters, workloadUser);
+            scenario.setMetadata(createMeta(scenario, benchmark));
+            scenarios.add(scenario);
           }
         }
       }
@@ -100,5 +105,14 @@ public final class ScenarioFactory {
                     fault
             )
     );
+  }
+
+  private static ObjectMeta createMeta(Scenario scenario, Benchmark benchmark) {
+    return new ObjectMetaBuilder()
+            .withName(scenario.toString())
+            .withNamespace(benchmark.getMetadata().getNamespace())
+            .addToAnnotations(OWNED_BY, benchmark.getMetadata().getName())
+            .addToAnnotations("resiliencebench.io/scenario-uid", scenario.toString())
+            .build();
   }
 }

@@ -1,5 +1,6 @@
-package br.unifor.ppgia.resiliencebench.support;
+package br.unifor.ppgia.resiliencebench.execution;
 
+import br.unifor.ppgia.resiliencebench.modeling.PatternConfig;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
@@ -8,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class ListExpansion {
+final class ListExpansion {
     public ListExpansion() {
         throw new IllegalStateException("Utility class");
     }

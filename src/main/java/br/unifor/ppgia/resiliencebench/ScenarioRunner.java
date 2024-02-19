@@ -1,6 +1,6 @@
 package br.unifor.ppgia.resiliencebench;
 
-import br.unifor.ppgia.resiliencebench.k6.K6WorkloadAdapter;
+import br.unifor.ppgia.resiliencebench.external.k6.K6WorkloadAdapter;
 import br.unifor.ppgia.resiliencebench.support.CustomResourceRepository;
 import br.unifor.ppgia.resiliencebench.modeling.service.ResilientService;
 import br.unifor.ppgia.resiliencebench.execution.scenario.Scenario;

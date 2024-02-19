@@ -44,9 +44,7 @@ public class CustomResourceRepository<T extends CustomResource> {
   }
 
   public Optional<T> get(String namespace, String name) {
-    return Optional.ofNullable(
-            this.resources.inNamespace(namespace).withName(name).get()
-    );
+    return Optional.ofNullable(this.resources.inNamespace(namespace).withName(name).get());
   }
 
   public List<T> list(String namespace) {

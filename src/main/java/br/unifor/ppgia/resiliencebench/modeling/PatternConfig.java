@@ -1,4 +1,4 @@
-package br.unifor.ppgia.resiliencebench.support;
+package br.unifor.ppgia.resiliencebench.modeling;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;

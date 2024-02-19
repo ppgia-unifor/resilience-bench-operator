@@ -1,5 +1,6 @@
 package br.unifor.ppgia.resiliencebench.k6;
 
+import br.unifor.ppgia.resiliencebench.external.k6.K6WorkloadAdapter;
 import br.unifor.ppgia.resiliencebench.support.ConfigMapReference;
 import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioWorkload;
 import br.unifor.ppgia.resiliencebench.modeling.workload.ScriptConfig;
