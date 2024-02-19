@@ -1,5 +1,6 @@
 package br.unifor.ppgia.resiliencebench.execution.queue;
 
+import io.fabric8.kubernetes.api.model.Namespaced;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.client.CustomResource;
 import io.fabric8.kubernetes.model.annotation.*;
@@ -9,7 +10,7 @@ import io.fabric8.kubernetes.model.annotation.*;
 @ShortNames("eq")
 @Plural("queues")
 @Kind("Queue")
-public class ExecutionQueue extends CustomResource<ExecutionQueueSpec, ExecutionQueueStatus> {
+public class ExecutionQueue extends CustomResource<ExecutionQueueSpec, ExecutionQueueStatus> implements Namespaced {
   ExecutionQueue() { }
 
   public ExecutionQueue(ExecutionQueueSpec spec, ObjectMeta meta) {
