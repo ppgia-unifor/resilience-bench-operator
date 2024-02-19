@@ -61,7 +61,6 @@ public class ScenarioReconciler implements Reconciler<Scenario> {
             .withNewTemplate()
             .withNewSpec()
             .withRestartPolicy("Never")
-//                    .withServiceAccountName("kubectl-job-sa")
             .addNewContainer()
             .withName("kubectl")
             .withCommand("sleep", "10")
