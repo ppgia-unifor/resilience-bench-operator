@@ -5,10 +5,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.time.ZoneId.of;
 
 public class ScenarioSpec {
 
@@ -25,6 +28,10 @@ public class ScenarioSpec {
   private ScenarioWorkload workload;
   private ScenarioFaultTemplate fault;
 
+  private String executedAt;
+
+  private String status;
+
   public ScenarioSpec(
           String targetServiceName,
           String sourceServiceName,
@@ -32,6 +39,7 @@ public class ScenarioSpec {
           ScenarioWorkload workload,
           ScenarioFaultTemplate fault
   ) {
+    this.status = "pending";
     this.targetServiceName = targetServiceName;
     this.sourceServiceName = sourceServiceName;
     this.workload = workload;
@@ -59,6 +67,19 @@ public class ScenarioSpec {
 
   public ScenarioFaultTemplate getFault() {
     return fault;
+  }
+
+  public void markAsExecuted() {
+    this.status = "executed";
+    this.executedAt = LocalDateTime.now(of("UTC")).toString();
+  }
+
+  public String getExecutedAt() {
+    return executedAt;
+  }
+
+  public String getStatus() {
+    return status;
   }
 
   /**
@@ -93,5 +114,9 @@ public class ScenarioSpec {
     }
 
     return jsonNode;
+  }
+
+  public void setStatus(String status) {
+    this.status = status;
   }
 }

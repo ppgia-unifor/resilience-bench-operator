@@ -44,10 +44,10 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
             .addToAnnotations("resiliencebench.io/scenario-uid", scenario.toString())
             .build());
     var foundScenario = scenarioRepository.get(scenario.getMetadata());
-    if (foundScenario.isPresent()) {
-      scenarioRepository.update(scenario);
-    } else {
+    if (foundScenario.isEmpty()) {
       scenarioRepository.create(scenario);
+    } else {
+      logger.debug("Scenario already exists: {}", scenario.getMetadata().getName());
     }
   }
 }

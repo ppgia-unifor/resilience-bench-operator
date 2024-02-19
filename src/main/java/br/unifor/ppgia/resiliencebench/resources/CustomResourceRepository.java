@@ -33,7 +33,7 @@ public class CustomResourceRepository<T extends CustomResource> {
   }
 
   public T update(T resource) {
-    return inNamespace(resource).resource(resource).createOr(Replaceable::update);
+    return inNamespace(resource).resource(resource).update();
   }
 
   public void delete(T resource) {
