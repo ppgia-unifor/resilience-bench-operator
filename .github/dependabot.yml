@@ -1,6 +1,6 @@
 version: 2
 updates:
   - package-ecosystem: "maven"
-    directory: "source"
+    directory: "resilience-bench"
     schedule:
       interval: "weekly"
