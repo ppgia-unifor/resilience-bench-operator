@@ -31,7 +31,7 @@ Please replace the URLs with the actual links to the installation guides for k6-
 
    ```bash
    git clone https://github.com/ppgia-unifor/resilience-bench-operator.git
-   cd resilience-bench-operator
+   cd resilience-bench-operator/source
    mvn clean install
    make deploy
    ```

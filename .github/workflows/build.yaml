@@ -25,7 +25,7 @@ jobs:
     - name: Test with Maven
       run: | 
         kubectl cluster-info --context kind-chart-testing
-        mvn -B compile --file pom.xml
-        find ./target/classes/META-INF/fabric8 -type f -name "*-v1.yml" | xargs -I {} kubectl apply -f {}
+        mvn -B compile --file ./source/pom.xml
+        find ./source/target/classes/META-INF/fabric8 -type f -name "*-v1.yml" | xargs -I {} kubectl apply -f {}
         kubectl get crd
-        mvn -B test --file pom.xml
+        mvn -B test --file ./source/pom.xml
