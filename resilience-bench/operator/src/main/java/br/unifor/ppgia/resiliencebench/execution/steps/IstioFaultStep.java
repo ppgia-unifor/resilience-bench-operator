@@ -1,4 +1,4 @@
-package br.unifor.ppgia.resiliencebench.scenarioexec;
+package br.unifor.ppgia.resiliencebench.execution.steps;
 
 import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
 import br.unifor.ppgia.resiliencebench.resources.scenario.ScenarioFaultTemplate;

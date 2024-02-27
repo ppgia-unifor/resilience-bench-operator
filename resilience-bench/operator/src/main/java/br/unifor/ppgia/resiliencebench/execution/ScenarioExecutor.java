@@ -1,5 +1,8 @@
-package br.unifor.ppgia.resiliencebench.scenarioexec;
+package br.unifor.ppgia.resiliencebench.execution;
 
+import br.unifor.ppgia.resiliencebench.execution.steps.IstioFaultStep;
+import br.unifor.ppgia.resiliencebench.execution.steps.IstioRetryStep;
+import br.unifor.ppgia.resiliencebench.execution.steps.K6LoadGeneratorStep;
 import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
 import br.unifor.ppgia.resiliencebench.support.CustomResourceRepository;
 import io.fabric8.istio.client.IstioClient;
@@ -10,12 +13,12 @@ import java.util.Arrays;
 
 import static java.lang.String.format;
 
-public class ScenarioRunner2 {
+public class ScenarioExecutor {
 
   private final KubernetesClient kubernetesClient;
   private final IstioClient istioClient;
 
-  public ScenarioRunner2(KubernetesClient kubernetesClient, IstioClient istioClient) {
+  public ScenarioExecutor(KubernetesClient kubernetesClient, IstioClient istioClient) {
     this.istioClient = istioClient;
     this.kubernetesClient = kubernetesClient;
   }

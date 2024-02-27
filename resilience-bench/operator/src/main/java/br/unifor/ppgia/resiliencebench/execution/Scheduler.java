@@ -1,9 +1,8 @@
-package br.unifor.ppgia.resiliencebench;
+package br.unifor.ppgia.resiliencebench.execution;
 
 import br.unifor.ppgia.resiliencebench.resources.queue.ExecutionQueue;
 import br.unifor.ppgia.resiliencebench.resources.queue.Item;
 import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
-import br.unifor.ppgia.resiliencebench.scenarioexec.ScenarioRunner2;
 import br.unifor.ppgia.resiliencebench.support.CustomResourceRepository;
 import io.fabric8.istio.client.DefaultIstioClient;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
@@ -66,7 +65,7 @@ public class Scheduler implements Watcher<Job> {
   }
 
   private void createJob(String namespace, Item item) {
-    var runner = new ScenarioRunner2(this.client, new DefaultIstioClient());
+    var runner = new ScenarioExecutor(this.client, new DefaultIstioClient());
     var job = runner.run(namespace, item.getScenario());
     var jobsClient = client.batch().v1().jobs();
     job = jobsClient.resource(job).create();

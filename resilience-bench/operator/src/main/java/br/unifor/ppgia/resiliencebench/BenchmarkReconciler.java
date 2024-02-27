@@ -1,5 +1,6 @@
 package br.unifor.ppgia.resiliencebench;
 
+import br.unifor.ppgia.resiliencebench.execution.Scheduler;
 import br.unifor.ppgia.resiliencebench.resources.ExecutionQueueFactory;
 import br.unifor.ppgia.resiliencebench.resources.ScenarioFactory;
 import br.unifor.ppgia.resiliencebench.resources.benchmark.Benchmark;
