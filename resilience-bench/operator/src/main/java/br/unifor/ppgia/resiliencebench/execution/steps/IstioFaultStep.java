@@ -6,8 +6,12 @@ import io.fabric8.istio.api.networking.v1beta1.HTTPFaultInjection;
 import io.fabric8.istio.api.networking.v1beta1.VirtualService;
 import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IstioFaultStep extends IstioExecutorStep<VirtualService> {
+
+  private final static Logger logger = LoggerFactory.getLogger(IstioFaultStep.class);
 
   public IstioFaultStep(KubernetesClient kubernetesClient, IstioClient istioClient) {
     super(kubernetesClient, istioClient);
@@ -44,13 +48,18 @@ public class IstioFaultStep extends IstioExecutorStep<VirtualService> {
   }
 
   public HTTPFaultInjection configureFault(ScenarioFaultTemplate faultTemplate) {
+    if (faultTemplate == null || (faultTemplate.getAbort() == null && faultTemplate.getDelay() == null)) {
+      logger.error("Fault template is null. No fault was configured.");
+      return null;
+    }
+
     var builder = new HTTPFaultInjection().toBuilder();
     if (faultTemplate.getDelay() != null) {
       builder.withNewDelay()
               .withNewPercentage(faultTemplate.getPercentage().doubleValue())
               .withNewHTTPFaultInjectionDelayFixedHttpType(faultTemplate.getDelay().duration() + "ms")
               .endDelay();
-    } else {
+    } else if (faultTemplate.getAbort() != null) {
       builder.withNewAbort()
               .withNewPercentage(faultTemplate.getPercentage().doubleValue())
               .withNewHTTPFaultInjectionAbortHttpStatusErrorType(faultTemplate.getAbort().httpStatus())
