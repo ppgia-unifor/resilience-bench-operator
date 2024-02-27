@@ -1,8 +1,8 @@
 package br.unifor.ppgia.resiliencebench;
 
-import br.unifor.ppgia.resiliencebench.execution.queue.ExecutionQueue;
-import br.unifor.ppgia.resiliencebench.execution.queue.Item;
-import br.unifor.ppgia.resiliencebench.execution.scenario.Scenario;
+import br.unifor.ppgia.resiliencebench.resources.queue.ExecutionQueue;
+import br.unifor.ppgia.resiliencebench.resources.queue.Item;
+import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
 import br.unifor.ppgia.resiliencebench.scenarioexec.ScenarioRunner2;
 import br.unifor.ppgia.resiliencebench.support.CustomResourceRepository;
 import io.fabric8.istio.client.DefaultIstioClient;

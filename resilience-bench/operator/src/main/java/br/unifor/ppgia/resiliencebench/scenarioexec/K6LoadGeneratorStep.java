@@ -1,8 +1,8 @@
 package br.unifor.ppgia.resiliencebench.scenarioexec;
 
-import br.unifor.ppgia.resiliencebench.execution.scenario.Scenario;
-import br.unifor.ppgia.resiliencebench.execution.scenario.ScenarioWorkload;
-import br.unifor.ppgia.resiliencebench.modeling.workload.Workload;
+import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
+import br.unifor.ppgia.resiliencebench.resources.scenario.ScenarioWorkload;
+import br.unifor.ppgia.resiliencebench.resources.workload.Workload;
 import br.unifor.ppgia.resiliencebench.support.CustomResourceRepository;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;

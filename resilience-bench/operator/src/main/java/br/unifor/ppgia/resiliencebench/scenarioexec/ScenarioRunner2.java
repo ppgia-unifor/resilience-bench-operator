@@ -1,6 +1,6 @@
 package br.unifor.ppgia.resiliencebench.scenarioexec;
 
-import br.unifor.ppgia.resiliencebench.execution.scenario.Scenario;
+import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
 import br.unifor.ppgia.resiliencebench.support.CustomResourceRepository;
 import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;

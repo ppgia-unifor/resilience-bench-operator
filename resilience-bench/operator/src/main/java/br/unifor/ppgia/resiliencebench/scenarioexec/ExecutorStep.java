@@ -1,6 +1,6 @@
 package br.unifor.ppgia.resiliencebench.scenarioexec;
 
-import br.unifor.ppgia.resiliencebench.execution.scenario.Scenario;
+import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
 

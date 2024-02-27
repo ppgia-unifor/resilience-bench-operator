@@ -1,6 +1,6 @@
 package br.unifor.ppgia.resiliencebench.scenarioexec;
 
-import br.unifor.ppgia.resiliencebench.execution.scenario.Scenario;
+import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
 import io.fabric8.istio.api.networking.v1beta1.HTTPRetry;
 import io.fabric8.istio.api.networking.v1beta1.VirtualService;
 import io.fabric8.istio.client.IstioClient;

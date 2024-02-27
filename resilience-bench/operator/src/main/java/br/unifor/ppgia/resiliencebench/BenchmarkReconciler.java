@@ -1,11 +1,11 @@
 package br.unifor.ppgia.resiliencebench;
 
-import br.unifor.ppgia.resiliencebench.execution.ExecutionQueueFactory;
-import br.unifor.ppgia.resiliencebench.execution.ScenarioFactory;
-import br.unifor.ppgia.resiliencebench.execution.queue.ExecutionQueue;
-import br.unifor.ppgia.resiliencebench.execution.scenario.Scenario;
-import br.unifor.ppgia.resiliencebench.modeling.benchmark.Benchmark;
-import br.unifor.ppgia.resiliencebench.modeling.workload.Workload;
+import br.unifor.ppgia.resiliencebench.resources.ExecutionQueueFactory;
+import br.unifor.ppgia.resiliencebench.resources.ScenarioFactory;
+import br.unifor.ppgia.resiliencebench.resources.benchmark.Benchmark;
+import br.unifor.ppgia.resiliencebench.resources.queue.ExecutionQueue;
+import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
+import br.unifor.ppgia.resiliencebench.resources.workload.Workload;
 import br.unifor.ppgia.resiliencebench.support.CustomResourceRepository;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
