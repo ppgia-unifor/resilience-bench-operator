@@ -3,9 +3,10 @@ package br.unifor.ppgia.resiliencebench;
 import br.unifor.ppgia.resiliencebench.execution.queue.ExecutionQueue;
 import br.unifor.ppgia.resiliencebench.execution.queue.Item;
 import br.unifor.ppgia.resiliencebench.execution.scenario.Scenario;
+import br.unifor.ppgia.resiliencebench.scenarioexec.ScenarioRunner2;
 import br.unifor.ppgia.resiliencebench.support.CustomResourceRepository;
+import io.fabric8.istio.client.DefaultIstioClient;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
-import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.WatcherException;
@@ -15,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Objects;
-import java.util.UUID;
 
 import static br.unifor.ppgia.resiliencebench.support.Annotations.OWNED_BY;
 
@@ -65,32 +65,12 @@ public class Scheduler implements Watcher<Job> {
     return deve;
   }
 
-  private void createJob(String namespace, Item scenario) {
-    var jobName = UUID.randomUUID().toString();
-    var job = new JobBuilder()
-            .withApiVersion("batch/v1")
-            .withNewMetadata()
-            .withName(jobName)
-            .withNamespace(namespace)
-            .addToAnnotations("scenario", scenario.getScenario())
-            .endMetadata()
-            .withNewSpec()
-            .withBackoffLimit(4)
-            .withNewTemplate()
-            .withNewSpec()
-            .withRestartPolicy("Never")
-            .addNewContainer()
-            .withName("kubectl")
-            .withCommand("sleep", "3")
-            .withImage("alpine")
-            .endContainer()
-            .endSpec()
-            .endTemplate().and().build();
-
+  private void createJob(String namespace, Item item) {
+    var runner = new ScenarioRunner2(this.client, new DefaultIstioClient());
+    var job = runner.run(namespace, item.getScenario());
     var jobsClient = client.batch().v1().jobs();
     job = jobsClient.resource(job).create();
     jobsClient.resource(job).watch(this);
-    logger.debug("Created job: {}", jobName);
   }
 
   private void updateStatus(Item queueItem, String namespace, String status, ExecutionQueue executionQueue) {
@@ -106,7 +86,7 @@ public class Scheduler implements Watcher<Job> {
     if (action.equals(Action.MODIFIED)) {
       if (Objects.nonNull(resource.getStatus().getCompletionTime())) {
         logger.debug("Finished job: {}", resource.getMetadata().getName());
-        var scenarioName = resource.getMetadata().getAnnotations().get("scenario");
+        var scenarioName = resource.getMetadata().getAnnotations().get("resiliencebench.io/scenario");
         var scenario = new CustomResourceRepository<>(client, Scenario.class).get(namespace, scenarioName).get();
         var executionQueue = new CustomResourceRepository<>(client, ExecutionQueue.class).get(namespace, scenario.getMetadata().getAnnotations().get(OWNED_BY)).get();
         var queueItem = executionQueue.getSpec().getItems().stream().filter(item -> item.getScenario().equals(scenarioName)).findFirst().get();

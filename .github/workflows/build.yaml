@@ -25,7 +25,7 @@ jobs:
     - name: Test with Maven
       run: | 
         kubectl cluster-info --context kind-chart-testing
-        mvn -B compile --file ./resilience-bench/pom.xml
+        mvn -B compile --file ./resilience-bench/operator/pom.xml
         find ./resilience-bench/operator/target/classes/META-INF/fabric8 -type f -name "*-v1.yml" | xargs -I {} kubectl apply -f {}
         kubectl get crd
-        mvn -B test --file ./resilience-bench/pom.xml
+        mvn -B test --file ./resilience-bench/operator/pom.xml
