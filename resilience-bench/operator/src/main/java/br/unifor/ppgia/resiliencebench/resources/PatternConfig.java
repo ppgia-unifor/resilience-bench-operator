@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static io.vertx.core.impl.ConversionHelper.toObject;
 import static java.util.stream.Collectors.joining;
 
 public class PatternConfig extends ArrayList<PatternConfig.Attribute> {
@@ -72,7 +71,7 @@ public class PatternConfig extends ArrayList<PatternConfig.Attribute> {
         return getValue().asBoolean();
       } else if (getValue().isArray()) {
         var list = new ArrayList<>();
-        getValue().elements().forEachRemaining(element -> list.add(toObject(element)));
+        getValue().elements().forEachRemaining(list::add);
         return list;
       } else {
         return getValue();

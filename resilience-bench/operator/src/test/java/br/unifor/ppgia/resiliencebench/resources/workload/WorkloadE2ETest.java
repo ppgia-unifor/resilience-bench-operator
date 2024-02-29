@@ -4,6 +4,8 @@ import br.unifor.ppgia.resiliencebench.BenchmarkReconciler;
 import br.unifor.ppgia.resiliencebench.ResilienceServiceReconciler;
 import br.unifor.ppgia.resiliencebench.support.ConfigMapReference;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.javaoperatorsdk.operator.junit.AbstractOperatorExtension;
 import io.javaoperatorsdk.operator.junit.LocallyRunOperatorExtension;
@@ -16,12 +18,13 @@ import java.util.List;
 
 public class WorkloadE2ETest {
 
+  private static final KubernetesClient kubernetesClient = new KubernetesClientBuilder().build();
   @RegisterExtension
   static AbstractOperatorExtension operator =  LocallyRunOperatorExtension.builder()
           .waitForNamespaceDeletion(false)
           .oneNamespacePerClass(true)
           .withReconciler(new ResilienceServiceReconciler())
-          .withReconciler(new BenchmarkReconciler())
+          .withReconciler(new BenchmarkReconciler(kubernetesClient))
           .build();
 
   @Test

@@ -19,8 +19,8 @@ public class ScenarioExecutor {
   private final IstioClient istioClient;
 
   public ScenarioExecutor(KubernetesClient kubernetesClient, IstioClient istioClient) {
+     this.kubernetesClient = kubernetesClient;
     this.istioClient = istioClient;
-    this.kubernetesClient = kubernetesClient;
   }
 
   public Job run(String namespace, String name) {

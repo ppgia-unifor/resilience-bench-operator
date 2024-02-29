@@ -5,7 +5,11 @@
             <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %l{36} - %msg%n"/>
         </Console>
     </Appenders>
+
+
     <Loggers>
+        <logger name="io.fabric8" level="DEBUG"/>
+        <logger name="br.unifor.ppgia.resiliencebench" level="DEBUG"/>
         <Root level="info">
             <AppenderRef ref="Console"/>
         </Root>

@@ -47,8 +47,19 @@
         <!-- fabric8 -->
         <dependency>
             <groupId>io.fabric8</groupId>
+            <artifactId>kubernetes-client</artifactId>
+            <version>6.10.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
             <artifactId>istio-client</artifactId>
             <version>${fabric8-client.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>kubernetes-httpclient-okhttp</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>

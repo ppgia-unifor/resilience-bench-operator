@@ -14,24 +14,32 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Objects;
 
 import static br.unifor.ppgia.resiliencebench.support.Annotations.OWNED_BY;
+import static java.util.Objects.*;
 
 public class Scheduler implements Watcher<Job> {
 
   private final static Logger logger = LoggerFactory.getLogger(Scheduler.class);
-  private final KubernetesClient client;
+  private final KubernetesClient kubernetesClient;
 
   private final CustomResourceRepository<ExecutionQueue> queueCustomResourceRepository;
+  private final CustomResourceRepository<Scenario> scenarioRepository;
+  private final CustomResourceRepository<ExecutionQueue> executionRepository;
 
-  public Scheduler(KubernetesClient client, CustomResourceRepository<ExecutionQueue> queueCustomResourceRepository) {
-    this.client = client;
+  public Scheduler(KubernetesClient kubernetesClient, CustomResourceRepository<ExecutionQueue> queueCustomResourceRepository, CustomResourceRepository<Scenario> scenarioRepository, CustomResourceRepository<ExecutionQueue> executionRepository) {
+    this.kubernetesClient = kubernetesClient;
     this.queueCustomResourceRepository = queueCustomResourceRepository;
+    this.scenarioRepository = scenarioRepository;
+    this.executionRepository = executionRepository;
   }
 
-  public Scheduler(KubernetesClient client) {
-    this(client, new CustomResourceRepository<>(client, ExecutionQueue.class));
+  public Scheduler(KubernetesClient kubernetesClient) {
+    this(
+            kubernetesClient,
+            new CustomResourceRepository<>(kubernetesClient.resources(ExecutionQueue.class)),
+            new CustomResourceRepository<>(kubernetesClient.resources(Scenario.class)),
+            new CustomResourceRepository<>(kubernetesClient.resources(ExecutionQueue.class)));
   }
 
   private Item getNextItem(ExecutionQueue queue) {
@@ -49,7 +57,7 @@ public class Scheduler implements Watcher<Job> {
 
       if (nextItem.isPending()) {
         if (!existsJobRunning(namespace)) {
-          createJob(namespace, nextItem);
+          runScenario(namespace, nextItem.getScenario());
           updateStatus(nextItem, namespace, "running", executionQueue);
         }
       }
@@ -57,18 +65,18 @@ public class Scheduler implements Watcher<Job> {
   }
 
   private boolean existsJobRunning(String namespace) {
-    var jobs = client.batch().v1().jobs().inNamespace(namespace).list();
-    var deve = jobs.getItems().stream().anyMatch(job ->
-            Objects.isNull(job.getStatus().getCompletionTime()) && job.getMetadata().getAnnotations().containsKey("scenario"));
-    logger.info("Deve processar: {}", deve);
-    return deve;
+    var jobs = kubernetesClient.batch().v1().jobs().inNamespace(namespace).list();
+    return jobs.getItems().stream().anyMatch(job ->
+            isNull(job.getStatus().getCompletionTime()) && job.getMetadata().getAnnotations().containsKey("resiliencebench.io/scenario"));
   }
 
-  private void createJob(String namespace, Item item) {
-    var runner = new ScenarioExecutor(this.client, new DefaultIstioClient());
-    var job = runner.run(namespace, item.getScenario());
-    var jobsClient = client.batch().v1().jobs();
+  private void runScenario(String namespace, String name) {
+    logger.debug("Running scenario: {}", name);
+    var runner = new ScenarioExecutor(this.kubernetesClient, new DefaultIstioClient(this.kubernetesClient));
+    var job = runner.run(namespace, name);
+    var jobsClient = kubernetesClient.batch().v1().jobs();
     job = jobsClient.resource(job).create();
+    logger.debug("Job created: {}", job.getMetadata().getName());
     jobsClient.resource(job).watch(this);
   }
 
@@ -83,11 +91,11 @@ public class Scheduler implements Watcher<Job> {
   public void eventReceived(Action action, Job resource) { // TODO precisa melhorar esse método. mto emaranhado!
     var namespace = resource.getMetadata().getNamespace();
     if (action.equals(Action.MODIFIED)) {
-      if (Objects.nonNull(resource.getStatus().getCompletionTime())) {
+      if (nonNull(resource.getStatus().getCompletionTime())) {
         logger.debug("Finished job: {}", resource.getMetadata().getName());
         var scenarioName = resource.getMetadata().getAnnotations().get("resiliencebench.io/scenario");
-        var scenario = new CustomResourceRepository<>(client, Scenario.class).get(namespace, scenarioName).get();
-        var executionQueue = new CustomResourceRepository<>(client, ExecutionQueue.class).get(namespace, scenario.getMetadata().getAnnotations().get(OWNED_BY)).get();
+        var scenario = scenarioRepository.get(namespace, scenarioName).get();
+        var executionQueue = executionRepository.get(namespace, scenario.getMetadata().getAnnotations().get(OWNED_BY)).get();
         var queueItem = executionQueue.getSpec().getItems().stream().filter(item -> item.getScenario().equals(scenarioName)).findFirst().get();
         updateStatus(queueItem, namespace, "finished", executionQueue);
         run(executionQueue);

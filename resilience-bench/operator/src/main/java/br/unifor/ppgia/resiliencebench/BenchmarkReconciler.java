@@ -8,6 +8,7 @@ import br.unifor.ppgia.resiliencebench.resources.queue.ExecutionQueue;
 import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
 import br.unifor.ppgia.resiliencebench.resources.workload.Workload;
 import br.unifor.ppgia.resiliencebench.support.CustomResourceRepository;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
 import io.javaoperatorsdk.operator.api.reconciler.Reconciler;
@@ -22,11 +23,25 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
 
   private static final Logger logger = LoggerFactory.getLogger(BenchmarkReconciler.class);
 
+  private final KubernetesClient kubernetesClient;
+
+  private final CustomResourceRepository<Scenario> scenarioRepository;
+
+  private final CustomResourceRepository<Workload> workloadRepository;
+  private final CustomResourceRepository<ExecutionQueue> executionRepository;
+
+  private final Scheduler scheduler;
+
+  public BenchmarkReconciler(KubernetesClient kubernetesClient) {
+    this.kubernetesClient = kubernetesClient;
+    scenarioRepository = new CustomResourceRepository<>(kubernetesClient.resources(Scenario.class));
+    workloadRepository = new CustomResourceRepository<>(kubernetesClient.resources(Workload.class));
+    executionRepository = new CustomResourceRepository<>(kubernetesClient.resources(ExecutionQueue.class));
+    scheduler = new Scheduler(kubernetesClient);
+  }
+
   @Override
   public UpdateControl<Benchmark> reconcile(Benchmark benchmark, Context<Benchmark> context) {
-    var scenarioRepository = new CustomResourceRepository<>(context.getClient(), Scenario.class);
-    var workloadRepository = new CustomResourceRepository<>(context.getClient(), Workload.class);
-
     var workload = workloadRepository.get(benchmark.getMetadata().getNamespace(), benchmark.getSpec().getWorkload());
     if (workload.isEmpty()) {
       logger.error("Workload not found: {}", benchmark.getSpec().getWorkload());
@@ -39,14 +54,10 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
       return UpdateControl.noUpdate();
     }
 
-    var executionRepository = new CustomResourceRepository<>(context.getClient(), ExecutionQueue.class);
     var executionQueue = getOrCreateQueue(benchmark, executionRepository, scenariosList);
-
     scenariosList.forEach(scenario -> createOrUpdateScenario(scenario, scenarioRepository));
 
-    var scheduler = new Scheduler(context.getClient());
     scheduler.run(executionQueue);
-
     logger.info("Benchmark reconciled: {}", benchmark.getMetadata().getName());
     return UpdateControl.noUpdate();
   }
