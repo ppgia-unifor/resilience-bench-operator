@@ -3,6 +3,7 @@ package br.unifor.ppgia.resiliencebench.execution.steps;
 import br.unifor.ppgia.resiliencebench.resources.scenario.Scenario;
 import br.unifor.ppgia.resiliencebench.resources.scenario.ScenarioWorkload;
 import br.unifor.ppgia.resiliencebench.resources.workload.Workload;
+import br.unifor.ppgia.resiliencebench.support.Annotations;
 import br.unifor.ppgia.resiliencebench.support.CustomResourceRepository;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
@@ -16,13 +17,19 @@ import java.util.UUID;
 import static br.unifor.ppgia.resiliencebench.support.Annotations.CREATED_BY;
 
 public class K6LoadGeneratorStep extends ExecutorStep<Job> {
+
+  private final CustomResourceRepository<Workload> workloadRepository;
   public K6LoadGeneratorStep(KubernetesClient kubernetesClient) {
+    this(kubernetesClient, new CustomResourceRepository<>(kubernetesClient.resources(Workload.class)));
+  }
+
+  public K6LoadGeneratorStep(KubernetesClient kubernetesClient, CustomResourceRepository<Workload> workloadRepository) {
     super(kubernetesClient);
+    this.workloadRepository = workloadRepository;
   }
 
   @Override
   public Job execute(Scenario scenario) {
-    var workloadRepository = new CustomResourceRepository<>(kubernetesClient(), Workload.class);
     var workload = workloadRepository.get(scenario.getMetadata().getNamespace(), scenario.getSpec().getWorkload().getWorkloadName());
     return createJob(scenario, workload.get(), scenario.getSpec().getWorkload()); // TODO verify if workload exists
   }
@@ -40,7 +47,7 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
   public List<String> createCommand(Scenario scenario, ScenarioWorkload scenarioWorkload, Workload workload) {
     return Arrays.asList(
             "k6", "run", "/scripts/k6.js",
-            "--out", String.format("csv=/results/%s.gz", scenario.getMetadata().getName()),
+            "--out", String.format("json=/results/%s.json", scenario.getMetadata().getName()),
             "--vus", String.valueOf(scenarioWorkload.getUsers()),
             "--tag", "workloadName=" + workload.getMetadata().getName(),
             "--duration", workload.getSpec().getDuration() + "s"
@@ -48,8 +55,14 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
   }
 
   public Job createJob(Scenario scenario, Workload workload, ScenarioWorkload scenarioWorkload) {
+    var meta = createMeta(scenario, workload);
+    var job = kubernetesClient().batch().v1().jobs().inNamespace(meta.getNamespace()).withName(meta.getName()).get();
+    if (job != null) {
+      return job;
+    }
+
     return new JobBuilder()
-            .withMetadata(createMeta(scenario, workload))
+            .withMetadata(meta)
             .withNewSpec()
             .withNewTemplate()
             .withNewMetadata()

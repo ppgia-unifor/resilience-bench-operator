@@ -1,6 +1,7 @@
 package br.unifor.ppgia.resiliencebench;
 
-import br.unifor.ppgia.resiliencebench.execution.Scheduler;
+import br.unifor.ppgia.resiliencebench.execution.IstioScenarioExecutor;
+import br.unifor.ppgia.resiliencebench.execution.ScenarioExecutor;
 import br.unifor.ppgia.resiliencebench.resources.ExecutionQueueFactory;
 import br.unifor.ppgia.resiliencebench.resources.ScenarioFactory;
 import br.unifor.ppgia.resiliencebench.resources.benchmark.Benchmark;
@@ -30,14 +31,14 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
   private final CustomResourceRepository<Workload> workloadRepository;
   private final CustomResourceRepository<ExecutionQueue> executionRepository;
 
-  private final Scheduler scheduler;
+  private final ScenarioExecutor istioScenarioExecutor;
 
   public BenchmarkReconciler(KubernetesClient kubernetesClient) {
     this.kubernetesClient = kubernetesClient;
     scenarioRepository = new CustomResourceRepository<>(kubernetesClient.resources(Scenario.class));
     workloadRepository = new CustomResourceRepository<>(kubernetesClient.resources(Workload.class));
     executionRepository = new CustomResourceRepository<>(kubernetesClient.resources(ExecutionQueue.class));
-    scheduler = new Scheduler(kubernetesClient);
+    istioScenarioExecutor = new IstioScenarioExecutor(kubernetesClient);
   }
 
   @Override
@@ -57,7 +58,7 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
     var executionQueue = getOrCreateQueue(benchmark, executionRepository, scenariosList);
     scenariosList.forEach(scenario -> createOrUpdateScenario(scenario, scenarioRepository));
 
-    scheduler.run(executionQueue);
+    istioScenarioExecutor.run(executionQueue);
     logger.info("Benchmark reconciled: {}", benchmark.getMetadata().getName());
     return UpdateControl.noUpdate();
   }
@@ -82,6 +83,4 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
       logger.debug("Scenario already exists: {}", scenario.getMetadata().getName());
     }
   }
-
-
 }
