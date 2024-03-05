@@ -20,7 +20,7 @@ Before you begin development, ensure you have the following prerequisites instal
 
 Before starting development, install the k6-Operator and Istio into your Kubernetes cluster by following their respective installation guides:
 
-- **k6-Operator Installation Guide**: [k6-Operator Installation Documentation](https://example.com/k6-operator-installation)
+- **k6-Operator Installation Guide**: [k6 Operator](https://github.com/grafana/k6-operator)
 - **Istio Installation Guide**: [Istio Installation Documentation](https://istio.io/latest/docs/setup/install/)
 
 Please replace the URLs with the actual links to the installation guides for k6-Operator and Istio.

@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>br.unifor.ppgia</groupId>
-    <artifactId>resilience-bench-operator</artifactId>
+    <groupId>io.resiliencebench</groupId>
+    <artifactId>resiliencebench-operator</artifactId>
     <version>1.0.0</version>
 
     <properties>
@@ -140,7 +140,7 @@
                         <image>gcr.io/distroless/java17-debian11</image>
                     </from>
                     <to>
-                        <image>resilience-bench-operator</image>
+                        <image>resiliencebench-operator</image>
                     </to>
                 </configuration>
             </plugin>
