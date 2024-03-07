@@ -17,8 +17,15 @@
         <jib-maven-plugin.version>3.4.0</jib-maven-plugin.version>
         <fabric8-client.version>6.10.0</fabric8-client.version>
         <junit.version>5.10.2</junit.version>
+        <spring-boot.version>3.0.6</spring-boot.version>
     </properties>
 
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.3</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
 
     <dependencyManagement>
         <dependencies>
@@ -89,6 +96,12 @@
             <version>1.24.4</version>
         </dependency>
 
+        <!-- spring -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
         <!-- testing -->
         <dependency>
             <groupId>io.javaoperatorsdk</groupId>
@@ -123,6 +136,11 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -180,6 +198,10 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

@@ -4,18 +4,23 @@ import io.fabric8.istio.api.networking.v1beta1.HTTPRetry;
 import io.fabric8.istio.api.networking.v1beta1.VirtualService;
 import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
+import io.resiliencebench.resources.service.ResilientService;
+import io.resiliencebench.support.CustomResourceRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+@Service
 public class IstioRetryStep extends IstioExecutorStep<VirtualService> {
 
-  public IstioRetryStep(KubernetesClient kubernetesClient, IstioClient istioClient) {
-    super(kubernetesClient, istioClient);
+  public IstioRetryStep(KubernetesClient kubernetesClient, IstioClient istioClient, CustomResourceRepository<ResilientService> serviceRepository) {
+    super(kubernetesClient, istioClient, serviceRepository);
   }
 
   @Override
-  public VirtualService execute(Scenario scenario) {
+  public VirtualService execute(Scenario scenario, ExecutionQueue executionQueue) {
 
     // TODO verify if scenario has a retry pattern configured
 

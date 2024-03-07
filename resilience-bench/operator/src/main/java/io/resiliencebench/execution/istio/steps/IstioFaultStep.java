@@ -4,21 +4,26 @@ import io.fabric8.istio.api.networking.v1beta1.HTTPFaultInjection;
 import io.fabric8.istio.api.networking.v1beta1.VirtualService;
 import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
 import io.resiliencebench.resources.scenario.ScenarioFaultTemplate;
+import io.resiliencebench.resources.service.ResilientService;
+import io.resiliencebench.support.CustomResourceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
+@Service
 public class IstioFaultStep extends IstioExecutorStep<VirtualService> {
 
   private final static Logger logger = LoggerFactory.getLogger(IstioFaultStep.class);
 
-  public IstioFaultStep(KubernetesClient kubernetesClient, IstioClient istioClient) {
-    super(kubernetesClient, istioClient);
+  public IstioFaultStep(KubernetesClient kubernetesClient, IstioClient istioClient, CustomResourceRepository<ResilientService> serviceRepository) {
+    super(kubernetesClient, istioClient, serviceRepository);
   }
 
   @Override
-  public VirtualService execute(Scenario scenario) {
+  public VirtualService execute(Scenario scenario, ExecutionQueue executionQueue) {
     var targetService =
             findVirtualService(
                     scenario.getMetadata().getNamespace(),

@@ -2,6 +2,7 @@ package io.resiliencebench.execution;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
 
 public abstract class ExecutorStep<TResult extends HasMetadata> {
@@ -16,5 +17,5 @@ public abstract class ExecutorStep<TResult extends HasMetadata> {
     return kubernetesClient;
   }
 
-  public abstract TResult execute(Scenario scenario);
+  public abstract TResult execute(Scenario scenario, ExecutionQueue queue);
 }

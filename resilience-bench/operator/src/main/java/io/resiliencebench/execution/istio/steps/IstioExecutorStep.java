@@ -5,19 +5,24 @@ import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.resiliencebench.execution.ExecutorStep;
+import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
 import io.resiliencebench.resources.service.ResilientService;
 import io.resiliencebench.support.CustomResourceRepository;
+import org.springframework.stereotype.Service;
 
 import static java.lang.String.format;
 
+@Service
 public abstract class IstioExecutorStep<TResult extends HasMetadata> extends ExecutorStep<TResult> {
 
   private final IstioClient istioClient;
+  private final CustomResourceRepository<ResilientService> serviceRepository;
 
-  public IstioExecutorStep(KubernetesClient kubernetesClient, IstioClient istioClient) {
+  public IstioExecutorStep(KubernetesClient kubernetesClient, IstioClient istioClient, CustomResourceRepository<ResilientService> serviceRepository) {
     super(kubernetesClient);
     this.istioClient = istioClient;
+    this.serviceRepository = serviceRepository;
   }
 
   protected IstioClient istioClient() {
@@ -25,7 +30,6 @@ public abstract class IstioExecutorStep<TResult extends HasMetadata> extends Exe
   }
 
   protected VirtualService findVirtualService(String namespace, String name) {
-    var serviceRepository = new CustomResourceRepository<>(kubernetesClient(), ResilientService.class);
     var targetService = serviceRepository.get(namespace, name);
 
     if (targetService.isPresent()) {
@@ -42,5 +46,5 @@ public abstract class IstioExecutorStep<TResult extends HasMetadata> extends Exe
   }
 
   @Override
-  public abstract TResult execute(Scenario scenario);
+  public abstract TResult execute(Scenario scenario, ExecutionQueue executionQueue);
 }

@@ -12,6 +12,8 @@ public class Item {
   private String startedAt;
   private String finishedAt;
 
+  private String resultFile;
+
   public Item(String scenario) {
     this.scenario = scenario;
     this.status = Status.PENDING;
@@ -43,6 +45,10 @@ public class Item {
     this.startedAt = startedAt;
   }
 
+  public void setFinishedAt(String finishedAt) {
+    this.finishedAt = finishedAt;
+  }
+
   @JsonIgnore
   public boolean isPending() {
     return status.equals(Status.PENDING);
@@ -51,6 +57,14 @@ public class Item {
   @JsonIgnore
   public boolean isRunning() {
     return status.equals(Status.RUNNING);
+  }
+
+  public void setResultFile(String resultFile) {
+    this.resultFile = resultFile;
+  }
+
+  public String getResultFile() {
+    return resultFile;
   }
 
   interface Status {

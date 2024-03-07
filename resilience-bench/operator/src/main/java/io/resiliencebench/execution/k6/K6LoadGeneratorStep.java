@@ -5,10 +5,12 @@ import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.resiliencebench.execution.ExecutorStep;
+import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
 import io.resiliencebench.resources.scenario.ScenarioWorkload;
 import io.resiliencebench.resources.workload.Workload;
 import io.resiliencebench.support.CustomResourceRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,12 +18,10 @@ import java.util.UUID;
 
 import static io.resiliencebench.support.Annotations.CREATED_BY;
 
+@Service
 public class K6LoadGeneratorStep extends ExecutorStep<Job> {
 
   private final CustomResourceRepository<Workload> workloadRepository;
-  public K6LoadGeneratorStep(KubernetesClient kubernetesClient) {
-    this(kubernetesClient, new CustomResourceRepository<>(kubernetesClient.resources(Workload.class)));
-  }
 
   public K6LoadGeneratorStep(KubernetesClient kubernetesClient, CustomResourceRepository<Workload> workloadRepository) {
     super(kubernetesClient);
@@ -29,7 +29,7 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
   }
 
   @Override
-  public Job execute(Scenario scenario) {
+  public Job execute(Scenario scenario, ExecutionQueue executionQueue) {
     var workload = workloadRepository.get(scenario.getMetadata().getNamespace(), scenario.getSpec().getWorkload().getWorkloadName());
     return createJob(scenario, workload.get(), scenario.getSpec().getWorkload()); // TODO verify if workload exists
   }

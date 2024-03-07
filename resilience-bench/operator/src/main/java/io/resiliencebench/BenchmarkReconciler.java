@@ -1,12 +1,10 @@
 package io.resiliencebench;
 
-import io.fabric8.kubernetes.client.KubernetesClient;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
 import io.javaoperatorsdk.operator.api.reconciler.Reconciler;
 import io.javaoperatorsdk.operator.api.reconciler.UpdateControl;
 import io.resiliencebench.execution.ScenarioExecutor;
-import io.resiliencebench.execution.istio.IstioScenarioExecutor;
 import io.resiliencebench.resources.ExecutionQueueFactory;
 import io.resiliencebench.resources.ScenarioFactory;
 import io.resiliencebench.resources.benchmark.Benchmark;
@@ -24,21 +22,21 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
 
   private static final Logger logger = LoggerFactory.getLogger(BenchmarkReconciler.class);
 
-  private final KubernetesClient kubernetesClient;
-
   private final CustomResourceRepository<Scenario> scenarioRepository;
 
   private final CustomResourceRepository<Workload> workloadRepository;
   private final CustomResourceRepository<ExecutionQueue> executionRepository;
 
-  private final ScenarioExecutor istioScenarioExecutor;
+  private final ScenarioExecutor scenarioExecutor;
 
-  public BenchmarkReconciler(KubernetesClient kubernetesClient) {
-    this.kubernetesClient = kubernetesClient;
-    scenarioRepository = new CustomResourceRepository<>(kubernetesClient.resources(Scenario.class));
-    workloadRepository = new CustomResourceRepository<>(kubernetesClient.resources(Workload.class));
-    executionRepository = new CustomResourceRepository<>(kubernetesClient.resources(ExecutionQueue.class));
-    istioScenarioExecutor = new IstioScenarioExecutor(kubernetesClient);
+  public BenchmarkReconciler(ScenarioExecutor scenarioExecutor,
+                             CustomResourceRepository<Scenario> scenarioRepository,
+                             CustomResourceRepository<Workload> workloadRepository,
+                             CustomResourceRepository<ExecutionQueue> executionRepository) {
+    this.scenarioExecutor = scenarioExecutor;
+    this.scenarioRepository = scenarioRepository;
+    this.workloadRepository = workloadRepository;
+    this.executionRepository = executionRepository;
   }
 
   @Override
@@ -58,7 +56,7 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
     var executionQueue = getOrCreateQueue(benchmark, executionRepository, scenariosList);
     scenariosList.forEach(scenario -> createOrUpdateScenario(scenario, scenarioRepository));
 
-    istioScenarioExecutor.run(executionQueue);
+    scenarioExecutor.run(executionQueue);
     logger.info("Benchmark reconciled: {}", benchmark.getMetadata().getName());
     return UpdateControl.noUpdate();
   }
