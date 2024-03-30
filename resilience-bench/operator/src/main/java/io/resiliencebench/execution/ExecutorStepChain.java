@@ -2,7 +2,7 @@ package io.resiliencebench.execution;
 
 import java.util.List;
 
-public interface StepChain {
+public interface ExecutorStepChain {
 
   List<ExecutorStep<?>> getPreparationSteps();
 
