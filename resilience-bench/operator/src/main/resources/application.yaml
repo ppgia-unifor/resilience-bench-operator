@@ -1,0 +1,5 @@
+javaoperatorsdk:
+  reconcilers:
+    benchmarkreconciler:
+      retry:
+        maxAttempts: 3

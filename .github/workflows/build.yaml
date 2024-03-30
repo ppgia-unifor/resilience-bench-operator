@@ -29,3 +29,17 @@ jobs:
         find ./resilience-bench/operator/target/classes/META-INF/fabric8 -type f -name "*-v1.yml" | xargs -I {} kubectl apply -f {}
         kubectl get crd
         mvn -B test --file ./resilience-bench/operator/pom.xml
+    
+    # Log in to GitHub Container Registry
+    - name: Log in to the Container registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    # Build and push Docker image
+    - name: Build and push Docker image
+      run: |
+        docker build -t ghcr.io/${{ github.repository }}/resilience-bench:${{ github.sha }} .
+        docker push ghcr.io/${{ github.repository }}/resilience-bench:${{ github.sha }}
