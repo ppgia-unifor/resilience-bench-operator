@@ -19,7 +19,10 @@ public abstract class IstioExecutorStep<TResult extends HasMetadata> extends Exe
   private final IstioClient istioClient;
   private final CustomResourceRepository<ResilientService> serviceRepository;
 
-  public IstioExecutorStep(KubernetesClient kubernetesClient, IstioClient istioClient, CustomResourceRepository<ResilientService> serviceRepository) {
+  public IstioExecutorStep(
+          KubernetesClient kubernetesClient,
+          IstioClient istioClient,
+          CustomResourceRepository<ResilientService> serviceRepository) {
     super(kubernetesClient);
     this.istioClient = istioClient;
     this.serviceRepository = serviceRepository;
@@ -30,7 +33,7 @@ public abstract class IstioExecutorStep<TResult extends HasMetadata> extends Exe
   }
 
   protected VirtualService findVirtualService(String namespace, String name) {
-    var targetService = serviceRepository.get(namespace, name);
+    var targetService = serviceRepository.find(namespace, name);
 
     if (targetService.isPresent()) {
       var virtualServiceName = targetService.get().getMetadata().getAnnotations().get("resiliencebench.io/virtual-service");

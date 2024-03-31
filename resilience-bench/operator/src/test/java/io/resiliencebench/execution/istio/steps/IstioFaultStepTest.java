@@ -14,7 +14,7 @@ class IstioFaultStepTest {
 
   @Test
   void testConfigureFaultWithDelay() {
-    var istioFaultStep = new IstioFaultStep(null, null);
+    var istioFaultStep = new IstioFaultStep(null, null, null);
     var faultTemplate = new ScenarioFaultTemplate(10, new DelayFault(1000));
     var fault = istioFaultStep.configureFault(faultTemplate);
     assertEquals(10.0d, fault.getDelay().getPercentage().getValue());
@@ -24,7 +24,7 @@ class IstioFaultStepTest {
 
   @Test
   void testConfigureFaultWithAbort() {
-    var istioFaultStep = new IstioFaultStep(null, null);
+    var istioFaultStep = new IstioFaultStep(null, null, null);
     var faultTemplate = new ScenarioFaultTemplate(10, new AbortFault(500));
     var fault = istioFaultStep.configureFault(faultTemplate);
     assertEquals(10.0d, fault.getAbort().getPercentage().getValue());
@@ -34,7 +34,7 @@ class IstioFaultStepTest {
 
   @Test
   void testConfigureFaultWithoutFault() {
-    var istioFaultStep = new IstioFaultStep(null, null);
+    var istioFaultStep = new IstioFaultStep(null, null, null);
     var faultTemplate = new ScenarioFaultTemplate();
     var fault = istioFaultStep.configureFault(faultTemplate);
     assertNull(fault);

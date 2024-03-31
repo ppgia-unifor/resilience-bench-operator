@@ -19,11 +19,8 @@ public class ResultFileStep extends ExecutorStep<ExecutionQueue> {
   public ExecutionQueue execute(Scenario scenario, ExecutionQueue queue) {
     var itemsStream = queue.getSpec().getItems().stream();
     var item = itemsStream.filter(i -> i.getScenario().equals(scenario.getMetadata().getName())).findFirst().orElseThrow(() -> new RuntimeException("Scenario not found in queue"));
-
     var folder = queue.getMetadata().getCreationTimestamp().replaceAll(":",  "-");
-
     fileManager.save(item.getResultFile(), folder);
-
     return queue;
   }
 }

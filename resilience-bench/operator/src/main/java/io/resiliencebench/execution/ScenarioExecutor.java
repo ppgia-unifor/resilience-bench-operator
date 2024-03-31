@@ -11,6 +11,6 @@ public interface ScenarioExecutor {
 
   default Optional<Item> getNextItem(ExecutionQueue queue) {
     var items = queue.getSpec().getItems();
-    return items.stream().filter(item -> !item.isFinished()).findFirst();
+    return items.stream().filter(Item::isPending).findFirst();
   }
 }

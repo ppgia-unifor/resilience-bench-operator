@@ -1,5 +1,11 @@
-javaoperatorsdk:
-  reconcilers:
-    benchmarkreconciler:
-      retry:
-        maxAttempts: 3
+cloud:
+  aws:
+    region:
+      static: us-east-1
+    credentials:
+      accessKey: ${AWS_ACCESS_KEY_ID}
+      secretKey: ${AWS_SECRET_ACCESS_KEY}
+
+storage:
+  results:
+    bucketName: phd-carlos-results

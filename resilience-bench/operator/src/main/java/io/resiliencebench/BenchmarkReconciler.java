@@ -41,7 +41,7 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
 
   @Override
   public UpdateControl<Benchmark> reconcile(Benchmark benchmark, Context<Benchmark> context) {
-    var workload = workloadRepository.get(benchmark.getMetadata().getNamespace(), benchmark.getSpec().getWorkload());
+    var workload = workloadRepository.find(benchmark.getMetadata().getNamespace(), benchmark.getSpec().getWorkload());
     if (workload.isEmpty()) {
       logger.error("Workload not found: {}", benchmark.getSpec().getWorkload());
       return UpdateControl.noUpdate();
@@ -49,20 +49,20 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
 
     var scenariosList = ScenarioFactory.create(benchmark, workload.get());
     if (scenariosList.isEmpty()) {
-      logger.error("No scenarios found for workload: {}", benchmark.getSpec().getWorkload());
+      logger.error("No scenarios generated for benchmark: {}", benchmark.getMetadata().getName());
       return UpdateControl.noUpdate();
     }
 
-    var executionQueue = getOrCreateQueue(benchmark, executionRepository, scenariosList);
-    scenariosList.forEach(scenario -> createOrUpdateScenario(scenario, scenarioRepository));
+    var executionQueue = getOrCreateQueue(benchmark, scenariosList);
+    scenariosList.forEach(this::createOrUpdateScenario);
 
     scenarioExecutor.run(executionQueue);
     logger.info("Benchmark reconciled: {}", benchmark.getMetadata().getName());
     return UpdateControl.noUpdate();
   }
 
-  private ExecutionQueue getOrCreateQueue(Benchmark benchmark, CustomResourceRepository<ExecutionQueue> executionRepository, List<Scenario> scenariosList) {
-    var queue = executionRepository.get(benchmark.getMetadata().getNamespace(), benchmark.getMetadata().getName());
+  private ExecutionQueue getOrCreateQueue(Benchmark benchmark, List<Scenario> scenariosList) {
+    var queue = executionRepository.find(benchmark.getMetadata().getNamespace(), benchmark.getMetadata().getName());
     if (queue.isPresent()) {
       logger.debug("ExecutionQueue already exists: {}", benchmark.getMetadata().getName());
       return queue.get();
@@ -73,8 +73,8 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
     }
   }
 
-  private void createOrUpdateScenario(Scenario scenario, CustomResourceRepository<Scenario> scenarioRepository) {
-    var foundScenario = scenarioRepository.get(scenario.getMetadata());
+  private void createOrUpdateScenario(Scenario scenario) {
+    var foundScenario = scenarioRepository.find(scenario.getMetadata());
     if (foundScenario.isEmpty()) {
       scenarioRepository.create(scenario);
     } else {

@@ -30,7 +30,7 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
 
   @Override
   public Job execute(Scenario scenario, ExecutionQueue executionQueue) {
-    var workload = workloadRepository.get(scenario.getMetadata().getNamespace(), scenario.getSpec().getWorkload().getWorkloadName());
+    var workload = workloadRepository.find(scenario.getMetadata().getNamespace(), scenario.getSpec().getWorkload().getWorkloadName());
     return createJob(scenario, workload.get(), scenario.getSpec().getWorkload()); // TODO verify if workload exists
   }
 

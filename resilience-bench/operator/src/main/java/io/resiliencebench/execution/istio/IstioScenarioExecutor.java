@@ -34,8 +34,6 @@ public class IstioScenarioExecutor implements Watcher<Job>, ScenarioExecutor {
   private final static Logger logger = LoggerFactory.getLogger(IstioScenarioExecutor.class);
   private final KubernetesClient kubernetesClient;
 
-  private final IstioClient istioClient;
-
   private final CustomResourceRepository<Scenario> scenarioRepository;
   private final CustomResourceRepository<ExecutionQueue> executionRepository;
 
@@ -46,7 +44,6 @@ public class IstioScenarioExecutor implements Watcher<Job>, ScenarioExecutor {
 
   public IstioScenarioExecutor(
           KubernetesClient kubernetesClient,
-          IstioClient istioClient,
           CustomResourceRepository<Scenario> scenarioRepository,
           CustomResourceRepository<ExecutionQueue> executionRepository,
           UpdateStatusQueueStep updateStatusQueueStep,
@@ -56,7 +53,6 @@ public class IstioScenarioExecutor implements Watcher<Job>, ScenarioExecutor {
           IstioFaultStep istioFaultStep,
           K6LoadGeneratorStep k6LoadGeneratorStep) {
     this.kubernetesClient = kubernetesClient;
-    this.istioClient = istioClient;
     this.scenarioRepository = scenarioRepository;
     this.executionRepository = executionRepository;
     this.k6LoadGeneratorStep = k6LoadGeneratorStep;
@@ -66,19 +62,22 @@ public class IstioScenarioExecutor implements Watcher<Job>, ScenarioExecutor {
   }
 
   public void run(ExecutionQueue queue) {
-    var nextItem = getNextItem(queue);
+    var queueToExecute = executionRepository.find(queue.getMetadata())
+            .orElseThrow(() -> new RuntimeException("Queue not found " + queue.getMetadata().getName()));
+
+    var nextItem = getNextItem(queueToExecute);
 
     if (nextItem.isPresent()) {
-      var namespace = queue.getMetadata().getNamespace();
+      var namespace = queueToExecute.getMetadata().getNamespace();
       if (nextItem.get().isPending()) {
-        if (!existsJobRunning(namespace)) {
-          runScenario(namespace, nextItem.get().getScenario(), queue);
+        if (!isRunning(namespace)) {
+          runScenario(namespace, nextItem.get().getScenario(), queueToExecute);
         }
       }
     } else {
-      logger.debug("No queue item present for: {}", queue.getMetadata().getName());
-      if (isAllFinished(queue)) {
-        logger.debug("All items finished for: {}", queue.getMetadata().getName());
+      logger.info("No item available for queue: {}", queueToExecute.getMetadata().getName());
+      if (isAllFinished(queueToExecute)) {
+        logger.info("All items finished for: {}", queueToExecute.getMetadata().getName());
       }
     }
   }
@@ -87,7 +86,7 @@ public class IstioScenarioExecutor implements Watcher<Job>, ScenarioExecutor {
     return queue.getSpec().getItems().stream().allMatch(Item::isFinished);
   }
 
-  private boolean existsJobRunning(String namespace) {
+  private boolean isRunning(String namespace) {
     var jobs = kubernetesClient.batch().v1().jobs().inNamespace(namespace).list();
     return jobs.getItems().stream().anyMatch(job ->
             isNull(job.getStatus().getCompletionTime()) && job.getMetadata().getAnnotations().containsKey("resiliencebench.io/scenario"));
@@ -99,7 +98,7 @@ public class IstioScenarioExecutor implements Watcher<Job>, ScenarioExecutor {
 
   private void runScenario(String namespace, String name, ExecutionQueue executionQueue) {
     logger.debug("Running scenario: {}", name);
-    var scenario = scenarioRepository.get(namespace, name);
+    var scenario = scenarioRepository.find(namespace, name);
     if (scenario.isPresent()) {
       preparationSteps.forEach(step -> step.execute(scenario.get(), executionQueue));
       var job = startLoadGeneration(scenario.get(), executionQueue);
@@ -120,8 +119,8 @@ public class IstioScenarioExecutor implements Watcher<Job>, ScenarioExecutor {
         logger.debug("Finished job: {}", resource.getMetadata().getName());
 
         var scenarioName = resource.getMetadata().getAnnotations().get("resiliencebench.io/scenario");
-        var scenario = scenarioRepository.get(namespace, scenarioName).get();
-        var executionQueue = executionRepository.get(namespace, scenario.getMetadata().getAnnotations().get(Annotations.OWNED_BY)).get();
+        var scenario = scenarioRepository.find(namespace, scenarioName).get();
+        var executionQueue = executionRepository.find(namespace, scenario.getMetadata().getAnnotations().get(Annotations.OWNED_BY)).get();
         postScenarioExecutionSteps.forEach(step -> step.execute(scenario, executionQueue));
         run(executionQueue);
       }

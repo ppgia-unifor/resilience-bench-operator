@@ -43,8 +43,7 @@ public class CustomResourceRepository<T extends CustomResource> {
             "Trying to replace resource {}, version: {}",
             getName(resource),
             resource.getMetadata().getResourceVersion());
-    return resource(resource).lockResourceVersion(resource.getMetadata().getResourceVersion())
-            .update();
+    return resource(resource).update();
   }
 
   public T updateStatus(T resource) {
@@ -74,11 +73,11 @@ public class CustomResourceRepository<T extends CustomResource> {
     inNamespace(resource).resource(resource).delete();
   }
 
-  public Optional<T> get(ObjectMeta meta) {
-    return this.get(meta.getNamespace(), meta.getName());
+  public Optional<T> find(ObjectMeta meta) {
+    return this.find(meta.getNamespace(), meta.getName());
   }
 
-  public Optional<T> get(String namespace, String name) {
+  public Optional<T> find(String namespace, String name) {
     if (namespace != null) {
       return Optional.ofNullable(resourceOperation.inNamespace(namespace).withName(name).get());
     } else {

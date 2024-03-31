@@ -10,24 +10,31 @@ import com.amazonaws.services.s3.model.UploadPartRequest;
 import io.resiliencebench.execution.FileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class S3FileManager implements FileManager {
-  private final Logger logger = LoggerFactory.getLogger(S3FileManager.class);
+  private final Logger log = LoggerFactory.getLogger(S3FileManager.class);
   private final AmazonS3 s3Client;
-  private final String bucketName = System.getenv("AWS_BUCKET_NAME");
+
+  private final String bucketName;
   private final static long PART_SIZE = 5 * 1024 * 1024; // part size to 5 MB.
 
-  public S3FileManager(AmazonS3 s3Client) {
+  public S3FileManager(AmazonS3 s3Client, String bucketName) {
     this.s3Client = s3Client;
+    this.bucketName = bucketName;
   }
 
   @Override
-  public void save(String file, String destinationPath) {
-    var keyName = Paths.get(destinationPath, file).toAbsolutePath().toString();
+  public void save(String filePath, String destinationPath) {
+    var file = new File(filePath);
+    if (!file.exists()) {
+      throw new RuntimeException("File %s does not exist".formatted(filePath));
+    }
+    var keyName = Paths.get(destinationPath, file.getName()).toString();
     var contentLength = file.length();
 
     try {
@@ -36,7 +43,7 @@ public class S3FileManager implements FileManager {
       var initResponse = s3Client.initiateMultipartUpload(initRequest);
 
       long filePosition = 0;
-      for (int i = 1; filePosition < contentLength; i++) {
+      for (var i = 1; filePosition < contentLength; i++) {
         var partSize = Math.min(PART_SIZE, (contentLength - filePosition));
 
         var uploadRequest = new UploadPartRequest()
@@ -45,7 +52,7 @@ public class S3FileManager implements FileManager {
                 .withUploadId(initResponse.getUploadId())
                 .withPartNumber(i)
                 .withFileOffset(filePosition)
-                .withFile(new File(file))
+                .withFile(file)
                 .withPartSize(partSize);
 
         var uploadResult = s3Client.uploadPart(uploadRequest);
@@ -56,14 +63,14 @@ public class S3FileManager implements FileManager {
 
       var compRequest = new CompleteMultipartUploadRequest(bucketName, keyName, initResponse.getUploadId(), partETags);
       s3Client.completeMultipartUpload(compRequest);
-      logger.info("File {} successfully uploaded", keyName);
+      log.debug("File {} successfully uploaded", keyName);
     }
     catch(AmazonServiceException e) {
-      logger.error("The call was transmitted successfully with requestId {}, but Amazon S3 couldn't process it. Message {}", e.getRequestId(), e.getErrorMessage());
+      log.error("The call was transmitted successfully with requestId {}, but Amazon S3 couldn't process it. Message {}", e.getRequestId(), e.getErrorMessage());
       throw e;
     }
     catch(SdkClientException e) {
-      logger.error("Amazon S3 couldn't be contacted for a response, or the client couldn't parse the response from Amazon S3. {}", e.getMessage());
+      log.error("Amazon S3 couldn't be contacted for a response, or the client couldn't parse the response from Amazon S3. {}", e.getMessage());
       throw e;
     }
   }
