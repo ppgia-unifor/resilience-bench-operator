@@ -1,27 +1,46 @@
 package io.resiliencebench.resources.benchmark;
 
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.javaoperatorsdk.operator.junit.AbstractOperatorExtension;
 import io.javaoperatorsdk.operator.junit.LocallyRunOperatorExtension;
 import io.resiliencebench.BenchmarkReconciler;
 import io.resiliencebench.ResilienceServiceReconciler;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.event.annotation.BeforeTestClass;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@SpringBootTest
 public class BenchmarkE2ETest {
 
-  private static final KubernetesClient kubernetesClient = new KubernetesClientBuilder().build();
+  @BeforeTestClass
+  public static void setUpClass() {
+    System.setProperty("AWS_ACCESS_KEY", "test");
+    System.setProperty("AWS_SECRET_KEY", "test");
+  }
 
-  @RegisterExtension
-  static AbstractOperatorExtension operator = LocallyRunOperatorExtension.builder()
-          .waitForNamespaceDeletion(true)
-          .oneNamespacePerClass(true)
-          .withReconciler(new ResilienceServiceReconciler())
-          .withReconciler(new BenchmarkReconciler(kubernetesClient))
-          .build();
+  @Autowired
+  private BenchmarkReconciler benchmarkReconciler;
+
+  @Autowired
+  private ResilienceServiceReconciler resilienceServiceReconciler;
+
+  @BeforeEach
+  public void setUp() {
+    if (operator == null) {
+       operator = LocallyRunOperatorExtension.builder()
+               .waitForNamespaceDeletion(true)
+               .oneNamespacePerClass(true)
+               .withReconciler(resilienceServiceReconciler)
+               .withReconciler(benchmarkReconciler)
+               .build();
+    }
+  }
+
+//  @RegisterExtension
+  static AbstractOperatorExtension operator;
 
   @Test
   public void creationTest() {

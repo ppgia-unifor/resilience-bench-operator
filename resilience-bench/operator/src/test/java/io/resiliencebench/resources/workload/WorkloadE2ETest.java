@@ -1,8 +1,6 @@
 package io.resiliencebench.resources.workload;
 
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.javaoperatorsdk.operator.junit.AbstractOperatorExtension;
 import io.javaoperatorsdk.operator.junit.LocallyRunOperatorExtension;
@@ -13,18 +11,24 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
 public class WorkloadE2ETest {
 
-  private static final KubernetesClient kubernetesClient = new KubernetesClientBuilder().build();
+  @Autowired
+  private static BenchmarkReconciler benchmarkReconciler;
+
+  @Autowired
+  private static ResilienceServiceReconciler resilienceServiceReconciler;
+
   @RegisterExtension
   static AbstractOperatorExtension operator =  LocallyRunOperatorExtension.builder()
           .waitForNamespaceDeletion(false)
           .oneNamespacePerClass(true)
-          .withReconciler(new ResilienceServiceReconciler())
-          .withReconciler(new BenchmarkReconciler(kubernetesClient))
+          .withReconciler(resilienceServiceReconciler)
+          .withReconciler(benchmarkReconciler)
           .build();
 
   @Test
