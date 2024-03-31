@@ -46,8 +46,6 @@ jobs:
     - name: Build and push Docker image
       run: |
         mvn -B package -Dimage=ghcr.io/${{ github.repository }}/resiliencebench-operator:${{ github.sha }} --file ./resilience-bench/operator/pom.xml
-
         docker tag ghcr.io/${{ github.repository }}/resiliencebench-operator:${{ github.sha }} ghcr.io/${{ github.repository }}/resiliencebench-operator:latest
-        
-        docker push ghcr.io/${{ github.repository }}/resilience-bench:${{ github.sha }}
-        docker push ghcr.io/${{ github.repository }}/resilience-bench:latest
+        docker push ghcr.io/${{ github.repository }}/resiliencebench-operator:${{ github.sha }}
+        docker push ghcr.io/${{ github.repository }}/resiliencebench-operator:latest
