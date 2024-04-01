@@ -9,7 +9,7 @@
     <version>1.0.0</version>
 
     <properties>
-        <operator.version>4.8.1</operator.version>
+        <operator.version>4.8.2</operator.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
