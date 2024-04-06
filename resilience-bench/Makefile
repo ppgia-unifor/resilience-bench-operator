@@ -12,3 +12,7 @@ clean:
 	@kubectl delete job --all --all-namespaces
 	@kubectl delete queues --all --all-namespaces
 	@kubectl delete benchmark --all --all-namespaces
+
+
+dockerBuild:
+	mvn com.google.cloud.tools:jib-maven-plugin:3.4.0:dockerBuild -B operator/pom.xml
