@@ -29,10 +29,10 @@ public class S3FileManager implements FileManager {
   }
 
   @Override
-  public void save(String filePath, String destinationPath) {
-    var file = new File(filePath);
+  public void save(String fileName, String destinationPath) {
+    var file = new File(fileName);
     if (!file.exists()) {
-      throw new RuntimeException("File %s does not exist".formatted(filePath));
+      throw new RuntimeException("File %s does not exist".formatted(fileName));
     }
     var keyName = Paths.get(destinationPath, file.getName()).toString();
     var contentLength = file.length();

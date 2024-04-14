@@ -1,11 +1,11 @@
 cloud:
   aws:
     region:
-      static: us-east-1
+      static: ${AWS_REGION:us-east-1}
     credentials:
       accessKey: ${AWS_ACCESS_KEY_ID}
       secretKey: ${AWS_SECRET_ACCESS_KEY}
 
 storage:
   results:
-    bucketName: phd-carlos-results
+    bucketName: ${BUCKET_NAME}
