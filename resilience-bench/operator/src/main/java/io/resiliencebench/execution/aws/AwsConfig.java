@@ -5,6 +5,7 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.HeadBucketRequest;
 import io.resiliencebench.execution.FileManager;
 import io.resiliencebench.execution.LocalFileManager;
 import org.slf4j.Logger;
@@ -21,6 +22,9 @@ public class AwsConfig {
   @Value("${cloud.aws.region.static}")
   private String region;
 
+  @Value("${storage.results.bucketName}")
+  private String bucketName;
+
   @Bean AmazonS3 createS3Client(AWSCredentialsProvider credentialsProvider) {
     return AmazonS3ClientBuilder.standard().withCredentials(credentialsProvider).withRegion(region).build();
   }
@@ -29,14 +33,13 @@ public class AwsConfig {
     return new DefaultAWSCredentialsProviderChain();
   }
 
-  @Bean FileManager fileManager(AmazonS3 amazonS3, @Value("${storage.results.bucketName}") String bucketName) {
+  @Bean FileManager fileManager(AmazonS3 amazonS3) {
     try {
-      if (amazonS3.doesBucketExistV2(bucketName)) {
-        return new S3FileManager(amazonS3, bucketName);
-      }
-    } catch (Exception ex) {
-      logger.warn("Unable to check it bucket " + bucketName + " exists. Using local file manager", ex);
+      amazonS3.headBucket(new HeadBucketRequest(bucketName));
+      return new S3FileManager(amazonS3, bucketName);
+    } catch (SdkClientException ex) {
+      logger.error("Bucket " + bucketName + " does not exists. Using local file manager instead", ex);
+      return new LocalFileManager();
     }
-    return new LocalFileManager();
   }
 }
