@@ -2,6 +2,8 @@ package io.resiliencebench.execution.aws;
 
 import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -30,15 +32,26 @@ public class AwsConfig {
   }
 
   @Bean AWSCredentialsProvider credentialsProvider() {
-    return new DefaultAWSCredentialsProviderChain();
-  }
+    String accessKey = System.getenv("AWS_ACCESS_KEY_ID");
+    String secretKey = System.getenv("AWS_SECRET_ACCESS_KEY");
+
+    if (accessKey != null && secretKey != null) {
+      logger.info("Using AWS credentials from environment variables AWS_ACCESS_KEY_ID" + accessKey);
+      return new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey));
+    } else {
+      return new DefaultAWSCredentialsProviderChain();
+    }
+}
 
   @Bean FileManager fileManager(AmazonS3 amazonS3) {
     try {
+      logger.info("Attempting to connect to S3 bucket: " + bucketName);
       amazonS3.headBucket(new HeadBucketRequest(bucketName));
+      logger.info("Successfully connected to S3 bucket: " + bucketName);
       return new S3FileManager(amazonS3, bucketName);
     } catch (SdkClientException ex) {
-      logger.error("Bucket " + bucketName + " does not exists. Using local file manager instead", ex);
+      logger.error("Failed to connect to S3 bucket: " + bucketName, ex);
+      logger.info("Using local file manager instead");
       return new LocalFileManager();
     }
   }
