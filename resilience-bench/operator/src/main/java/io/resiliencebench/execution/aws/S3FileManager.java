@@ -10,7 +10,6 @@ import com.amazonaws.services.s3.model.UploadPartRequest;
 import io.resiliencebench.execution.FileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -32,7 +31,8 @@ public class S3FileManager implements FileManager {
   public void save(String fileName, String destinationPath) {
     var file = new File(fileName);
     if (!file.exists()) {
-      throw new RuntimeException("File %s does not exist".formatted(fileName));
+      log.error("File {} does not exist", fileName);
+      return;
     }
     var keyName = Paths.get(destinationPath, file.getName()).toString();
     var contentLength = file.length();
