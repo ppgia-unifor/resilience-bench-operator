@@ -63,15 +63,13 @@ public class S3FileManager implements FileManager {
 
       var compRequest = new CompleteMultipartUploadRequest(bucketName, keyName, initResponse.getUploadId(), partETags);
       s3Client.completeMultipartUpload(compRequest);
-      log.debug("File {} successfully uploaded", keyName);
+      log.info("File {} successfully uploaded", keyName);
     }
     catch(AmazonServiceException e) {
       log.error("The call was transmitted successfully with requestId {}, but Amazon S3 couldn't process it. Message {}", e.getRequestId(), e.getErrorMessage());
-      throw e;
     }
     catch(SdkClientException e) {
       log.error("Amazon S3 couldn't be contacted for a response, or the client couldn't parse the response from Amazon S3. {}", e.getMessage());
-      throw e;
     }
   }
 }
