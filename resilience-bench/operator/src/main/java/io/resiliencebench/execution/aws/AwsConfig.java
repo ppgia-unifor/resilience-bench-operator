@@ -2,8 +2,6 @@ package io.resiliencebench.execution.aws;
 
 import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -21,10 +19,10 @@ public class AwsConfig {
 
   private static final Logger logger = LoggerFactory.getLogger(AwsConfig.class);
 
-  @Value("${cloud.aws.region.static}")
+  @Value("${AWS_REGION:us-east-1}")
   private String region;
 
-  @Value("${storage.results.bucketName}")
+  @Value("${AWS_BUCKET_NAME}")
   private String bucketName;
 
   @Bean AmazonS3 createS3Client(AWSCredentialsProvider credentialsProvider) {
@@ -32,22 +30,14 @@ public class AwsConfig {
   }
 
   @Bean AWSCredentialsProvider credentialsProvider() {
-    String accessKey = System.getenv("AWS_ACCESS_KEY_ID");
-    String secretKey = System.getenv("AWS_SECRET_ACCESS_KEY");
-
-    if (accessKey != null && secretKey != null) {
-      logger.info("Using AWS credentials from environment variables AWS_ACCESS_KEY_ID" + accessKey);
-      return new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey));
-    } else {
-      return new DefaultAWSCredentialsProviderChain();
-    }
+    return new DefaultAWSCredentialsProviderChain();
 }
 
   @Bean FileManager fileManager(AmazonS3 amazonS3) {
     try {
-      logger.info("Attempting to connect to S3 bucket: " + bucketName);
+      logger.info("Attempting to connect to S3 bucket " + bucketName + " in region " + region);
       amazonS3.headBucket(new HeadBucketRequest(bucketName));
-      logger.info("Successfully connected to S3 bucket: " + bucketName);
+      logger.info("Successfully connected to S3 bucket " + bucketName);
       return new S3FileManager(amazonS3, bucketName);
     } catch (SdkClientException ex) {
       logger.error("Failed to connect to S3 bucket: " + bucketName, ex);
