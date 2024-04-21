@@ -86,7 +86,7 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
   public Container createK6Container(Scenario scenario, ScenarioWorkload scenarioWorkload, Workload workload) {
     var container = new ContainerBuilder()
             .withName("k6")
-            .withImage("grafana/k6")
+            .withImage("grafana/k6") // TODO receive it from the workload
             .withCommand(createCommand(scenario, scenarioWorkload, workload))
             .withImagePullPolicy("IfNotPresent")
             .withVolumeMounts(
@@ -94,7 +94,7 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
                     new VolumeMount("/results", "HostToContainer", "test-results", false, null, null)
             );
     if (workload.getSpec().getCloud() != null) {
-      container.withEnv(
+      container.withEnv( // TODO send env vars from the workload, just like in containers
               new EnvVar("K6_CLOUD_TOKEN", workload.getSpec().getCloud().token(), null),
               new EnvVar("K6_CLOUD_PROJECT_ID", workload.getSpec().getCloud().projectId(), null)
       );
@@ -104,14 +104,14 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
 
   public Volume createResultsVolume() {
     return new VolumeBuilder()
-            .withName("test-results")
+            .withName("test-results") // TODO receive it from the workload
             .withNewPersistentVolumeClaim("test-results", false)
             .build();
   }
 
   public Volume createScriptVolume(Workload workload) {
     return new VolumeBuilder()
-            .withName("script-volume")
+            .withName("script-volume") // TODO receive it from the workload
             .withNewConfigMap()
             .withName(workload.getSpec().getScript().getConfigMap().getName())
             .endConfigMap()
