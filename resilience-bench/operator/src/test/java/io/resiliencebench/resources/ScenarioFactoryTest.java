@@ -3,6 +3,7 @@ package io.resiliencebench.resources;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.resiliencebench.resources.benchmark.*;
 import io.resiliencebench.resources.fault.DelayFault;
+import io.resiliencebench.resources.workload.CloudConfig;
 import io.resiliencebench.resources.workload.Workload;
 import io.resiliencebench.resources.workload.WorkloadSpec;
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,7 @@ public class ScenarioFactoryTest {
     meta.setName("workload");
     var workload = new Workload();
     workload.setMetadata(meta);
-    workload.setSpec(new WorkloadSpec(users, 100, null, null));
+    workload.setSpec(new WorkloadSpec(users, 100, null, new CloudConfig("", ""), null));
     return workload;
   }
 

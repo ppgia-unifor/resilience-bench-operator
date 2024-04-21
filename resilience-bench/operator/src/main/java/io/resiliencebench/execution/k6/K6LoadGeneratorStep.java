@@ -82,20 +82,22 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
   }
 
   public Container createK6Container(Scenario scenario, ScenarioWorkload scenarioWorkload, Workload workload) {
-    return new ContainerBuilder()
+    var container = new ContainerBuilder()
             .withName("k6")
             .withImage("grafana/k6")
             .withCommand(createCommand(scenario, scenarioWorkload, workload))
-            // TODO use worklod resource to handle K6 Token and Project ID
-            .withEnv(
-                    new EnvVar("K6_CLOUD_TOKEN", System.getenv("K6_CLOUD_TOKEN"), null),
-                    new EnvVar("K6_CLOUD_PROJECT_ID", System.getenv("K6_CLOUD_PROJECT_ID"), null)
-            )
+            .withImagePullPolicy("IfNotPresent")
             .withVolumeMounts(
                     new VolumeMount("/scripts", "None", "script-volume", false, null, null),
                     new VolumeMount("/results", "HostToContainer", "test-results", false, null, null)
-            )
-            .build();
+            );
+    if (workload.getSpec().getCloud() != null) {
+      container.withEnv(
+              new EnvVar("K6_CLOUD_TOKEN", workload.getSpec().getCloud().token(), null),
+              new EnvVar("K6_CLOUD_PROJECT_ID", workload.getSpec().getCloud().projectId(), null)
+      );
+    }
+    return container.build();
   }
 
   public Volume createResultsVolume() {

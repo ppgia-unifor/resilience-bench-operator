@@ -35,7 +35,7 @@ public class WorkloadE2ETest {
   public void creationTest() {
     final var configMap = new ConfigMapReference("test", "test.js");
     final var name = "test";
-    final var spec = new WorkloadSpec(List.of(10, 20, 30), 10, "http://local.com", new ScriptConfig(configMap));
+    final var spec = new WorkloadSpec(List.of(10, 20, 30), 10, "http://local.com", new CloudConfig("token", "projectId"), new ScriptConfig(configMap));
 
     var workload = new Workload();
     workload.setMetadata(new ObjectMetaBuilder().withName(name).build());
@@ -53,7 +53,7 @@ public class WorkloadE2ETest {
   public void testWithNegativeDuration() {
     final var configMap = new ConfigMapReference("test", "test.js");
     final var name = "test";
-    final var spec = new WorkloadSpec(List.of(10, 20, 30), -10, "http://local.com", new ScriptConfig(configMap));
+    final var spec = new WorkloadSpec(List.of(10, 20, 30), -10, "http://local.com", new CloudConfig("token", "projectId"), new ScriptConfig(configMap));
 
     var workload = new Workload();
     workload.setMetadata(new ObjectMetaBuilder().withName(name).build());
@@ -69,7 +69,7 @@ public class WorkloadE2ETest {
   public void testWithInvalidUrl() {
     final var configMap = new ConfigMapReference("test", "test.js");
     final var name = "test";
-    final var spec = new WorkloadSpec(List.of(10, 20, 30), 10, "invalid-url", new ScriptConfig(configMap));
+    final var spec = new WorkloadSpec(List.of(10, 20, 30), 10, "invalid-url", new CloudConfig("token", "projectId"), new ScriptConfig(configMap));
 
     var workload = new Workload();
     workload.setMetadata(new ObjectMetaBuilder().withName(name).build());
