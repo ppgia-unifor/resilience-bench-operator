@@ -86,6 +86,11 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
             .withName("k6")
             .withImage("grafana/k6")
             .withCommand(createCommand(scenario, scenarioWorkload, workload))
+            // TODO use worklod resource to handle K6 Token and Project ID
+            .withEnv(
+                    new EnvVar("K6_CLOUD_TOKEN", System.getenv("K6_CLOUD_TOKEN"), null),
+                    new EnvVar("K6_CLOUD_PROJECT_ID", System.getenv("K6_CLOUD_PROJECT_ID"), null)
+            )
             .withVolumeMounts(
                     new VolumeMount("/scripts", "None", "script-volume", false, null, null),
                     new VolumeMount("/results", "HostToContainer", "test-results", false, null, null)
