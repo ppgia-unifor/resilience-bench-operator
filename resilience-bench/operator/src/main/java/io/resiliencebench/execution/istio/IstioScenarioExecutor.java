@@ -1,6 +1,5 @@
 package io.resiliencebench.execution.istio;
 
-import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.Watcher;
@@ -97,7 +96,7 @@ public class IstioScenarioExecutor implements Watcher<Job>, ScenarioExecutor {
   }
 
   private void runScenario(String namespace, String name, ExecutionQueue executionQueue) {
-    logger.debug("Running scenario: {}", name);
+    logger.info("Running scenario: {}", name);
     var scenario = scenarioRepository.find(namespace, name);
     if (scenario.isPresent()) {
       preparationSteps.forEach(step -> step.execute(scenario.get(), executionQueue));
@@ -105,7 +104,7 @@ public class IstioScenarioExecutor implements Watcher<Job>, ScenarioExecutor {
       var jobsClient = kubernetesClient.batch().v1().jobs();
       job = jobsClient.resource(job).create();
       jobsClient.resource(job).watch(this);
-      logger.debug("Job created: {}", job.getMetadata().getName());
+      logger.info("Job created: {}", job.getMetadata().getName());
     } else {
       throw new RuntimeException(format("Scenario not found: %s.%s", namespace, name));
     }
@@ -117,7 +116,6 @@ public class IstioScenarioExecutor implements Watcher<Job>, ScenarioExecutor {
     if (action.equals(Action.MODIFIED)) {
       if (nonNull(resource.getStatus().getCompletionTime())) {
         logger.debug("Finished job: {}", resource.getMetadata().getName());
-
         var scenarioName = resource.getMetadata().getAnnotations().get("resiliencebench.io/scenario");
         var scenario = scenarioRepository.find(namespace, scenarioName).get();
         var executionQueue = executionRepository.find(namespace, scenario.getMetadata().getAnnotations().get(Annotations.OWNED_BY)).get();

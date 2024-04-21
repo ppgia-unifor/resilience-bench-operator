@@ -13,6 +13,10 @@ import static io.resiliencebench.support.Annotations.OWNED_BY;
 
 public class ExecutionQueueFactory {
 
+  public ExecutionQueueFactory() {
+    throw new IllegalStateException("Utility class");
+  }
+
   public static ExecutionQueue create(Benchmark benchmark, List<Scenario> scenarios) {
     var meta = new ObjectMetaBuilder()
             .withNamespace(benchmark.getMetadata().getNamespace())

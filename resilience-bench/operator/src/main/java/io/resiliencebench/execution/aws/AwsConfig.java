@@ -40,8 +40,7 @@ public class AwsConfig {
       logger.info("Successfully connected to S3 bucket " + bucketName);
       return new S3FileManager(amazonS3, bucketName);
     } catch (SdkClientException ex) {
-      logger.error("Failed to connect to S3 bucket: " + bucketName, ex);
-      logger.info("Using local file manager instead");
+      logger.error("Failed to connect to S3 bucket " + bucketName + ex.getMessage() + ". Using local file manager instead");
       return new LocalFileManager();
     }
   }
