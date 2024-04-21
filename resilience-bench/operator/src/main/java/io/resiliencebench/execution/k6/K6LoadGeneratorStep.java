@@ -45,20 +45,17 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
   }
 
   public List<String> createCommand(Scenario scenario, ScenarioWorkload scenarioWorkload, Workload workload) {
-    var command = Arrays.asList("k6", "run", "/scripts/k6.js", "--out");
+    var out = workload.getSpec().getCloud() != null ?
+            "cloud" :
+            String.format("json=/results/%s.json", scenario.getMetadata().getName());
 
-    if (workload.getSpec().getCloud() != null) {
-      command.add("cloud");
-    } else {
-      command.add(String.format("json=/results/%s.json", scenario.getMetadata().getName()));
-    }
-
-    command.addAll(Arrays.asList(
+    return Arrays.asList(
+            "k6", "run", "/scripts/k6.js",
+            "--out", out,
             "--vus", String.valueOf(scenarioWorkload.getUsers()),
             "--tag", "workloadName=" + workload.getMetadata().getName(),
-            "--duration", workload.getSpec().getDuration() + "s")
+            "--duration", workload.getSpec().getDuration() + "s"
     );
-    return command;
   }
 
   public Job createJob(Scenario scenario, Workload workload, ScenarioWorkload scenarioWorkload) {
