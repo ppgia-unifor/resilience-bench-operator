@@ -27,7 +27,7 @@ public class IstioRetryStep extends IstioExecutorStep<VirtualService> {
     var targetService =
             findVirtualService(
                     scenario.getMetadata().getNamespace(),
-                    scenario.getSpec().getTargetServiceName()
+                    scenario.getSpec().getSourceServiceName()
             );
 
     // TODO verify if the virtual service already has a retry. if yes, update it
