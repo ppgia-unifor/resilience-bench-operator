@@ -49,7 +49,7 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
   public List<String> createCommand(Scenario scenario, ScenarioWorkload scenarioWorkload, Workload workload) {
     var out = workload.getSpec().getCloud() != null ?
             "cloud" :
-            String.format("json=/results/%s.json", scenario.getMetadata().getName());
+            String.format("csv=/results/%s.csv", scenario.getMetadata().getName());
 
     return Arrays.asList(
             "k6", "run", "/scripts/k6.js",
