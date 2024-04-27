@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static io.resiliencebench.support.Annotations.CREATED_BY;
@@ -38,6 +39,7 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
     return new ObjectMetaBuilder()
             .withName(workload.getMetadata().getName() + "-" + UUID.fromString(scenario.getMetadata().getUid()))
             .withNamespace(workload.getMetadata().getNamespace())
+            .withLabels(Map.of("app", "k6"))
             .addToAnnotations(CREATED_BY, "resiliencebench-operator")
             .addToAnnotations("resiliencebench.io/scenario", scenario.getMetadata().getName())
             .addToAnnotations("resiliencebench.io/workload", workload.getMetadata().getName())
@@ -89,10 +91,11 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
             .withImage("grafana/k6") // TODO receive it from the workload
             .withCommand(createCommand(scenario, scenarioWorkload, workload))
             .withImagePullPolicy("IfNotPresent")
+            .withPorts(new ContainerPortBuilder().withContainerPort(6565).build())
             .withVolumeMounts(
                     new VolumeMount("/scripts", "None", "script-volume", false, null, null),
                     new VolumeMount("/results", "HostToContainer", "test-results", false, null, null)
-            );
+            ).withEnv(new EnvVar("K6_WEB_DASHBOARD", "true", null));
     if (workload.getSpec().getCloud() != null) {
       container.withEnv( // TODO send env vars from the workload, just like in containers
               new EnvVar("K6_CLOUD_TOKEN", workload.getSpec().getCloud().token(), null),
