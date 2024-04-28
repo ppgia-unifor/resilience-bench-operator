@@ -8,12 +8,16 @@ import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
 import io.resiliencebench.resources.service.ResilientService;
 import io.resiliencebench.support.CustomResourceRepository;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class IstioRetryStep extends IstioExecutorStep<VirtualService> {
+
+  private final static Logger log = org.slf4j.LoggerFactory.getLogger(IstioRetryStep.class);
 
   public IstioRetryStep(KubernetesClient kubernetesClient, IstioClient istioClient, CustomResourceRepository<ResilientService> serviceRepository) {
     super(kubernetesClient, istioClient, serviceRepository);
@@ -30,42 +34,44 @@ public class IstioRetryStep extends IstioExecutorStep<VirtualService> {
                     scenario.getSpec().getSourceServiceName()
             );
 
-    // TODO verify if the virtual service already has a retry. if yes, update it
     var retry = configureRetryPattern(scenario.getSpec().getPatternConfig());
 
-    var newVirtualService = targetService
-            .edit()
-            .editSpec()
-            .editFirstHttp()
-            .withRetries(retry)
-            .endHttp()
-            .endSpec()
-            .build();
+    if (retry.isPresent()) {
+      var newVirtualService = targetService
+              .edit()
+              .editSpec()
+              .editFirstHttp()
+              .withRetries(retry.get())
+              .endHttp()
+              .endSpec()
+              .build();
 
-    return istioClient()
-            .v1beta1()
-            .virtualServices()
-            .inNamespace(targetService.getMetadata().getNamespace())
-            .resource(newVirtualService)
-            .update();
+      istioClient()
+              .v1beta1()
+              .virtualServices()
+              .inNamespace(targetService.getMetadata().getNamespace())
+              .resource(newVirtualService)
+              .update();
+      return newVirtualService;
+    } else {
+      return targetService;
+    }
   }
 
 
 
-  public HTTPRetry configureRetryPattern(Map<String, Object> patternConfig) {
+  public Optional<HTTPRetry> configureRetryPattern(Map<String, Object> patternConfig) {
     var builder = new HTTPRetry().toBuilder();
     var attempts = (Integer) patternConfig.get("attempts");
-    if (attempts != null) {
-      builder.withAttempts(attempts);
-    } else {
-      throw new IllegalArgumentException("attempts is required");
-    }
     var perTryTimeout = (Integer) patternConfig.get("perTryTimeout");
-    if (perTryTimeout != null) {
+
+    if (attempts != null && perTryTimeout != null) {
+      builder.withAttempts(attempts);
       builder.withPerTryTimeout(perTryTimeout + "ms");
+      return Optional.of(builder.build());
     } else {
-      throw new IllegalArgumentException("perTryTimeout is required");
+      log.error("Retry not configured. Attempts and perTryTimeout are required for retry pattern configuration.");
+      return Optional.empty();
     }
-    return builder.build();
   }
 }
