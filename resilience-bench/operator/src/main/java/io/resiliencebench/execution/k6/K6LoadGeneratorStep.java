@@ -47,15 +47,15 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
   }
 
   public List<String> createCommand(Scenario scenario, ScenarioWorkload scenarioWorkload, Workload workload) {
-    var out = workload.getSpec().getCloud() != null ?
-            "cloud" :
-            String.format("csv=/results/%s.csv", scenario.getMetadata().getName());
+    var resultFile = String.format("csv=/results/%s", scenario.getMetadata().getName());
+    var out = workload.getSpec().getCloud() != null ? "cloud" : resultFile;
 
     return Arrays.asList(
             "k6", "run", "/scripts/k6.js",
             "--out", out,
             "--vus", String.valueOf(scenarioWorkload.getUsers()),
-            "--tag", "workloadName=" + workload.getMetadata().getName(),
+            "--tag", "workload=" + workload.getMetadata().getName(),
+            "--tag", "scenario=" + scenario.getMetadata().getName(),
             "--duration", workload.getSpec().getDuration() + "s"
     );
   }
@@ -88,14 +88,16 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
   public Container createK6Container(Scenario scenario, ScenarioWorkload scenarioWorkload, Workload workload) {
     var container = new ContainerBuilder()
             .withName("k6")
-            .withImage("grafana/k6") // TODO receive it from the workload
+            .withImage("grafana/k6") // TODO receive it from the workload spec
             .withCommand(createCommand(scenario, scenarioWorkload, workload))
             .withImagePullPolicy("IfNotPresent")
             .withPorts(new ContainerPortBuilder().withContainerPort(6565).build())
             .withVolumeMounts(
                     new VolumeMount("/scripts", "None", "script-volume", false, null, null),
                     new VolumeMount("/results", "HostToContainer", "test-results", false, null, null)
-            ).withEnv(new EnvVar("K6_WEB_DASHBOARD", "true", null));
+            )
+            .withEnv(new EnvVar("K6_WEB_DASHBOARD", "true", null))
+            .withEnv(new EnvVar("OUTPUT_PATH", String.format("/results/%s", scenario.getMetadata().getName()), null));
     if (workload.getSpec().getCloud() != null) {
       container.withEnv( // TODO send env vars from the workload, just like in containers
               new EnvVar("K6_CLOUD_TOKEN", workload.getSpec().getCloud().token(), null),
