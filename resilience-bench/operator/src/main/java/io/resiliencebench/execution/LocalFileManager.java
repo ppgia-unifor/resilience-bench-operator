@@ -11,18 +11,6 @@ public class LocalFileManager implements FileManager {
 
   @Override
   public void save(String fileName, String destinationPath) {
-    Path tempDirectory = null;
-    try {
-      tempDirectory = Files.createTempDirectory(destinationPath);
-      var sourcePath = Paths.get(fileName);
-      Files.copy(sourcePath, tempDirectory, StandardCopyOption.REPLACE_EXISTING);
-      log.info("File {} successfully created", Paths.get(tempDirectory.toString(), sourcePath.getFileName().toString()));
-    } catch (IOException e) {
-      if (tempDirectory == null) {
-        log.error("Failed to create temporary directory");
-      } else {
-        log.error("Failed to copy file from " + fileName + " to " + tempDirectory);
-      }
-    }
+    log.info("Saving file {} to {}", fileName, destinationPath);
   }
 }
