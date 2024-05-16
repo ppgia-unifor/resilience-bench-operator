@@ -52,7 +52,7 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
 
     return Arrays.asList(
             "k6", "run", "/scripts/k6.js",
-            "--out", out,
+//            "--out", out,
             "--vus", String.valueOf(scenarioWorkload.getUsers()),
             "--tag", "workload=" + workload.getMetadata().getName(),
             "--tag", "scenario=" + scenario.getMetadata().getName(),
