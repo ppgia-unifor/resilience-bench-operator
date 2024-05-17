@@ -27,8 +27,7 @@ public class S3FileManager implements FileManager {
     this.bucketName = bucketName;
   }
 
-  @Override
-  public void save(String fileName, String destinationPath) {
+  private void internalSave(String fileName, String destinationPath) {
     var file = new File(fileName);
     if (!file.exists()) {
       log.error("File {} does not exist", fileName);
@@ -70,6 +69,18 @@ public class S3FileManager implements FileManager {
     }
     catch(SdkClientException e) {
       log.error("Amazon S3 couldn't be contacted for a response, or the client couldn't parse the response from Amazon S3. {}", e.getMessage());
+    }
+  }
+
+  @Override
+  public void save(String fileName, String destinationPath) {
+    var files = new File(fileName).listFiles();
+    if (files == null) {
+      log.error("Directory {} does not exist", fileName);
+      return;
+    }
+    for (var file : files) {
+      internalSave(file.getAbsolutePath(), destinationPath);
     }
   }
 }
