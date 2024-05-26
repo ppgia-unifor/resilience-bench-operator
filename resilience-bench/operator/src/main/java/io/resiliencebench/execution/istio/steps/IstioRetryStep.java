@@ -65,7 +65,7 @@ public class IstioRetryStep extends IstioExecutorStep<VirtualService> {
     var attempts = (Integer) patternConfig.get("attempts");
     var perTryTimeout = (Integer) patternConfig.get("perTryTimeout");
 
-    if (attempts != null && perTryTimeout != null) {
+    if (attempts != null && attempts > 0 && perTryTimeout != null && perTryTimeout > 0) {
       builder.withAttempts(attempts);
       builder.withPerTryTimeout(perTryTimeout + "ms");
       return Optional.of(builder.build());
