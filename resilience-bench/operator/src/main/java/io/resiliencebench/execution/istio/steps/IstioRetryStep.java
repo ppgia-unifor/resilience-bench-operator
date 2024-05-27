@@ -65,9 +65,14 @@ public class IstioRetryStep extends IstioExecutorStep<VirtualService> {
     var attempts = (Integer) patternConfig.get("attempts");
     var perTryTimeout = (Integer) patternConfig.get("perTryTimeout");
 
-    if (attempts != null && attempts > 0 && perTryTimeout != null && perTryTimeout > 0) {
+    if (attempts != null && perTryTimeout != null) {
       builder.withAttempts(attempts);
-      builder.withPerTryTimeout(perTryTimeout + "ms");
+
+      if (perTryTimeout >= 0) {
+        builder.withPerTryTimeout(perTryTimeout + "ms");
+      } else {
+        log.warn("perTryTimeout must be greater than or equal to 0.");
+      }
       return Optional.of(builder.build());
     } else {
       log.error("Retry not configured. Attempts and perTryTimeout are required for retry pattern configuration.");
