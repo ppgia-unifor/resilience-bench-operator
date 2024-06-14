@@ -2,7 +2,6 @@ package io.resiliencebench.resources.benchmark;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.resiliencebench.resources.PatternConfig;
-import io.resiliencebench.resources.patterns.Retry;
 
 public class SourceTemplate {
 
