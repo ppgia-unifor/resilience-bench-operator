@@ -2,17 +2,18 @@ package io.resiliencebench.resources.benchmark;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.resiliencebench.resources.PatternConfig;
+import io.resiliencebench.resources.patterns.Retry;
 
-public class Source {
+public class SourceTemplate {
 
   private String service;
 
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private PatternConfig patternConfig = new PatternConfig();
 
-  public Source() { }
+  public SourceTemplate() { }
 
-  public Source(String service, PatternConfig patternConfig) {
+  public SourceTemplate(String service, PatternConfig patternConfig) {
     this.service = service;
     this.patternConfig = patternConfig;
   }

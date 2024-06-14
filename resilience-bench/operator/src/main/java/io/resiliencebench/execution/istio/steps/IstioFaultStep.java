@@ -1,20 +1,22 @@
 package io.resiliencebench.execution.istio.steps;
 
 import io.fabric8.istio.api.networking.v1beta1.HTTPFaultInjection;
-import io.fabric8.istio.api.networking.v1beta1.VirtualService;
 import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
 import io.resiliencebench.resources.scenario.ScenarioFaultTemplate;
+import io.resiliencebench.resources.scenario.Target;
 import io.resiliencebench.resources.service.ResilientService;
 import io.resiliencebench.support.CustomResourceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
-public class IstioFaultStep extends IstioExecutorStep<VirtualService> {
+public class IstioFaultStep extends IstioExecutorStep<Scenario> {
 
   private final static Logger logger = LoggerFactory.getLogger(IstioFaultStep.class);
 
@@ -23,39 +25,41 @@ public class IstioFaultStep extends IstioExecutorStep<VirtualService> {
   }
 
   @Override
-  public VirtualService execute(Scenario scenario, ExecutionQueue executionQueue) {
-    var targetService =
-            findVirtualService(
-                    scenario.getMetadata().getNamespace(),
-                    scenario.getSpec().getTargetServiceName()
-            );
-
-    var fault = configureFault(scenario.getSpec().getFault());
-
-    // TODO Handler error
-    // TODO check if the virtual service already has a fault. if yes, update it
-
-    var editedVirtualService = targetService
-            .edit()
-            .editSpec()
-            .editFirstHttp()
-            .withFault(fault)
-            .endHttp()
-            .endSpec()
-            .build();
-
-    return istioClient()
-            .v1beta1()
-            .virtualServices()
-            .inNamespace(targetService.getMetadata().getNamespace() )
-            .resource(editedVirtualService)
-            .update();
+  public Scenario execute(Scenario scenario, ExecutionQueue executionQueue) {
+    for (var connector : scenario.getSpec().getConnectors()) {
+      var target = connector.getTarget();
+      configureFaultOnTarget(scenario.getMetadata().getNamespace(), target);
+    }
+    return scenario;
   }
 
-  public HTTPFaultInjection configureFault(ScenarioFaultTemplate faultTemplate) {
+  private void configureFaultOnTarget(String namespace, Target target) {
+    var fault = createFault(target.getFault());
+
+    var targetService = findVirtualService(namespace, target.getServiceName());
+    if (fault.isPresent()) {
+      var editedVirtualService = targetService
+              .edit()
+              .editSpec()
+              .editFirstHttp()
+              .withFault(fault.get())
+              .endHttp()
+              .endSpec()
+              .build();
+
+      istioClient()
+              .v1beta1()
+              .virtualServices()
+              .inNamespace(targetService.getMetadata().getNamespace())
+              .resource(editedVirtualService)
+              .update();
+    }
+  }
+
+  public Optional<HTTPFaultInjection> createFault(ScenarioFaultTemplate faultTemplate) {
     if (faultTemplate == null || (faultTemplate.getAbort() == null && faultTemplate.getDelay() == null)) {
       logger.error("Fault template is null. No fault was configured.");
-      return null;
+      return Optional.empty();
     }
 
     var builder = new HTTPFaultInjection().toBuilder();
@@ -70,6 +74,6 @@ public class IstioFaultStep extends IstioExecutorStep<VirtualService> {
               .withNewHTTPFaultInjectionAbortHttpStatusErrorType(faultTemplate.getAbort().httpStatus())
               .endAbort();
     }
-    return builder.build();
+    return Optional.of(builder.build());
   }
 }

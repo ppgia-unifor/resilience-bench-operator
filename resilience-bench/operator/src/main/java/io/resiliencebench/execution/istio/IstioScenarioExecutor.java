@@ -95,9 +95,9 @@ public class IstioScenarioExecutor implements Watcher<Job>, ScenarioExecutor {
     return k6LoadGeneratorStep.execute(scenario, executionQueue);
   }
 
-  private void runScenario(String namespace, String name, ExecutionQueue executionQueue) {
-    logger.info("Running scenario: {}", name);
-    var scenario = scenarioRepository.find(namespace, name);
+  private void runScenario(String namespace, String scenarioName, ExecutionQueue executionQueue) {
+    logger.info("Running scenario: {}", scenarioName);
+    var scenario = scenarioRepository.find(namespace, scenarioName);
     if (scenario.isPresent()) {
       preparationSteps.forEach(step -> step.execute(scenario.get(), executionQueue));
       var job = startLoadGeneration(scenario.get(), executionQueue);
@@ -106,7 +106,7 @@ public class IstioScenarioExecutor implements Watcher<Job>, ScenarioExecutor {
       jobsClient.resource(job).watch(this);
       logger.info("Job created: {}", job.getMetadata().getName());
     } else {
-      throw new RuntimeException(format("Scenario not found: %s.%s", namespace, name));
+      throw new RuntimeException(format("Scenario not found: %s.%s", namespace, scenarioName));
     }
   }
 

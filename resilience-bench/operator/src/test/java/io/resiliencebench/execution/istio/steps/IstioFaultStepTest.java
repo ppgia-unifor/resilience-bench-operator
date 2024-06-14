@@ -7,6 +7,8 @@ import io.resiliencebench.resources.fault.DelayFault;
 import io.resiliencebench.resources.scenario.ScenarioFaultTemplate;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -16,7 +18,7 @@ class IstioFaultStepTest {
   void testConfigureFaultWithDelay() {
     var istioFaultStep = new IstioFaultStep(null, null, null);
     var faultTemplate = new ScenarioFaultTemplate(10, new DelayFault(1000));
-    var fault = istioFaultStep.configureFault(faultTemplate);
+    var fault = istioFaultStep.createFault(faultTemplate).get();
     assertEquals(10.0d, fault.getDelay().getPercentage().getValue());
     assertEquals(new HTTPFaultInjectionDelayFixedDelay("1000ms"), fault.getDelay().getHttpDelayType());
     assertNull(fault.getAbort());
@@ -26,7 +28,7 @@ class IstioFaultStepTest {
   void testConfigureFaultWithAbort() {
     var istioFaultStep = new IstioFaultStep(null, null, null);
     var faultTemplate = new ScenarioFaultTemplate(10, new AbortFault(500));
-    var fault = istioFaultStep.configureFault(faultTemplate);
+    var fault = istioFaultStep.createFault(faultTemplate).get();
     assertEquals(10.0d, fault.getAbort().getPercentage().getValue());
     assertEquals(new HTTPFaultInjectionAbortHttpStatus(500), fault.getAbort().getErrorType());
     assertNull(fault.getDelay());
@@ -36,7 +38,7 @@ class IstioFaultStepTest {
   void testConfigureFaultWithoutFault() {
     var istioFaultStep = new IstioFaultStep(null, null, null);
     var faultTemplate = new ScenarioFaultTemplate();
-    var fault = istioFaultStep.configureFault(faultTemplate);
-    assertNull(fault);
+    var fault = istioFaultStep.createFault(faultTemplate);
+    assertEquals(Optional.empty(), fault);
   }
 }

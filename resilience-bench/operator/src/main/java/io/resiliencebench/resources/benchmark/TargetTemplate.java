@@ -1,14 +1,14 @@
 package io.resiliencebench.resources.benchmark;
 
-public class Target {
+public class TargetTemplate {
 
   private String service;
   private BenchmarkFaultTemplate fault;
 
-  public Target() {
+  public TargetTemplate() {
   }
 
-  public Target(String service, BenchmarkFaultTemplate fault) {
+  public TargetTemplate(String service, BenchmarkFaultTemplate fault) {
     this.service = service;
     this.fault = fault;
   }

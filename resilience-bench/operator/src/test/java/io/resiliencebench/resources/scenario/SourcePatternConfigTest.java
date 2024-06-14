@@ -12,7 +12,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-class ScenarioSpecPatternConfigTest {
+class SourcePatternConfigTest {
 
   @Test
   void testPatternConfigWithArrayUsingConstructor() {
@@ -21,9 +21,9 @@ class ScenarioSpecPatternConfigTest {
     List<Integer> value = List.of(1, 2, 3);
     patternConfig.put(key, value);
 
-    var spec = new ScenarioSpec(null, null, patternConfig, null, null);
+    var source = new Source("source-service", patternConfig);
 
-    var array = (List) spec.getPatternConfig().get(key);
+    var array = (List) source.getPatternConfig().get(key);
     Assertions.assertNotNull(array);
     assertEquals(3, array.size());
     assertEquals(1, array.get(0));
@@ -34,8 +34,8 @@ class ScenarioSpecPatternConfigTest {
     Map<String, Object> patternConfig = new HashMap<>();
     String key = "testNull";
     patternConfig.put(key, null);
-    var spec = new ScenarioSpec(null, null, patternConfig, null, null);
-    assertNull(spec.getPatternConfig().get(key));
+    var source = new Source("source-service", patternConfig);
+    assertNull(source.getPatternConfig().get(key));
   }
 
   @ParameterizedTest(name = "pattern parameter w/ string: {0}")
@@ -44,8 +44,8 @@ class ScenarioSpecPatternConfigTest {
     Map<String, Object> patternConfig = new HashMap<>();
     String key = "test";
     patternConfig.put(key, value);
-    var spec = new ScenarioSpec(null, null, patternConfig, null, null);
-    assertEquals(value, spec.getPatternConfig().get(key));
+    var source = new Source("source-service", patternConfig);
+    assertEquals(value, source.getPatternConfig().get(key));
   }
 
   @ParameterizedTest(name = "pattern parameter w/ int: {0}")
@@ -54,8 +54,8 @@ class ScenarioSpecPatternConfigTest {
     Map<String, Object> patternConfig = new HashMap<>();
     String key = "test";
     patternConfig.put(key, value);
-    var spec = new ScenarioSpec(null, null, patternConfig, null, null);
-    assertEquals(value, spec.getPatternConfig().get(key));
+    var source = new Source("source-service", patternConfig);
+    assertEquals(value, source.getPatternConfig().get(key));
   }
 
   @ParameterizedTest(name = "pattern parameter w/ long: {0}")
@@ -64,8 +64,8 @@ class ScenarioSpecPatternConfigTest {
     Map<String, Object> patternConfig = new HashMap<>();
     String key = "test";
     patternConfig.put(key, value);
-    var spec = new ScenarioSpec(null, null, patternConfig, null, null);
-    assertEquals(value, spec.getPatternConfig().get(key));
+    var source = new Source("source-service", patternConfig);
+    assertEquals(value, source.getPatternConfig().get(key));
   }
 
   @ParameterizedTest(name = "pattern parameter w/ boolean: {0}")
@@ -74,8 +74,8 @@ class ScenarioSpecPatternConfigTest {
     Map<String, Object> patternConfig = new HashMap<>();
     String key = "test";
     patternConfig.put(key, value);
-    var spec = new ScenarioSpec(null, null, patternConfig, null, null);
-    assertEquals(value, spec.getPatternConfig().get(key));
+    var source = new Source("source-service", patternConfig);
+    assertEquals(value, source.getPatternConfig().get(key));
   }
 
   @ParameterizedTest(name = "pattern parameter w/ boolean: {0}")
@@ -84,7 +84,7 @@ class ScenarioSpecPatternConfigTest {
     Map<String, Object> patternConfig = new HashMap<>();
     String key = "test";
     patternConfig.put(key, value);
-    var spec = new ScenarioSpec(null, null, patternConfig, null, null);
-    assertEquals(value, spec.getPatternConfig().get(key));
+    var source = new Source("source-service", patternConfig);
+    assertEquals(value, source.getPatternConfig().get(key));
   }
 }

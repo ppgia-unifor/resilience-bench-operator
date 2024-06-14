@@ -4,18 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.resiliencebench.resources.benchmark.Benchmark;
-import io.resiliencebench.resources.benchmark.Source;
-import io.resiliencebench.resources.benchmark.Target;
-import io.resiliencebench.resources.scenario.Scenario;
-import io.resiliencebench.resources.scenario.ScenarioFaultTemplate;
-import io.resiliencebench.resources.scenario.ScenarioSpec;
-import io.resiliencebench.resources.scenario.ScenarioWorkload;
+import io.resiliencebench.resources.benchmark.ConnectorTemplate;
+import io.resiliencebench.resources.benchmark.SourceTemplate;
+import io.resiliencebench.resources.scenario.*;
 import io.resiliencebench.resources.workload.Workload;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static io.resiliencebench.support.Annotations.OWNED_BY;
 
@@ -59,59 +53,90 @@ public final class ScenarioFactory {
     return jsonNode;
   }
 
-  public static List<Map<String, Object>> expandServiceParameters(Source serviceSource) {
+  public static List<Map<String, Object>> expandServiceParameters(SourceTemplate serviceSource) {
     return ListExpansion.expandConfigTemplate(serviceSource.getPatternConfig());
   }
 
+  private static List<Connector> expandConnector(ConnectorTemplate connectorTemplate) {
+    List<Connector> expandedConnectors = new ArrayList<>();
+    for (var faultPercentage : connectorTemplate.getTarget().getFault().getPercentage()) {
+      var fault = ScenarioFaultTemplate.create(
+              faultPercentage,
+              connectorTemplate.getTarget().getFault().getDelay(),
+              connectorTemplate.getTarget().getFault().getAbort()
+      );
+      for (var sourcePattern : expandServiceParameters(connectorTemplate.getSource())) {
+        var source = new Source(connectorTemplate.getSource().getService(), sourcePattern);
+        var target = new Target(connectorTemplate.getTarget().getService(), fault);
+        expandedConnectors.add(new Connector(connectorTemplate.getName(), source, target));
+      }
+    }
+
+    return expandedConnectors;
+  }
+
+  public static <T> List<List<T>> generateCombinations(List<List<T>> listOfLists) {
+    List<List<T>> result = new ArrayList<>();
+    generateCombinationsRecursive(listOfLists, 0, new ArrayList<>(), result);
+    return result;
+  }
+
+  private static <T> void generateCombinationsRecursive(List<List<T>> listOfLists, int depth, List<T> currentCombination, List<List<T>> result) {
+    if (depth == listOfLists.size()) {
+      result.add(new ArrayList<>(currentCombination));
+      return;
+    }
+
+    for (T element : listOfLists.get(depth)) {
+      currentCombination.add(element);
+      generateCombinationsRecursive(listOfLists, depth + 1, currentCombination, result);
+      currentCombination.remove(currentCombination.size() - 1);
+    }
+  }
+
   public static List<Scenario> create(Benchmark benchmark, Workload workload) {
-    List<Scenario> scenarios = new ArrayList<>();
-    var workloadUsers = workload.getSpec().getUsers();
-    var workloadName = workload.getMetadata().getName();
+    List<Scenario> executions = new ArrayList<>();
 
-    for (var connection : benchmark.getSpec().getConnections()) {
-      var target = connection.target();
-      var source = connection.source();
+    for (var scenarioTemplate : benchmark.getSpec().getScenarios()) {
+      var expandedConnectors = new ArrayList<List<Connector>>();
+      for (var connectorTemplate : scenarioTemplate.getConnectors()) {
+        expandedConnectors.add(expandConnector(connectorTemplate));
+      }
 
-      for (var faultPercentage : target.getFault().getPercentage()) {
-        var fault =
-                ScenarioFaultTemplate.create(faultPercentage, target.getFault().getDelay(), target.getFault().getAbort());
+      var expandedConnectorsCombined = new ArrayList<List<Connector>>();
+      generateCombinationsRecursive(expandedConnectors, 0, new ArrayList<>(), expandedConnectorsCombined);
 
-        for (var sourcePatternsParameters : expandServiceParameters(source)) {
-          for (var workloadUser : workloadUsers) {
-            var scenario = createScenario(workloadName, target, source, fault, sourcePatternsParameters, workloadUser);
-            scenario.setMetadata(createMeta(scenario, benchmark));
-            scenarios.add(scenario);
-          }
+      var workloadUsers = workload.getSpec().getUsers();
+      var workloadName = workload.getMetadata().getName();
+
+      for (var workloadUser : workloadUsers) {
+        for (int i = 0; i < expandedConnectorsCombined.size(); i++) {
+          var scenarioName = generateScenarioName(scenarioTemplate.getName(), i+1);
+          var connectors = expandedConnectorsCombined.get(i);
+          var spec = new ScenarioSpec(
+                  scenarioName,
+                  new ScenarioWorkload(workloadName, workloadUser),
+                  connectors);
+          var scenario = new Scenario();
+          scenario.setSpec(spec);
+          scenario.setMetadata(createMeta(scenarioName, benchmark));
+          executions.add(scenario);
         }
       }
     }
-    return scenarios;
+
+    return executions;
   }
 
-  private static Scenario createScenario(
-          String workloadName,
-          Target target,
-          Source source,
-          ScenarioFaultTemplate fault,
-          Map<String, Object> sourcePatternsParameters, Integer workloadUser
-  ) {
-    return new Scenario(
-            new ScenarioSpec(
-                    target.getService(),
-                    source.getService(),
-                    sourcePatternsParameters,
-                    new ScenarioWorkload(workloadName, workloadUser),
-                    fault
-            )
-    );
+  private static String generateScenarioName(String scenarioName, int index) {
+    return scenarioName + "-" + "00000".substring((""+index).length()) + index;
   }
 
-  private static ObjectMeta createMeta(Scenario scenario, Benchmark benchmark) {
+  private static ObjectMeta createMeta(String name, Benchmark benchmark) {
     return new ObjectMetaBuilder()
-            .withName(scenario.toString())
+            .withName(name)
             .withNamespace(benchmark.getMetadata().getNamespace())
             .addToAnnotations(OWNED_BY, benchmark.getMetadata().getName())
-            .addToAnnotations("resiliencebench.io/scenario-uid", scenario.toString())
             .build();
   }
 }

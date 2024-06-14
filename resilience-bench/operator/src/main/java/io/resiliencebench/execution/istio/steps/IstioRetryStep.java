@@ -1,11 +1,11 @@
 package io.resiliencebench.execution.istio.steps;
 
 import io.fabric8.istio.api.networking.v1beta1.HTTPRetry;
-import io.fabric8.istio.api.networking.v1beta1.VirtualService;
 import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
+import io.resiliencebench.resources.scenario.Source;
 import io.resiliencebench.resources.service.ResilientService;
 import io.resiliencebench.support.CustomResourceRepository;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class IstioRetryStep extends IstioExecutorStep<VirtualService> {
+public class IstioRetryStep extends IstioExecutorStep<Scenario> {
 
   private final static Logger log = org.slf4j.LoggerFactory.getLogger(IstioRetryStep.class);
 
@@ -24,24 +24,23 @@ public class IstioRetryStep extends IstioExecutorStep<VirtualService> {
   }
 
   @Override
-  public VirtualService execute(Scenario scenario, ExecutionQueue executionQueue) {
+  public Scenario execute(Scenario scenario, ExecutionQueue executionQueue) {
+    for (var connector : scenario.getSpec().getConnectors()) {
+      var source = connector.getSource();
+      configureRetryOnSource(scenario.getMetadata().getNamespace(), source);
+    }
+    return scenario;
+  }
 
-    // TODO verify if scenario has a retry pattern configured
-
-    var targetService =
-            findVirtualService(
-                    scenario.getMetadata().getNamespace(),
-                    scenario.getSpec().getSourceServiceName()
-            );
-
-    var retry = configureRetryPattern(scenario.getSpec().getPatternConfig());
-
-    if (retry.isPresent()) {
-      var newVirtualService = targetService
+  private void configureRetryOnSource(String namespace, Source source) {
+    var sourceVirtualService = findVirtualService(namespace, source.getServiceName());
+    var retryPolicy = createRetryPolicy(source.getPatternConfig());
+    if (retryPolicy.isPresent()) {
+      var newVirtualService = sourceVirtualService
               .edit()
               .editSpec()
               .editFirstHttp()
-              .withRetries(retry.get())
+              .withRetries(retryPolicy.get())
               .endHttp()
               .endSpec()
               .build();
@@ -49,18 +48,13 @@ public class IstioRetryStep extends IstioExecutorStep<VirtualService> {
       istioClient()
               .v1beta1()
               .virtualServices()
-              .inNamespace(targetService.getMetadata().getNamespace())
+              .inNamespace(sourceVirtualService.getMetadata().getNamespace())
               .resource(newVirtualService)
               .update();
-      return newVirtualService;
-    } else {
-      return targetService;
     }
   }
 
-
-
-  public Optional<HTTPRetry> configureRetryPattern(Map<String, Object> patternConfig) {
+  public Optional<HTTPRetry> createRetryPolicy(Map<String, Object> patternConfig) {
     var builder = new HTTPRetry().toBuilder();
     var attempts = (Integer) patternConfig.get("attempts");
     var perTryTimeout = (Integer) patternConfig.get("perTryTimeout");

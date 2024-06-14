@@ -37,7 +37,7 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
 
   public ObjectMeta createMeta(Scenario scenario, Workload workload) {
     return new ObjectMetaBuilder()
-            .withName(workload.getMetadata().getName() + "-" + UUID.fromString(scenario.getMetadata().getUid()))
+            .withName(workload.getMetadata().getName() + "-" + scenario.getMetadata().getName())
             .withNamespace(workload.getMetadata().getNamespace())
             .withLabels(Map.of("app", "k6"))
             .addToAnnotations(CREATED_BY, "resiliencebench-operator")
