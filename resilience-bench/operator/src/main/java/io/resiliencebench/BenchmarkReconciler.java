@@ -8,6 +8,7 @@ import io.resiliencebench.execution.ScenarioExecutor;
 import io.resiliencebench.resources.ExecutionQueueFactory;
 import io.resiliencebench.resources.ScenarioFactory;
 import io.resiliencebench.resources.benchmark.Benchmark;
+import io.resiliencebench.resources.benchmark.BenchmarkStatus;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
 import io.resiliencebench.resources.workload.Workload;
@@ -58,7 +59,8 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
 
     scenarioExecutor.run(executionQueue);
     logger.info("Benchmark reconciled: {}", benchmark.getMetadata().getName());
-    return UpdateControl.noUpdate();
+    benchmark.setStatus(new BenchmarkStatus(scenariosList.size()));
+    return UpdateControl.updateStatus(benchmark);
   }
 
   private ExecutionQueue getOrCreateQueue(Benchmark benchmark, List<Scenario> scenariosList) {
