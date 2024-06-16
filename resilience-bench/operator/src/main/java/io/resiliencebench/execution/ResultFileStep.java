@@ -46,6 +46,7 @@ public class ResultFileStep extends ExecutorStep<ExecutionQueue> {
         resultsJson.put("results", new JsonArray());
       }
       var currentResultsJson = new JsonObject(currentResults.get());
+      currentResultsJson.put("metadata", scenario.getSpec().toJson());
       resultsJson.getJsonArray("results").add(currentResultsJson);
       writeToFile(queue.getSpec().getResultFile(), resultsJson.encode());
     }

@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ScenarioSpecTest {
 
   @Test
-  void testToString() {
+  void testToJson() {
     var source = new Source("api-gateway", Map.of("backoffLimit", 100, "maxAttempts", 1));
     var delay = new DelayFault(1000);
     var fault = new ScenarioFaultTemplate(10, delay);
@@ -25,8 +25,7 @@ class ScenarioSpecTest {
             of(connector)
     );
 
-    var actual = new JsonObject(scenarioSpec.toString());
-
+    var actual = scenarioSpec.toJson();
     assertEquals("scenario-1", actual.getString("scenario"));
     assertEquals(100, actual.getJsonObject("workload").getInteger("users"));
     assertEquals("workload", actual.getJsonObject("workload").getString("workloadName"));
