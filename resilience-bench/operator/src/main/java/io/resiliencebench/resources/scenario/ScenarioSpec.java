@@ -1,5 +1,7 @@
 package io.resiliencebench.resources.scenario;
 
+import io.vertx.core.json.JsonObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,5 +32,15 @@ public class ScenarioSpec {
 
   public List<Connector> getConnectors() {
     return connectors;
+  }
+
+  @Override
+  public String toString() {
+    var json = new JsonObject();
+    json.put("scenario", scenario);
+    json.put("workload", workload);
+    json.put("connectors", connectors);
+
+    return json.toString();
   }
 }

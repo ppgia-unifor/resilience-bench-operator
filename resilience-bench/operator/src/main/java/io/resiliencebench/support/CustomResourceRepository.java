@@ -69,12 +69,20 @@ public class CustomResourceRepository<T extends CustomResource> {
     }
   }
 
-  public void delete(T resource) {
-    inNamespace(resource).resource(resource).delete();
+  public void deleteAll(String namespace) {
+    resourceOperation.inNamespace(namespace).list().getItems().forEach(r -> {
+      logger.debug("Deleting resource: {}", r);
+      inNamespace(r).delete();
+    });
   }
 
   public Optional<T> find(ObjectMeta meta) {
     return this.find(meta.getNamespace(), meta.getName());
+  }
+
+  public T get(String namespace, String name) {
+    return find(namespace, name)
+            .orElseThrow(() -> new RuntimeException(String.format("Resource %s.%s not found", namespace, name)));
   }
 
   public Optional<T> find(String namespace, String name) {

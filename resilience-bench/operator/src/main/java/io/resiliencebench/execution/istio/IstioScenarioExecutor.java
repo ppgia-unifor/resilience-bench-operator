@@ -117,8 +117,11 @@ public class IstioScenarioExecutor implements Watcher<Job>, ScenarioExecutor {
       if (nonNull(resource.getStatus().getCompletionTime())) {
         logger.debug("Finished job: {}", resource.getMetadata().getName());
         var scenarioName = resource.getMetadata().getAnnotations().get("resiliencebench.io/scenario");
-        var scenario = scenarioRepository.find(namespace, scenarioName).get();
-        var executionQueue = executionRepository.find(namespace, scenario.getMetadata().getAnnotations().get(Annotations.OWNED_BY)).get();
+        var scenario = scenarioRepository.get(namespace, scenarioName);
+        var executionQueue = executionRepository.get(
+                namespace,
+                scenario.getMetadata().getAnnotations().get(Annotations.OWNED_BY)
+        );
         postScenarioExecutionSteps.forEach(step -> step.execute(scenario, executionQueue));
         run(executionQueue);
       }

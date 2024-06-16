@@ -111,7 +111,7 @@ public final class ScenarioFactory {
 
       for (var workloadUser : workloadUsers) {
         for (int i = 0; i < expandedConnectorsCombined.size(); i++) {
-          var scenarioName = generateScenarioName(scenarioTemplate.getName(), i+1);
+          var scenarioName = generateScenarioName(scenarioTemplate.getName() + "-" + workloadUser + "vu", i+1);
           var connectors = expandedConnectorsCombined.get(i);
           var spec = new ScenarioSpec(
                   scenarioName,
@@ -129,7 +129,7 @@ public final class ScenarioFactory {
   }
 
   private static String generateScenarioName(String scenarioName, int index) {
-    return scenarioName + "-" + "00000".substring((""+index).length()) + index;
+    return scenarioName + "-" + "00000".substring(("" + index).length()) + index;
   }
 
   private static ObjectMeta createMeta(String name, Benchmark benchmark) {

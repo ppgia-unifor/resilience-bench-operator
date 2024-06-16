@@ -28,10 +28,6 @@ public class Item {
     return scenario;
   }
 
-  public String getStatus() {
-    return status;
-  }
-
   @JsonIgnore
   public boolean isFinished() {
     return status.equals(Status.FINISHED);

@@ -8,6 +8,7 @@ import io.resiliencebench.resources.queue.Item;
 import io.resiliencebench.resources.scenario.Scenario;
 
 import java.util.List;
+import java.util.UUID;
 
 import static io.resiliencebench.support.Annotations.OWNED_BY;
 
@@ -25,9 +26,11 @@ public class ExecutionQueueFactory {
             .build();
 
     var items = scenarios.stream().map(s -> new Item(s.getMetadata().getName()));
-    var spec = new ExecutionQueueSpec();
-    spec.setItems(items.toList());
-
+    var spec = new ExecutionQueueSpec(
+            "/results/%s.json".formatted(UUID.randomUUID().toString()),
+            items.toList(),
+            benchmark.getMetadata().getNamespace()
+    );
     return new ExecutionQueue(spec, meta);
   }
 }

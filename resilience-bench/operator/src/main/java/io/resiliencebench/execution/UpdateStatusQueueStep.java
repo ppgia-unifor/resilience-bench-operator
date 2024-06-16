@@ -28,7 +28,7 @@ public class UpdateStatusQueueStep extends ExecutorStep<ExecutionQueue> {
       queueItem.setStatus("finished");
       queueItem.setFinishedAt(LocalDateTime.now().atZone(ZoneId.of("UTC")).toString());
       // TODO abstrair construção do path
-      queueItem.setResultFile("/results/%s".formatted(scenario.getMetadata().getName()));
+      queueItem.setResultFile("/results/%s.json".formatted(scenario.getMetadata().getName()));
     } else if (queueItem.isPending()) {
       queueItem.setStatus("running");
       queueItem.setStartedAt(LocalDateTime.now().atZone(ZoneId.of("UTC")).toString());

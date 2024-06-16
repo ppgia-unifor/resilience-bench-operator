@@ -12,6 +12,7 @@ import java.util.List;
 
 import static java.util.List.of;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ScenarioFactoryTest {
 
@@ -112,9 +113,9 @@ public class ScenarioFactoryTest {
     var benchmark = new Benchmark();
     benchmark.setSpec(spec);
     var workload = createWorkload(of(10, 20));
-    var executions = ScenarioFactory.create(benchmark, workload);
-
-    assertEquals(72, executions.size());
+    var generatedScenarios = ScenarioFactory.create(benchmark, workload);
+    assertEquals(72, generatedScenarios.size());
+    assertEquals("scenario-1-20vu-00036", generatedScenarios.get(71).getMetadata().getName());
   }
 
   @Test
