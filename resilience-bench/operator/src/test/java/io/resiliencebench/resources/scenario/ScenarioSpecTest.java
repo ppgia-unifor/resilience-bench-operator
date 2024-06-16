@@ -32,7 +32,14 @@ class ScenarioSpecTest {
 
     var connectorObject = actual.getJsonArray("connectors").getJsonObject(0);
     assertEquals("connector-1", connectorObject.getString("name"));
-    assertEquals("api-gateway", connectorObject.getJsonObject("source").getString("serviceName"));
-    assertEquals("service-x", connectorObject.getJsonObject("target").getString("serviceName"));
+
+    var sourceJson = connectorObject.getJsonObject("source");
+    assertEquals("api-gateway", sourceJson.getString("serviceName"));
+    assertEquals(100, sourceJson.getJsonObject("patternConfig").getInteger("backoffLimit"));
+
+    var targetJson = connectorObject.getJsonObject("target");
+    assertEquals("service-x", targetJson.getString("serviceName"));
+    assertEquals(1000, targetJson.getJsonObject("fault").getJsonObject("delay").getInteger("duration"));
+
   }
 }
