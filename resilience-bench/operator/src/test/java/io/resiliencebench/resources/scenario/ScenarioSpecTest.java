@@ -1,7 +1,6 @@
 package io.resiliencebench.resources.scenario;
 
 import io.resiliencebench.resources.fault.DelayFault;
-import io.vertx.core.json.JsonObject;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;

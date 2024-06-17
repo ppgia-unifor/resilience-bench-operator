@@ -3,7 +3,6 @@ package io.resiliencebench.resources;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.resiliencebench.resources.benchmark.*;
 import io.resiliencebench.resources.fault.DelayFault;
-import io.resiliencebench.resources.workload.CloudConfig;
 import io.resiliencebench.resources.workload.Workload;
 import io.resiliencebench.resources.workload.WorkloadSpec;
 import org.junit.jupiter.api.Test;
@@ -12,7 +11,6 @@ import java.util.List;
 
 import static java.util.List.of;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ScenarioFactoryTest {
 
@@ -22,9 +20,9 @@ public class ScenarioFactoryTest {
           List<Integer> maxAttempts,
           List<Integer> backoffLimit) {
     var source = new SourceTemplate("api-gateway",
-            new PatternConfig(
-                    new PatternConfig.Attribute("maxAttempts", maxAttempts),
-                    new PatternConfig.Attribute("backoffLimit", backoffLimit)
+            new NameValueProperties(
+                    new NameValueProperties.Attribute("maxAttempts", maxAttempts),
+                    new NameValueProperties.Attribute("backoffLimit", backoffLimit)
             )
     );
     var delay = new DelayFault(1000);
@@ -42,7 +40,7 @@ public class ScenarioFactoryTest {
     meta.setName("workload");
     var workload = new Workload();
     workload.setMetadata(meta);
-    workload.setSpec(new WorkloadSpec(users, 100, null, new CloudConfig("", ""), null));
+    workload.setSpec(new WorkloadSpec(users, null));
     return workload;
   }
 
@@ -51,9 +49,9 @@ public class ScenarioFactoryTest {
     var parameters =
     ScenarioFactory.expandServiceParameters(
             new SourceTemplate("api-gateway",
-                    new PatternConfig(
-                            new PatternConfig.Attribute("maxAttempts", of(1, 2, 3)),
-                            new PatternConfig.Attribute("backoffLimit", of(1000, 2000, 3000))
+                    new NameValueProperties(
+                            new NameValueProperties.Attribute("maxAttempts", of(1, 2, 3)),
+                            new NameValueProperties.Attribute("backoffLimit", of(1000, 2000, 3000))
                     )
             ));
     assertEquals(9, parameters.size());

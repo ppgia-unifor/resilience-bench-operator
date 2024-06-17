@@ -9,11 +9,11 @@ import java.util.Arrays;
 
 import static java.util.stream.Collectors.joining;
 
-public class PatternConfig extends ArrayList<PatternConfig.Attribute> {
-  public PatternConfig() {
+public class NameValueProperties extends ArrayList<NameValueProperties.Attribute> {
+  public NameValueProperties() {
   }
 
-  public PatternConfig(Attribute... params) {
+  public NameValueProperties(Attribute... params) {
     this.addAll(Arrays.asList(params));
   }
 

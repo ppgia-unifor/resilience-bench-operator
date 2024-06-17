@@ -12,10 +12,10 @@ import io.resiliencebench.resources.workload.Workload;
 import io.resiliencebench.support.CustomResourceRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static io.resiliencebench.support.Annotations.CREATED_BY;
 
@@ -31,8 +31,12 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
 
   @Override
   public Job execute(Scenario scenario, ExecutionQueue executionQueue) {
-    var workload = workloadRepository.find(scenario.getMetadata().getNamespace(), scenario.getSpec().getWorkload().getWorkloadName());
-    return createJob(scenario, workload.get(), scenario.getSpec().getWorkload()); // TODO verify if workload exists
+    var workloadName = scenario.getSpec().getWorkload().getWorkloadName();
+    var workload = workloadRepository.find(scenario.getMetadata().getNamespace(), workloadName);
+    if (workload.isEmpty()) {
+      throw new IllegalArgumentException("Workload does not exists: %s".formatted(workloadName));
+    }
+    return createJob(scenario, workload.get(), scenario.getSpec().getWorkload());
   }
 
   public ObjectMeta createMeta(Scenario scenario, Workload workload) {
@@ -46,17 +50,9 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
             .build();
   }
 
-  public List<String> createCommand(Scenario scenario, ScenarioWorkload scenarioWorkload, Workload workload) {
-    var resultFile = String.format("csv=/results/%s", scenario.getMetadata().getName());
-    var out = workload.getSpec().getCloud() != null ? "cloud" : resultFile;
-
+  public List<String> createCommand(ScenarioWorkload scenarioWorkload) {
     return Arrays.asList(
-            "k6", "run", "/scripts/k6.js",
-//            "--out", out,
-            "--vus", String.valueOf(scenarioWorkload.getUsers()),
-            "--tag", "workload=" + workload.getMetadata().getName(),
-            "--tag", "scenario=" + scenario.getMetadata().getName(),
-            "--duration", workload.getSpec().getDuration() + "s"
+            "k6", "run", "/scripts/k6.js", "--vus", String.valueOf(scenarioWorkload.getUsers())
     );
   }
 
@@ -85,25 +81,28 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
             .build();
   }
 
+  private List<EnvVar> resolveEnvVars(Workload workload, Scenario scenario) {
+    List<EnvVar> envs = new ArrayList<>();
+    envs.add(new EnvVar("OUTPUT_PATH", String.format("/results/%s", scenario.getMetadata().getName()), null));
+    for (var item : workload.getSpec().getOptions()) {
+      envs.add(new EnvVar(item.getName(), item.getValue().asText(), null));
+    }
+    return envs;
+  }
+
   public Container createK6Container(Scenario scenario, ScenarioWorkload scenarioWorkload, Workload workload) {
     var container = new ContainerBuilder()
             .withName("k6")
-            .withImage("grafana/k6") // TODO receive it from the workload spec
-            .withCommand(createCommand(scenario, scenarioWorkload, workload))
+            .withImage(workload.getSpec().getK6ContainerImage())
+            .withCommand("k6", "run", "/scripts/k6.js", "--vus", String.valueOf(scenarioWorkload.getUsers()))
             .withImagePullPolicy("IfNotPresent")
             .withPorts(new ContainerPortBuilder().withContainerPort(6565).build())
             .withVolumeMounts(
                     new VolumeMount("/scripts", "None", "script-volume", false, null, null),
                     new VolumeMount("/results", "HostToContainer", "test-results", false, null, null)
             )
-            .withEnv(new EnvVar("K6_WEB_DASHBOARD", "true", null))
-            .withEnv(new EnvVar("OUTPUT_PATH", String.format("/results/%s", scenario.getMetadata().getName()), null));
-    if (workload.getSpec().getCloud() != null) {
-      container.withEnv( // TODO send env vars from the workload, just like in containers
-              new EnvVar("K6_CLOUD_TOKEN", workload.getSpec().getCloud().token(), null),
-              new EnvVar("K6_CLOUD_PROJECT_ID", workload.getSpec().getCloud().projectId(), null)
-      );
-    }
+            .withEnv(resolveEnvVars(workload, scenario));
+
     return container.build();
   }
 

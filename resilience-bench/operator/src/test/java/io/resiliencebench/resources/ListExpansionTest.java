@@ -13,11 +13,11 @@ public class ListExpansionTest {
 
   @Test
   public void should_expand_template_as_patternConfig() {
-    PatternConfig configTemplate = new PatternConfig();
+    NameValueProperties configTemplate = new NameValueProperties();
 
-    configTemplate.add(new PatternConfig.Attribute("slowCallRateThreshold", objectMapper.valueToTree(100)));
-    configTemplate.add(new PatternConfig.Attribute("slowCallDurationThreshold", objectMapper.valueToTree(1000)));
-    configTemplate.add(new PatternConfig.Attribute("waitDurationInOpenState", objectMapper.valueToTree(List.of(50, 100, 200))));
+    configTemplate.add(new NameValueProperties.Attribute("slowCallRateThreshold", objectMapper.valueToTree(100)));
+    configTemplate.add(new NameValueProperties.Attribute("slowCallDurationThreshold", objectMapper.valueToTree(1000)));
+    configTemplate.add(new NameValueProperties.Attribute("waitDurationInOpenState", objectMapper.valueToTree(List.of(50, 100, 200))));
 
     var expandedConfigs = ListExpansion.expandConfigTemplate(configTemplate);
 
@@ -29,11 +29,11 @@ public class ListExpansionTest {
 
   @Test
   public void should_expand_simple_template_as_patternConfig() {
-    PatternConfig configTemplate = new PatternConfig();
+    NameValueProperties configTemplate = new NameValueProperties();
 
-    configTemplate.add(new PatternConfig.Attribute("slowCallRateThreshold",100));
-    configTemplate.add(new PatternConfig.Attribute("slowCallDurationThreshold",1000));
-    configTemplate.add(new PatternConfig.Attribute("waitDurationInOpenState", 200));
+    configTemplate.add(new NameValueProperties.Attribute("slowCallRateThreshold",100));
+    configTemplate.add(new NameValueProperties.Attribute("slowCallDurationThreshold",1000));
+    configTemplate.add(new NameValueProperties.Attribute("waitDurationInOpenState", 200));
 
     var expandedConfigs = ListExpansion.expandConfigTemplate(configTemplate);
 
@@ -45,10 +45,10 @@ public class ListExpansionTest {
 
   @Test
   public void should_expand_multiple_templates_as_patternConfig() {
-    PatternConfig configTemplate = new PatternConfig();
-    configTemplate.add(new PatternConfig.Attribute("slowCallRateThreshold", 100));
-    configTemplate.add(new PatternConfig.Attribute("slowCallDurationThreshold", List.of(1000, 2000)));
-    configTemplate.add(new PatternConfig.Attribute("waitDurationInOpenState", List.of(50, 100, 200)));
+    NameValueProperties configTemplate = new NameValueProperties();
+    configTemplate.add(new NameValueProperties.Attribute("slowCallRateThreshold", 100));
+    configTemplate.add(new NameValueProperties.Attribute("slowCallDurationThreshold", List.of(1000, 2000)));
+    configTemplate.add(new NameValueProperties.Attribute("waitDurationInOpenState", List.of(50, 100, 200)));
     var expandedConfigs = ListExpansion.expandConfigTemplate(configTemplate);
 
     Assertions.assertEquals(6, expandedConfigs.size());

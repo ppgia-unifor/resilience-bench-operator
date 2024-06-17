@@ -13,7 +13,7 @@ final class ListExpansion {
         throw new IllegalStateException("Utility class");
     }
 
-    public static List<Map<String, Object>> expandConfigTemplate(PatternConfig patternConfigs) {
+     public static List<Map<String, Object>> expandConfigTemplate(NameValueProperties patternConfigs) {
         List<Map<String, Object>> resultList = new ArrayList<>();
         resultList.add(new HashMap<>());
 

@@ -1,18 +1,18 @@
 package io.resiliencebench.resources.benchmark;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.resiliencebench.resources.PatternConfig;
+import io.resiliencebench.resources.NameValueProperties;
 
 public class SourceTemplate {
 
   private String service;
 
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  private PatternConfig patternConfig = new PatternConfig();
+  private NameValueProperties patternConfig = new NameValueProperties();
 
   public SourceTemplate() { }
 
-  public SourceTemplate(String service, PatternConfig patternConfig) {
+  public SourceTemplate(String service, NameValueProperties patternConfig) {
     this.service = service;
     this.patternConfig = patternConfig;
   }
@@ -22,11 +22,11 @@ public class SourceTemplate {
   }
 
 
-  public PatternConfig getPatternConfig() {
+  public NameValueProperties getPatternConfig() {
     return patternConfig;
   }
 
-  public void setPatternConfig(PatternConfig patternConfig) {
+  public void setPatternConfig(NameValueProperties patternConfig) {
     this.patternConfig = patternConfig;
   }
 }
