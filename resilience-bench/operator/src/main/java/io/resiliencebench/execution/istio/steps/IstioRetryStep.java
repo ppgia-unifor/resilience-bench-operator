@@ -38,12 +38,9 @@ public class IstioRetryStep extends IstioExecutorStep<Scenario> {
     var sourceVirtualService = findVirtualService(namespace, source.getServiceName());
     var retryPolicy = createRetryPolicy(source.getPatternConfig(), target);
     if (retryPolicy.isPresent()) {
-      Destination destination = new DestinationBuilder()
-              .withHost(target.getServiceName())
-              .withSubset("v1")
-              .build();
+      var destination = new DestinationBuilder().withHost(target.getServiceName()).build();
 
-      HTTPRoute httpRoute = new HTTPRouteBuilder()
+      var httpRoute = new HTTPRouteBuilder()
               .withRoute(Collections.singletonList(new HTTPRouteDestinationBuilder()
                       .withDestination(destination)
                       .build()))
@@ -53,7 +50,7 @@ public class IstioRetryStep extends IstioExecutorStep<Scenario> {
       var newVirtualService = sourceVirtualService
               .edit()
               .editSpec()
-              .withHttp(Collections.singletonList(httpRoute))
+              .withHttp(httpRoute)
               .endSpec()
               .build();
 
