@@ -53,9 +53,7 @@ public class IstioRetryStep extends IstioExecutorStep<Scenario> {
       var newVirtualService = sourceVirtualService
               .edit()
               .editSpec()
-              .editFirstHttp()
-              .withRoute(httpRoute.getRoute())
-              .endHttp()
+              .withHttp(Collections.singletonList(httpRoute))
               .endSpec()
               .build();
 
