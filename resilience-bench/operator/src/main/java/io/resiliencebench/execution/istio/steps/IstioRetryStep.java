@@ -39,25 +39,39 @@ public class IstioRetryStep extends IstioExecutorStep<Scenario> {
 
   private void configureRetryOnSource(String namespace, Source source) {
     var sourceVirtualService = findVirtualService(namespace, source.getServiceName());
-    var destination = new DestinationBuilder().withHost(source.getServiceName()).build();
-    var httpRouteBuilder = new HTTPRouteBuilder()
-            .withRoute(singletonList(
-                    new HTTPRouteDestinationBuilder().withDestination(destination).build())
-            );
-    createRetryPolicy(source.getPatternConfig()).ifPresent(httpRouteBuilder::withRetries);
-    var newVirtualService = sourceVirtualService
-            .edit()
-            .editSpec()
-            .withHttp(httpRouteBuilder.build())
-            .endSpec()
-            .build();
+
+    var http = sourceVirtualService.getSpec().getHttp().get(0);
+    http.setRetries(null);
+    createRetryPolicy(source.getPatternConfig()).ifPresent(http::setRetries);
 
     istioClient()
             .v1beta1()
             .virtualServices()
             .inNamespace(sourceVirtualService.getMetadata().getNamespace())
-            .resource(newVirtualService)
+            .resource(sourceVirtualService)
             .update();
+
+//
+//
+//    var destination = new DestinationBuilder().withHost(source.getServiceName()).build();
+//    var httpRouteBuilder = new HTTPRouteBuilder()
+//            .withRoute(singletonList(
+//                    new HTTPRouteDestinationBuilder().withDestination(destination).build())
+//            );
+//    createRetryPolicy(source.getPatternConfig()).ifPresent(httpRouteBuilder::withRetries);
+//    var newVirtualService = sourceVirtualService
+//            .edit()
+//            .editSpec()
+//            .withHttp(httpRouteBuilder.build())
+//            .endSpec()
+//            .build();
+//
+//    istioClient()
+//            .v1beta1()
+//            .virtualServices()
+//            .inNamespace(sourceVirtualService.getMetadata().getNamespace())
+//            .resource(newVirtualService)
+//            .update();
   }
 
   public Optional<HTTPRetry> createRetryPolicy(Map<String, Object> patternConfig) {
