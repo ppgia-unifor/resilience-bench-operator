@@ -34,31 +34,25 @@ public class IstioFaultStep extends IstioExecutorStep<Scenario> {
   }
 
   private void configureFaultOnTarget(String namespace, Target target) {
-    var fault = createFault(target.getFault());
-
     var targetService = findVirtualService(namespace, target.getServiceName());
-    if (fault.isPresent()) {
-      var editedVirtualService = targetService
-              .edit()
-              .editSpec()
-              .editFirstHttp()
-              .withFault(fault.get())
-              .endHttp()
-              .endSpec()
-              .build();
+    var virtualService = targetService
+            .edit()
+            .editSpec()
+            .editFirstHttp();
+    createFault(target.getFault()).ifPresent(virtualService::withFault);
+    var editedVirtualService = virtualService.endHttp().endSpec().build();
 
-      istioClient()
-              .v1beta1()
-              .virtualServices()
-              .inNamespace(targetService.getMetadata().getNamespace())
-              .resource(editedVirtualService)
-              .update();
-    }
+    istioClient()
+            .v1beta1()
+            .virtualServices()
+            .inNamespace(targetService.getMetadata().getNamespace())
+            .resource(editedVirtualService)
+            .update();
   }
 
   public Optional<HTTPFaultInjection> createFault(ScenarioFaultTemplate faultTemplate) {
     if (faultTemplate == null || (faultTemplate.getAbort() == null && faultTemplate.getDelay() == null)) {
-      logger.error("Fault template is null. No fault was configured.");
+      logger.error("Fault template is null. No fault to configure.");
       return Optional.empty();
     }
 
