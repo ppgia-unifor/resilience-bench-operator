@@ -45,8 +45,14 @@ public class ScenarioSpec {
     );
     json.put("connectors", new JsonArray());
     for (var connector : connectors) {
-      var delay = connector.getTarget().getFault().getDelay();
-      var abort = connector.getTarget().getFault().getAbort();
+      var fault = new JsonObject();
+      if (connector.getTarget().getFault() != null) {
+        var delay = connector.getTarget().getFault().getDelay();
+        var abort = connector.getTarget().getFault().getAbort();
+        fault.put("percentage", connector.getTarget().getFault().getPercentage())
+                .put("delay", delay == null ? null : new JsonObject().put("duration", delay.duration()))
+                .put("abort", abort == null ? null : new JsonObject().put("code", abort.httpStatus()));
+      }
 
       var connectorJson = new JsonObject()
               .put("name", connector.getName())
@@ -56,11 +62,7 @@ public class ScenarioSpec {
               )
               .put("target", new JsonObject()
                       .put("serviceName", connector.getTarget().getServiceName())
-                      .put("fault", new JsonObject()
-                              .put("percentage", connector.getTarget().getFault().getPercentage())
-                              .put("delay", delay == null ? null : new JsonObject().put("duration", delay.duration()))
-                              .put("abort", abort == null ? null : new JsonObject().put("code", abort.httpStatus()))
-                      )
+                      .put("fault", fault)
               );
 
       json.getJsonArray("connectors").add(connectorJson);
