@@ -9,6 +9,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
 import io.resiliencebench.resources.scenario.Source;
+import io.resiliencebench.resources.scenario.Target;
 import io.resiliencebench.resources.service.ResilientService;
 import io.resiliencebench.support.CustomResourceRepository;
 import org.slf4j.Logger;
@@ -32,13 +33,13 @@ public class IstioRetryStep extends IstioExecutorStep<Scenario> {
   public Scenario execute(Scenario scenario, ExecutionQueue executionQueue) {
     for (var connector : scenario.getSpec().getConnectors()) {
       var source = connector.getSource();
-      configureRetryOnSource(scenario.getMetadata().getNamespace(), source);
+      configureRetryOnSource(scenario.getMetadata().getNamespace(), source, connector.getTarget());
     }
     return scenario;
   }
 
-  private void configureRetryOnSource(String namespace, Source source) {
-    var sourceVirtualService = findVirtualService(namespace, source.getServiceName());
+  private void configureRetryOnSource(String namespace, Source source, Target target) {
+    var sourceVirtualService = findVirtualService(namespace, target.getServiceName());
 
     var http = sourceVirtualService.getSpec().getHttp().get(0);
     http.setRetries(null);
