@@ -84,19 +84,28 @@ public class ScenarioExecutor implements Watcher<Job> {
             isNull(job.getStatus().getCompletionTime()) && job.getMetadata().getAnnotations().containsKey("resiliencebench.io/scenario"));
   }
 
-  private Job startLoadGeneration(Scenario scenario, ExecutionQueue executionQueue) {
+  private Job createLoadGenerationJob(Scenario scenario, ExecutionQueue executionQueue) {
     return k6LoadGeneratorStep.execute(scenario, executionQueue);
+  }
+
+  private void runJob(Job job) {
+    var jobsClient = kubernetesClient.batch().v1().jobs();
+    job = jobsClient.resource(job).create();
+    jobsClient.resource(job).watch(this);
+    logger.info("Job created: {}", job.getMetadata().getName());
+  }
+
+  private void runPreparationSteps(Scenario scenario, ExecutionQueue executionQueue) {
+    stepRegister.getPreparationSteps().forEach(step -> step.execute(scenario, executionQueue));
   }
 
   private void runScenario(String namespace, String scenarioName, ExecutionQueue executionQueue) {
     logger.info("Running scenario: {}", scenarioName);
     var scenario = scenarioRepository.find(namespace, scenarioName);
     if (scenario.isPresent()) {
-      stepRegister.getPreparationSteps().forEach(step -> step.execute(scenario.get(), executionQueue));
-      var job = startLoadGeneration(scenario.get(), executionQueue);
-      var jobsClient = kubernetesClient.batch().v1().jobs();
-      job = jobsClient.resource(job).create();
-      jobsClient.resource(job).watch(this);
+      runPreparationSteps(scenario.get(), executionQueue);
+      var job = createLoadGenerationJob(scenario.get(), executionQueue);
+      runJob(job);
       logger.info("Job created: {}", job.getMetadata().getName());
     } else {
       throw new RuntimeException(format("Scenario not found: %s.%s", namespace, scenarioName));
