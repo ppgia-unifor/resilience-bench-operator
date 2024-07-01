@@ -1,6 +1,7 @@
-package io.resiliencebench.execution;
+package io.resiliencebench.execution.steps;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.resiliencebench.execution.FileManager;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
 import io.vertx.core.json.JsonArray;
@@ -14,7 +15,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Optional;
 
-import static java.util.Optional.*;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
 @Service
 public class ResultFileStep extends ExecutorStep<ExecutionQueue> {
@@ -28,7 +30,12 @@ public class ResultFileStep extends ExecutorStep<ExecutionQueue> {
   }
 
   @Override
-  public ExecutionQueue execute(Scenario scenario, ExecutionQueue queue) {
+  protected boolean isApplicable(Scenario scenario) {
+    return true;
+  }
+
+  @Override
+  protected ExecutionQueue internalExecute(Scenario scenario, ExecutionQueue queue) {
     var itemsStream = queue.getSpec().getItems().stream();
     var item = itemsStream
             .filter(i -> i.getScenario().equals(scenario.getMetadata().getName()))

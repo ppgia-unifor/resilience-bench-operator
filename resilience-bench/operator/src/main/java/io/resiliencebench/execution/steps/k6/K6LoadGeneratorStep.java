@@ -1,10 +1,10 @@
-package io.resiliencebench.execution.k6;
+package io.resiliencebench.execution.steps.k6;
 
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.resiliencebench.execution.ExecutorStep;
+import io.resiliencebench.execution.steps.ExecutorStep;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
 import io.resiliencebench.resources.scenario.ScenarioWorkload;
@@ -30,7 +30,12 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
   }
 
   @Override
-  public Job execute(Scenario scenario, ExecutionQueue executionQueue) {
+  protected boolean isApplicable(Scenario scenario) {
+    return true;
+  }
+
+  @Override
+  protected Job internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
     var workloadName = scenario.getSpec().getWorkload().getWorkloadName();
     var workload = workloadRepository.find(scenario.getMetadata().getNamespace(), workloadName);
     if (workload.isEmpty()) {

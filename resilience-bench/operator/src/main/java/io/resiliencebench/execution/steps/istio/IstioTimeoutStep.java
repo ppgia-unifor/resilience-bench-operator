@@ -1,4 +1,4 @@
-package io.resiliencebench.execution.istio.steps;
+package io.resiliencebench.execution.steps.istio;
 
 import io.fabric8.istio.api.networking.v1beta1.VirtualService;
 import io.fabric8.istio.client.IstioClient;
@@ -10,13 +10,18 @@ import io.resiliencebench.support.CustomResourceRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public class IstioCircuitBreakerStep extends IstioExecutorStep<VirtualService> {
-  public IstioCircuitBreakerStep(KubernetesClient kubernetesClient, IstioClient istioClient, CustomResourceRepository<ResilientService> serviceRepository) {
+public class IstioTimeoutStep extends IstioExecutorStep<VirtualService> {
+  public IstioTimeoutStep(KubernetesClient kubernetesClient, IstioClient istioClient, CustomResourceRepository<ResilientService> serviceRepository) {
     super(kubernetesClient, istioClient, serviceRepository);
   }
 
   @Override
-  public VirtualService execute(Scenario scenario, ExecutionQueue executionQueue) {
+  protected boolean isApplicable(Scenario scenario) {
+    return false;
+  }
+
+  @Override
+  protected VirtualService internalExecute(Scenario scenario, ExecutionQueue queue) {
     return null;
   }
 }

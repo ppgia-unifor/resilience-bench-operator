@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 @ControllerConfiguration
-public class BenchmarkReconciler implements Reconciler<Benchmark> {
+public class BenchmarkController implements Reconciler<Benchmark> {
 
-  private static final Logger logger = LoggerFactory.getLogger(BenchmarkReconciler.class);
+  private static final Logger logger = LoggerFactory.getLogger(BenchmarkController.class);
 
   private final CustomResourceRepository<Scenario> scenarioRepository;
 
@@ -30,7 +30,7 @@ public class BenchmarkReconciler implements Reconciler<Benchmark> {
 
   private final ScenarioExecutor scenarioExecutor;
 
-  public BenchmarkReconciler(ScenarioExecutor scenarioExecutor,
+  public BenchmarkController(ScenarioExecutor scenarioExecutor,
                              CustomResourceRepository<Scenario> scenarioRepository,
                              CustomResourceRepository<Workload> workloadRepository,
                              CustomResourceRepository<ExecutionQueue> queueRepository) {

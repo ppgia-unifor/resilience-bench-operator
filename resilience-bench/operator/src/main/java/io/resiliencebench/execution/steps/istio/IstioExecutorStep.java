@@ -1,12 +1,10 @@
-package io.resiliencebench.execution.istio.steps;
+package io.resiliencebench.execution.steps.istio;
 
 import io.fabric8.istio.api.networking.v1beta1.VirtualService;
 import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.resiliencebench.execution.ExecutorStep;
-import io.resiliencebench.resources.queue.ExecutionQueue;
-import io.resiliencebench.resources.scenario.Scenario;
+import io.resiliencebench.execution.steps.ExecutorStep;
 import io.resiliencebench.resources.service.ResilientService;
 import io.resiliencebench.support.CustomResourceRepository;
 import org.springframework.stereotype.Service;
@@ -47,7 +45,4 @@ public abstract class IstioExecutorStep<TResult extends HasMetadata> extends Exe
       throw new RuntimeException(format("Service not found: %s.%s", namespace, name));
     }
   }
-
-  @Override
-  public abstract TResult execute(Scenario scenario, ExecutionQueue executionQueue);
 }

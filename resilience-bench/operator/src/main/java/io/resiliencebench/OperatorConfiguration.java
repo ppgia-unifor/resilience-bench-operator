@@ -7,7 +7,6 @@ import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.javaoperatorsdk.operator.Operator;
 import io.javaoperatorsdk.operator.api.reconciler.Reconciler;
 import io.resiliencebench.execution.ScenarioExecutor;
-import io.resiliencebench.execution.istio.IstioScenarioExecutor;
 import io.resiliencebench.resources.benchmark.Benchmark;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
@@ -49,8 +48,8 @@ class OperatorConfiguration {
     return operator;
   }
 
-  @Bean ScenarioExecutor scenarioExecutor(@Autowired IstioScenarioExecutor istioScenarioExecutor) {
-    return istioScenarioExecutor;
+  @Bean ScenarioExecutor scenarioExecutor(@Autowired ScenarioExecutor scenarioExecutor) {
+    return scenarioExecutor;
   }
 
   @Bean CustomResourceRepository<Scenario> scenarioRepository(KubernetesClient kubernetesClient) {

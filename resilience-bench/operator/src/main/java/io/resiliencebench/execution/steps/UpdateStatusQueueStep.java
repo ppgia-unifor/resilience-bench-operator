@@ -1,4 +1,4 @@
-package io.resiliencebench.execution;
+package io.resiliencebench.execution.steps;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.resiliencebench.resources.queue.ExecutionQueue;
@@ -20,7 +20,12 @@ public class UpdateStatusQueueStep extends ExecutorStep<ExecutionQueue> {
   }
 
   @Override
-  public ExecutionQueue execute(Scenario scenario, ExecutionQueue executionQueue) {
+  protected boolean isApplicable(Scenario scenario) {
+    return true;
+  }
+
+  @Override
+  public ExecutionQueue internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
     var namespace = scenario.getMetadata().getNamespace();
     var queueItem = executionQueue.getSpec().getItems().stream().filter(item -> item.getScenario().equals( scenario.getMetadata().getName())).findFirst().get();
 

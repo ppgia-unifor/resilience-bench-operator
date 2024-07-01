@@ -1,12 +1,12 @@
-package io.resiliencebench.execution.istio.steps;
+package io.resiliencebench.execution.steps.istio;
 
 import io.fabric8.istio.api.networking.v1beta1.HTTPFaultInjection;
 import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.resiliencebench.resources.queue.ExecutionQueue;
+import io.resiliencebench.resources.scenario.Connector;
+import io.resiliencebench.resources.scenario.Fault;
 import io.resiliencebench.resources.scenario.Scenario;
-import io.resiliencebench.resources.scenario.ScenarioFaultTemplate;
-import io.resiliencebench.resources.scenario.Target;
 import io.resiliencebench.resources.service.ResilientService;
 import io.resiliencebench.support.CustomResourceRepository;
 import org.slf4j.Logger;
@@ -25,32 +25,36 @@ public class IstioFaultStep extends IstioExecutorStep<Scenario> {
   }
 
   @Override
-  public Scenario execute(Scenario scenario, ExecutionQueue executionQueue) {
+  protected boolean isApplicable(Scenario scenario) {
+    return false;
+  }
+
+  @Override
+  public Scenario internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
     for (var connector : scenario.getSpec().getConnectors()) {
-      var target = connector.getTarget();
-      configureFaultOnTarget(scenario.getMetadata().getNamespace(), target);
+      configureFaultOnTarget(scenario.getMetadata().getNamespace(), connector);
     }
     return scenario;
   }
 
-  private void configureFaultOnTarget(String namespace, Target target) {
-    var targetService = findVirtualService(namespace, target.getServiceName());
-    var virtualService = targetService
-            .edit()
-            .editSpec()
-            .editFirstHttp();
-    createFault(target.getFault()).ifPresent(virtualService::withFault);
-    var editedVirtualService = virtualService.endHttp().endSpec().build();
-
-    istioClient()
-            .v1beta1()
-            .virtualServices()
-            .inNamespace(targetService.getMetadata().getNamespace())
-            .resource(editedVirtualService)
-            .update();
+  private void configureFaultOnTarget(String namespace, Connector connector) {
+//    var targetService = findVirtualService(namespace, connector.getDestination());
+//    var virtualService = targetService
+//            .edit()
+//            .editSpec()
+//            .editFirstHttp();
+//    createFault(target.getFault()).ifPresent(virtualService::withFault);
+//    var editedVirtualService = virtualService.endHttp().endSpec().build();
+//
+//    istioClient()
+//            .v1beta1()
+//            .virtualServices()
+//            .inNamespace(targetService.getMetadata().getNamespace())
+//            .resource(editedVirtualService)
+//            .update();
   }
 
-  public Optional<HTTPFaultInjection> createFault(ScenarioFaultTemplate faultTemplate) {
+  public Optional<HTTPFaultInjection> createFault(Fault faultTemplate) {
     if (faultTemplate == null || (faultTemplate.getAbort() == null && faultTemplate.getDelay() == null)) {
       logger.error("Fault template is null. No fault to configure.");
       return Optional.empty();

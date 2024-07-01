@@ -5,11 +5,13 @@ import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.resiliencebench.resources.benchmark.Benchmark;
 import io.resiliencebench.resources.benchmark.ConnectorTemplate;
-import io.resiliencebench.resources.benchmark.SourceTemplate;
 import io.resiliencebench.resources.scenario.*;
 import io.resiliencebench.resources.workload.Workload;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static io.resiliencebench.support.Annotations.OWNED_BY;
 
@@ -53,22 +55,88 @@ public final class ScenarioFactory {
     return jsonNode;
   }
 
-  public static List<Map<String, Object>> expandServiceParameters(SourceTemplate serviceSource) {
-    return ListExpansion.expandConfigTemplate(serviceSource.getPatternConfig());
+  public static List<Environment> expandEnvironment(ConnectorTemplate connectorTemplate) {
+    var pattern = connectorTemplate.getEnvironment();
+    if (pattern == null) {
+      return List.of();
+    }
+
+    var result = ListExpansion.expandConfigTemplate(connectorTemplate.getEnvironment().getEnvs());
+    return result
+            .stream()
+            .map(envs ->
+                    new Environment(connectorTemplate.getEnvironment().getApplyTo(), envs))
+            .toList();
+  }
+
+  public static List<IstioPattern> expandIstioPattern(ConnectorTemplate connectorTemplate) {
+    var pattern = connectorTemplate.getPattern();
+    if (pattern.getIstio() == null) {
+      return List.of();
+    }
+    List<Map<String, Object>> retry = List.of(Map.of());
+    List<Map<String, Object>> timeout = List.of(Map.of());
+    List<Map<String, Object>> circuitBreaker = List.of(Map.of());
+
+    if (pattern.getIstio().getRetry() != null) {
+      retry = ListExpansion.expandConfigTemplate(pattern.getIstio().getRetry());
+    }
+    if (pattern.getIstio().getTimeout() != null) {
+      timeout = ListExpansion.expandConfigTemplate(pattern.getIstio().getTimeout());
+    }
+
+    if (pattern.getIstio().getCircuitBreaker() != null) {
+      circuitBreaker = ListExpansion.expandConfigTemplate(pattern.getIstio().getCircuitBreaker());
+    }
+
+    if (retry.isEmpty()) {
+      retry = List.of(Map.of());
+    }
+    if (timeout.isEmpty()) {
+      timeout = List.of(Map.of());
+    }
+    if (circuitBreaker.isEmpty()) {
+      circuitBreaker = List.of(Map.of());
+    }
+    var result = new ArrayList<IstioPattern>();
+    for (var retryItem : retry) {
+      for (var timeoutItem : timeout) {
+        for (var circuitBreakerItem : circuitBreaker) {
+          result.add(new IstioPattern(retryItem, timeoutItem, circuitBreakerItem));
+        }
+      }
+    }
+    return result;
   }
 
   private static List<Connector> expandConnector(ConnectorTemplate connectorTemplate) {
     List<Connector> expandedConnectors = new ArrayList<>();
-    for (var faultPercentage : connectorTemplate.getTarget().getFault().getPercentage()) {
-      var fault = ScenarioFaultTemplate.create(
-              faultPercentage,
-              connectorTemplate.getTarget().getFault().getDelay(),
-              connectorTemplate.getTarget().getFault().getAbort()
-      );
-      for (var sourcePattern : expandServiceParameters(connectorTemplate.getSource())) {
-        var source = new Source(connectorTemplate.getSource().getService(), sourcePattern);
-        var target = new Target(connectorTemplate.getTarget().getService(), fault);
-        expandedConnectors.add(new Connector(connectorTemplate.getName(), source, target));
+    var environments = expandEnvironment(connectorTemplate);
+    var istioPatterns = expandIstioPattern(connectorTemplate);
+    var faults = connectorTemplate.getFault().getPercentage();
+
+    var faultCount = faults.isEmpty() ? 1 : faults.size();
+    var environmentsCount = environments.isEmpty() ? 1 : environments.size();
+    var istioPatternsCount = istioPatterns.isEmpty() ? 1 : istioPatterns.size();
+
+    for (int i = 0; i < faultCount; i++) {
+      for (int j = 0; j < environmentsCount; j++) {
+        for (int k = 0; k < istioPatternsCount; k++) {
+          var builder = new Connector.Builder()
+                  .name(connectorTemplate.getName())
+                  .source(connectorTemplate.getSource())
+                  .destination(connectorTemplate.getDestination())
+                  .fault(faults.isEmpty() ? null :
+                          Fault.create(
+                                  faults.get(i),
+                                  connectorTemplate.getFault().getDelay(),
+                                  connectorTemplate.getFault().getAbort()
+                  ))
+                  .environment(environments.isEmpty() ? null : environments.get(j))
+                  .istio(istioPatterns.isEmpty() ? null : istioPatterns.get(k));
+
+          expandedConnectors.add(builder.build());
+        }
       }
     }
 
