@@ -16,6 +16,8 @@ public class Environment {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private Map<String, JsonNode> envs;
 
+  public Environment() { }
+
   public Environment(String applyTo, Map<String, Object> envs) {
     this.applyTo = applyTo;
     this.envs = toJsonMap(envs);

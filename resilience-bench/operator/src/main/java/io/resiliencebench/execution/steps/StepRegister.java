@@ -4,9 +4,11 @@ import io.resiliencebench.execution.steps.istio.IstioCircuitBreakerStep;
 import io.resiliencebench.execution.steps.istio.IstioFaultStep;
 import io.resiliencebench.execution.steps.istio.IstioRetryStep;
 import io.resiliencebench.execution.steps.istio.IstioTimeoutStep;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class StepRegister {
 
   private final List<ExecutorStep<?>> preparationSteps;

@@ -5,7 +5,9 @@ import io.fabric8.kubernetes.api.model.apps.DeploymentSpec;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
+import org.springframework.stereotype.Service;
 
+@Service
 public class EnvironmentStep extends ExecutorStep<Deployment> {
   public EnvironmentStep(KubernetesClient kubernetesClient) {
     super(kubernetesClient);
