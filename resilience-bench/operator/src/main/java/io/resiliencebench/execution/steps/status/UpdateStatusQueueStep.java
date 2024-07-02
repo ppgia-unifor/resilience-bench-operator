@@ -1,6 +1,7 @@
-package io.resiliencebench.execution;
+package io.resiliencebench.execution.steps.status;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.resiliencebench.execution.steps.executor.ExecutorStep;
 import io.resiliencebench.models.enums.QueueItemStatus;
 import io.resiliencebench.models.queue.ExecutionQueue;
 import io.resiliencebench.models.queue.QueueItem;
@@ -63,7 +64,7 @@ public class UpdateStatusQueueStep extends ExecutorStep<ExecutionQueue> {
    * @return an Optional containing the found QueueItem, or empty if not found
    */
   private Optional<QueueItem> findQueueItem(ExecutionQueue executionQueue, Scenario scenario) {
-    return executionQueue.getSpec().getItems().stream()
+    return executionQueue.getSpec().getQueueItems().stream()
             .filter(item -> item.getScenario().equals(scenario.getMetadata().getName()))
             .findFirst();
   }
@@ -89,7 +90,7 @@ public class UpdateStatusQueueStep extends ExecutorStep<ExecutionQueue> {
    * @param scenario  the scenario being executed
    */
   private void setQueueItemFinished(QueueItem queueItem, Scenario scenario) {
-    queueItem.setStatus(QueueItemStatus.FINISHED.getStatus());
+    queueItem.setStatus(QueueItemStatus.FINISHED);
     queueItem.setFinishedAt(getCurrentUtcTime());
     queueItem.setResultFile(formatResultFilePath(scenario.getMetadata().getName()));
   }
@@ -100,7 +101,7 @@ public class UpdateStatusQueueStep extends ExecutorStep<ExecutionQueue> {
    * @param queueItem the queue item to update
    */
   private void setQueueItemRunning(QueueItem queueItem) {
-    queueItem.setStatus(QueueItemStatus.RUNNING.getStatus());
+    queueItem.setStatus(QueueItemStatus.RUNNING);
     queueItem.setStartedAt(getCurrentUtcTime());
   }
 

@@ -1,4 +1,4 @@
-package io.resiliencebench.models.workload;
+package io.resiliencebench.models.workload.configuration.cloud;
 
 import java.util.Objects;
 

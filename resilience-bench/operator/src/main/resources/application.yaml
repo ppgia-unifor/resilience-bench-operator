@@ -1,0 +1,14 @@
+aws:
+  region: us-east-1
+  bucket-name: your-bucket-name
+
+resiliencebench:
+  resultFilePathTemplate: "/results/%s.json"
+  scriptVolumePath: "/scripts"
+  resultsVolumePath: "/results"
+  resultsVolumeName: "test-results"
+  resilientServiceName: "resilient-service-name"
+  
+workload:
+  k6ContainerImage: "grafana/k6:latest"
+  optionsDescription: "Environment variables to set in the k6 container. See here for more information: https://k6.io/docs/using-k6/k6-options/reference/"

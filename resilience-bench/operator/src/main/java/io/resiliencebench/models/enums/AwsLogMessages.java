@@ -3,7 +3,7 @@ package io.resiliencebench.models.enums;
 /**
  * Enum representing log messages for AWS operations.
  */
-public enum LogMessages {
+public enum AwsLogMessages {
 	S3_CONNECTION_SUCCESS("Successfully connected to S3 bucket {}"),
 	S3_CONNECTION_ATTEMPT("Attempting to connect to S3 bucket {} in region {}"),
 	S3_ACCESS_FORBIDDEN("Access to the S3 bucket {} is forbidden. Using local file manager instead."),
@@ -14,7 +14,7 @@ public enum LogMessages {
 
 	private final String message;
 
-	LogMessages(String message) {
+	AwsLogMessages(String message) {
 		this.message = message;
 	}
 

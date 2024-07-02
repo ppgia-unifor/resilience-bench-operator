@@ -1,6 +1,6 @@
-package io.resiliencebench.resources.scenario;
+package io.resiliencebench.models.scenario;
 
-import io.resiliencebench.resources.fault.DelayFault;
+import io.resiliencebench.models.fault.DelayFault;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;

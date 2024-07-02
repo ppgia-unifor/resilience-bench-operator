@@ -1,8 +1,9 @@
-package io.resiliencebench.models.workload;
+package io.resiliencebench.models.workload.builder.workloadStatus;
 
 import java.time.LocalDateTime;
 
 import io.resiliencebench.models.enums.ScenarioStatusEnum;
+import io.resiliencebench.models.workload.status.WorkloadStatus;
 
 /**
  * Builder class for WorkloadStatus.

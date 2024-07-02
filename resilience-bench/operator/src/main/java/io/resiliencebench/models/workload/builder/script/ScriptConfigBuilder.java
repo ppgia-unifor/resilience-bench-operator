@@ -1,5 +1,6 @@
-package io.resiliencebench.models.workload;
+package io.resiliencebench.models.workload.builder.script;
 
+import io.resiliencebench.models.workload.configuration.script.ScriptConfig;
 import io.resiliencebench.support.ConfigMapReference;
 
 /**

@@ -1,4 +1,4 @@
-package io.resiliencebench.resources.scenario;
+package io.resiliencebench.models.scenario;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

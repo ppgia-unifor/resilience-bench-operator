@@ -1,4 +1,4 @@
-package io.resiliencebench.models;
+package io.resiliencebench.models.utils;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import io.resiliencebench.configuration.NameValueProperties;
-import io.resiliencebench.models.utils.ListExpansion;
 
 public class ListExpansionTest {
 

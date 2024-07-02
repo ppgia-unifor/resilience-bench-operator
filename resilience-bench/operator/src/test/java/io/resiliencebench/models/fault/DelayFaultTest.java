@@ -1,4 +1,4 @@
-package io.resiliencebench.resources.fault;
+package io.resiliencebench.models.fault;
 
 import org.junit.jupiter.api.Test;
 

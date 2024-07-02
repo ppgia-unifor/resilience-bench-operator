@@ -1,4 +1,4 @@
-package io.resiliencebench.execution.steps.model;
+package io.resiliencebench.execution.localFileManager.model;
 
 import java.io.IOException;
 import java.nio.file.Path;

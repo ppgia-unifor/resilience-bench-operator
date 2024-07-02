@@ -1,6 +1,8 @@
-package io.resiliencebench.execution;
+package io.resiliencebench.execution.steps.model;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.resiliencebench.execution.steps.executor.ExecutorStep;
+
 import java.util.List;
 
 /**

@@ -1,4 +1,4 @@
-package io.resiliencebench.execution;
+package io.resiliencebench.execution.steps.model;
 
 import io.resiliencebench.models.queue.ExecutionQueue;
 import io.resiliencebench.models.queue.QueueItem;
@@ -24,7 +24,7 @@ public interface ScenarioExecutor {
    * @return an Optional containing the next pending QueueItem, or empty if none is found
    */
   default Optional<QueueItem> findNextPendingItem(ExecutionQueue queue) {
-    return queue.getSpec().getItems().stream()
+    return queue.getSpec().getQueueItems().stream()
             .filter(QueueItem::isPending)
             .findFirst();
   }

@@ -1,6 +1,8 @@
-package io.resiliencebench.execution;
+package io.resiliencebench.execution.steps.resultFile;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.resiliencebench.execution.localFileManager.model.FileManager;
+import io.resiliencebench.execution.steps.executor.ExecutorStep;
 import io.resiliencebench.models.enums.ResultFileMessages;
 import io.resiliencebench.models.queue.ExecutionQueue;
 import io.resiliencebench.models.queue.QueueItem;
@@ -64,7 +66,7 @@ public class ResultFileStep extends ExecutorStep<ExecutionQueue> {
    * @return an Optional containing the found QueueItem, or empty if not found
    */
   private Optional<QueueItem> findQueueItem(ExecutionQueue queue, Scenario scenario) {
-    return queue.getSpec().getItems().stream()
+    return queue.getSpec().getQueueItems().stream()
             .filter(item -> item.getScenario().equals(scenario.getMetadata().getName()))
             .findFirst();
   }

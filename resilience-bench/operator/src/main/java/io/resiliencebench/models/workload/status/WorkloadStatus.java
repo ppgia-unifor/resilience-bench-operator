@@ -1,4 +1,4 @@
-package io.resiliencebench.models.workload;
+package io.resiliencebench.models.workload.status;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

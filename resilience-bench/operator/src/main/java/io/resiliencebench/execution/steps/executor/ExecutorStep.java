@@ -1,4 +1,4 @@
-package io.resiliencebench.execution;
+package io.resiliencebench.execution.steps.executor;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;

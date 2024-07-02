@@ -1,4 +1,4 @@
-package io.resiliencebench.execution;
+package io.resiliencebench.execution.localFileManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 
-import io.resiliencebench.execution.steps.model.FileManager;
+import io.resiliencebench.execution.localFileManager.model.FileManager;
 
 /**
  * Implementation of FileManager for local file system operations.
