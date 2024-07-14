@@ -5,12 +5,9 @@ import io.fabric8.generator.annotation.Nullable;
 public class Connector {
   private String name;
 
-  private String source;
+  private Service source;
 
-  private String destination;
-
-  @Nullable
-  private Environment environment;
+  private Service destination;
 
   @Nullable
   private IstioPattern istio;
@@ -24,16 +21,12 @@ public class Connector {
     return name;
   }
 
-  public String getSource() {
+  public Service getSource() {
     return source;
   }
 
-  public String getDestination() {
+  public Service getDestination() {
     return destination;
-  }
-
-  public Environment getEnvironment() {
-    return environment;
   }
 
   public IstioPattern getIstio() {
@@ -46,9 +39,8 @@ public class Connector {
 
   public static class Builder {
     private String name;
-    private String source;
-    private String destination;
-    private Environment environment;
+    private Service source;
+    private Service destination;
     private IstioPattern istio;
     private Fault fault;
 
@@ -57,18 +49,13 @@ public class Connector {
       return this;
     }
 
-    public Builder source(String source) {
+    public Builder source(Service source) {
       this.source = source;
       return this;
     }
 
-    public Builder destination(String destination) {
+    public Builder destination(Service destination) {
       this.destination = destination;
-      return this;
-    }
-
-    public Builder environment(Environment environment) {
-      this.environment = environment;
       return this;
     }
 
@@ -87,7 +74,6 @@ public class Connector {
       connector.name = name;
       connector.source = source;
       connector.destination = destination;
-      connector.environment = environment;
       connector.istio = istio;
       connector.fault = fault;
       return connector;

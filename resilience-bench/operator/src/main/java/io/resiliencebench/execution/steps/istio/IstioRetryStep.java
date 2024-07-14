@@ -25,7 +25,11 @@ public class IstioRetryStep extends IstioExecutorStep<Scenario> {
 
   @Override
   protected boolean isApplicable(Scenario scenario) {
-    return scenario.getSpec().getConnectors().stream().anyMatch(connector -> connector.getIstio().getRetry() != null);
+    return scenario
+            .getSpec()
+            .getConnectors()
+            .stream()
+            .anyMatch(connector -> connector.getIstio() != null && connector.getIstio().getRetry() != null);
   }
 
   @Override
@@ -37,7 +41,7 @@ public class IstioRetryStep extends IstioExecutorStep<Scenario> {
   }
 
   private void configureRetryOnDestination(String namespace, Connector connector) {
-    var virtualService = findVirtualService(namespace, connector.getDestination());
+    var virtualService = findVirtualService(namespace, connector.getDestination().getName());
 
     var http = virtualService.getSpec().getHttp().get(0);
     http.setRetries(null);

@@ -5,21 +5,18 @@ import io.fabric8.generator.annotation.Nullable;
 public class ConnectorTemplate {
 
   private String name;
-  private String source;
-  private String destination;
+  private ServiceTemplate source;
+  private ServiceTemplate destination;
 
   @Nullable
   private BenchmarkFaultTemplate fault;
   @Nullable
   private PatternTemplate pattern;
 
-  @Nullable
-  private EnvironmentTemplate environment;
-
   public ConnectorTemplate() {
   }
 
-  public ConnectorTemplate(String name, String source, String destination, BenchmarkFaultTemplate fault, PatternTemplate pattern) {
+  public ConnectorTemplate(String name, ServiceTemplate source, ServiceTemplate destination, BenchmarkFaultTemplate fault, PatternTemplate pattern) {
     this.name = name;
     this.source = source;
     this.destination = destination;
@@ -31,11 +28,11 @@ public class ConnectorTemplate {
     return name;
   }
 
-  public String getSource() {
+  public ServiceTemplate getSource() {
     return source;
   }
 
-  public String getDestination() {
+  public ServiceTemplate getDestination() {
     return destination;
   }
 
@@ -47,7 +44,4 @@ public class ConnectorTemplate {
     return pattern;
   }
 
-  public EnvironmentTemplate getEnvironment() {
-    return environment;
-  }
 }

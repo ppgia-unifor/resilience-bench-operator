@@ -51,9 +51,9 @@ public class ScenarioSpec {
       if (connector.getFault() != null) {
         connectorJson.put("fault", connector.getFault().toJson());
       }
-      if (connector.getEnvironment() != null) {
-        connectorJson.put("environment", connector.getEnvironment().toJson());
-      }
+//      if (connector.getEnvironment() != null) {
+//        connectorJson.put("environment", JsonObject.mapFrom(connector.getEnvironment()));
+//      }
       if (connector.getIstio() != null) {
         connectorJson.put("istio", connector.getIstio().toJson());
       }
