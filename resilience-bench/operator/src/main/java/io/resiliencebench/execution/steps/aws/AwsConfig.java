@@ -1,4 +1,4 @@
-package io.resiliencebench.execution.aws;
+package io.resiliencebench.execution.steps.aws;
 
 import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSCredentialsProvider;

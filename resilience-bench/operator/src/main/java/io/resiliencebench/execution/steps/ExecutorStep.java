@@ -27,7 +27,7 @@ public abstract class ExecutorStep<TResult extends HasMetadata> {
 
   public TResult execute(Scenario scenario, ExecutionQueue queue) {
     if (isApplicable(scenario)) {
-      logger.info("Executing step: {}", this.getClass().getSimpleName());
+      logger.info("Executing step {}", this.getClass().getSimpleName());
       return internalExecute(scenario, queue);
     } else {
       logger.info("Step {} is not applicable for scenario {}", this.getClass().getSimpleName(), scenario.getMetadata().getName());

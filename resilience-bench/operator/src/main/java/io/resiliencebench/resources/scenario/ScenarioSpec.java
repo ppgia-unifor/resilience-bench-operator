@@ -6,6 +6,8 @@ import io.vertx.core.json.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.vertx.core.json.JsonObject.*;
+
 public class ScenarioSpec {
 
   private ScenarioWorkload workload;
@@ -45,15 +47,12 @@ public class ScenarioSpec {
     for (var connector : connectors) {
       var connectorJson = new JsonObject()
               .put("name", connector.getName())
-              .put("source", connector.getSource())
-              .put("destination", connector.getDestination());
+              .put("source", mapFrom(connector.getSource()))
+              .put("destination", mapFrom(connector.getDestination()));
 
       if (connector.getFault() != null) {
         connectorJson.put("fault", connector.getFault().toJson());
       }
-//      if (connector.getEnvironment() != null) {
-//        connectorJson.put("environment", JsonObject.mapFrom(connector.getEnvironment()));
-//      }
       if (connector.getIstio() != null) {
         connectorJson.put("istio", connector.getIstio().toJson());
       }
