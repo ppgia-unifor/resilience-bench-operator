@@ -5,13 +5,16 @@ import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.resiliencebench.resources.benchmark.Benchmark;
 import io.resiliencebench.resources.benchmark.ConnectorTemplate;
-import io.resiliencebench.resources.benchmark.SourceTemplate;
+import io.resiliencebench.resources.benchmark.ServiceTemplate;
 import io.resiliencebench.resources.scenario.*;
 import io.resiliencebench.resources.workload.Workload;
 
 import java.util.*;
 
+import static io.resiliencebench.resources.ListExpansion.*;
 import static io.resiliencebench.support.Annotations.OWNED_BY;
+import static java.util.Collections.emptyList;
+import static java.util.List.*;
 
 public final class ScenarioFactory {
 
@@ -53,32 +56,82 @@ public final class ScenarioFactory {
     return jsonNode;
   }
 
-  public static List<Map<String, Object>> expandServiceParameters(SourceTemplate serviceSource) {
-    return ListExpansion.expandConfigTemplate(serviceSource.getPatternConfig());
+  public static List<Service> expandService(ServiceTemplate serviceTemplate) {
+    if (serviceTemplate.getEnvs() == null) {
+      return of(new Service(serviceTemplate.getName()));
+    }
+    var expandedEnvs = expandConfigTemplate(serviceTemplate.getEnvs());
+    return expandedEnvs.stream().map(env -> new Service(serviceTemplate.getName(), env)).toList();
+  }
+
+  public static List<IstioPattern> expandIstioPattern(ConnectorTemplate connectorTemplate) {
+    var pattern = connectorTemplate.getPattern();
+    if (pattern == null) {
+      return emptyList();
+    }
+    if (pattern.getIstio() == null) {
+      return emptyList();
+    }
+    List<Map<String, Object>> retry = of(Map.of());
+    List<Map<String, Object>> timeout = of(Map.of());
+    List<Map<String, Object>> circuitBreaker = of(Map.of());
+
+    if (pattern.getIstio().getRetry() != null) {
+      retry = expandConfigTemplate(pattern.getIstio().getRetry());
+    }
+    if (pattern.getIstio().getTimeout() != null) {
+      timeout = expandConfigTemplate(pattern.getIstio().getTimeout());
+    }
+
+    if (pattern.getIstio().getCircuitBreaker() != null) {
+      circuitBreaker = expandConfigTemplate(pattern.getIstio().getCircuitBreaker());
+    }
+
+    var result = new ArrayList<IstioPattern>();
+    for (var retryItem : retry) {
+      for (var timeoutItem : timeout) {
+        for (var circuitBreakerItem : circuitBreaker) {
+          result.add(new IstioPattern(retryItem, timeoutItem, circuitBreakerItem));
+        }
+      }
+    }
+    return result;
   }
 
   private static List<Connector> expandConnector(ConnectorTemplate connectorTemplate) {
     List<Connector> expandedConnectors = new ArrayList<>();
-    for (var faultPercentage : connectorTemplate.getTarget().getFault().getPercentage()) {
-      var fault = ScenarioFaultTemplate.create(
-              faultPercentage,
-              connectorTemplate.getTarget().getFault().getDelay(),
-              connectorTemplate.getTarget().getFault().getAbort()
-      );
-      for (var sourcePattern : expandServiceParameters(connectorTemplate.getSource())) {
-        var source = new Source(connectorTemplate.getSource().getService(), sourcePattern);
-        var target = new Target(connectorTemplate.getTarget().getService(), fault);
-        expandedConnectors.add(new Connector(connectorTemplate.getName(), source, target));
+
+    var sources = expandService(connectorTemplate.getSource());
+    var destinations = expandService(connectorTemplate.getDestination());
+
+    var istioPatterns = expandIstioPattern(connectorTemplate);
+    List<Integer> faults = connectorTemplate.getFault() != null ? connectorTemplate.getFault().getPercentage() : of();
+
+    var faultCount = faults.isEmpty() ? 1 : faults.size();
+    var istioPatternsCount = istioPatterns.isEmpty() ? 1 : istioPatterns.size();
+
+    for (int i = 0; i < faultCount; i++) {
+      for (int k = 0; k < istioPatternsCount; k++) {
+        for (var source : sources) {
+          for (var destination : destinations) {
+            var builder = new Connector.Builder()
+                    .name(connectorTemplate.getName())
+                    .source(source)
+                    .destination(destination)
+                    .fault(faults.isEmpty() ? null :
+                            Fault.create(
+                                    faults.get(i),
+                                    connectorTemplate.getFault().getDelay(),
+                                    connectorTemplate.getFault().getAbort()
+                            ))
+                    .istio(istioPatterns.isEmpty() ? null : istioPatterns.get(k));
+            expandedConnectors.add(builder.build());
+          }
+        }
       }
     }
 
     return expandedConnectors;
-  }
-
-  public static <T> List<List<T>> generateCombinations(List<List<T>> listOfLists) {
-    List<List<T>> result = new ArrayList<>();
-    generateCombinationsRecursive(listOfLists, 0, new ArrayList<>(), result);
-    return result;
   }
 
   private static <T> void generateCombinationsRecursive(List<List<T>> listOfLists, int depth, List<T> currentCombination, List<List<T>> result) {

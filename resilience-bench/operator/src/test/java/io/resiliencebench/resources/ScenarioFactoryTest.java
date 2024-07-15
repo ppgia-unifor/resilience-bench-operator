@@ -14,21 +14,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ScenarioFactoryTest {
 
-
   public static ConnectorTemplate createConnector(
           String connectionName,
           List<Integer> maxAttempts,
           List<Integer> backoffLimit) {
-    var source = new SourceTemplate("api-gateway",
-            new NameValueProperties(
-                    new NameValueProperties.Attribute("maxAttempts", maxAttempts),
-                    new NameValueProperties.Attribute("backoffLimit", backoffLimit)
+
+    var pattern = new PatternTemplate(
+            new IstioPatternTemplate(
+                    new NameValueProperties(
+                            new NameValueProperties.Attribute("maxAttempts", maxAttempts),
+                            new NameValueProperties.Attribute("backoffLimit", backoffLimit)
+                    ),
+                    null, null
             )
     );
+
     var delay = new DelayFault(1000);
     var fault = new BenchmarkFaultTemplate(of(10), delay);
-    var target = new TargetTemplate("service-x", fault);
-    return new ConnectorTemplate(connectionName, source, target);
+    return new ConnectorTemplate(connectionName, new ServiceTemplate("source"), new ServiceTemplate("destination"), fault, pattern);
   }
 
   public static ConnectorTemplate createConnector(String connectionName) {
@@ -42,19 +45,6 @@ public class ScenarioFactoryTest {
     workload.setMetadata(meta);
     workload.setSpec(new WorkloadSpec(users, null));
     return workload;
-  }
-
-  @Test
-  public void expandServiceParametersTest() {
-    var parameters =
-    ScenarioFactory.expandServiceParameters(
-            new SourceTemplate("api-gateway",
-                    new NameValueProperties(
-                            new NameValueProperties.Attribute("maxAttempts", of(1, 2, 3)),
-                            new NameValueProperties.Attribute("backoffLimit", of(1000, 2000, 3000))
-                    )
-            ));
-    assertEquals(9, parameters.size());
   }
 
   @Test
@@ -170,4 +160,16 @@ public class ScenarioFactoryTest {
 
     assertEquals(96, executions.size());
   }
+
+//  @Test
+//  void loadyaml() {
+//    KubernetesClient client = new DefaultKubernetesClient();
+//    var resource = client.resources(Benchmark.class).load(
+//            getClass().getResourceAsStream("/scenario-factory-resources/connector-with-one-environment.yaml")
+//    ).get();
+//
+//    var workload = createWorkload(of(10));
+//    var scenarios = ScenarioFactory.create(resource, workload);
+//    assertEquals(8, scenarios.size());
+//  }
 }

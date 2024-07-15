@@ -1,5 +1,7 @@
 package io.resiliencebench.resources.scenario;
 
+import io.vertx.core.json.JsonObject;
+
 public class ScenarioWorkload {
   private String workloadName;
   private int users;
@@ -22,5 +24,9 @@ public class ScenarioWorkload {
 
   public String toString() {
     return String.format("%s-%d", workloadName, users);
+  }
+
+  public JsonObject toJson() {
+    return JsonObject.mapFrom(this);
   }
 }

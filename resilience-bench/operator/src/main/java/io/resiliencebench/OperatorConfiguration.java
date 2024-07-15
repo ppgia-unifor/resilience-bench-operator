@@ -6,8 +6,6 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.javaoperatorsdk.operator.Operator;
 import io.javaoperatorsdk.operator.api.reconciler.Reconciler;
-import io.resiliencebench.execution.ScenarioExecutor;
-import io.resiliencebench.execution.istio.IstioScenarioExecutor;
 import io.resiliencebench.resources.benchmark.Benchmark;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
@@ -16,7 +14,6 @@ import io.resiliencebench.resources.workload.Workload;
 import io.resiliencebench.support.CustomResourceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,10 +44,6 @@ class OperatorConfiguration {
       log.warn("No Reconcilers found in the application context: Not starting the Operator");
     }
     return operator;
-  }
-
-  @Bean ScenarioExecutor scenarioExecutor(@Autowired IstioScenarioExecutor istioScenarioExecutor) {
-    return istioScenarioExecutor;
   }
 
   @Bean CustomResourceRepository<Scenario> scenarioRepository(KubernetesClient kubernetesClient) {
