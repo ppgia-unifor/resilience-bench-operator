@@ -11,7 +11,6 @@ Before you begin development, ensure you have the following prerequisites instal
 - **Docker**: Necessary for building and pushing container images.
 - **kubectl**: The Kubernetes command-line tool, used to interact with your Kubernetes cluster.
 - **A Kubernetes Cluster**: You need an accessible Kubernetes cluster where the operator will be deployed.
-- **k6-Operator**: This custom operator must be installed in your Kubernetes cluster before developing this project.
 - **Istio**: Ensure Istio is installed and properly configured in your Kubernetes cluster to manage network traffic.
 
 ## Installation
