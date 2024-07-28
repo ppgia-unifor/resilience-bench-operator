@@ -1,18 +1,20 @@
 package io.resiliencebench.execution.steps;
 
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.databind.JsonNode;
+
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
 import io.resiliencebench.resources.service.ResilientService;
 import io.resiliencebench.support.CustomResourceRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class EnvironmentStep extends ExecutorStep<Deployment> {
@@ -22,7 +24,7 @@ public class EnvironmentStep extends ExecutorStep<Deployment> {
   private final CustomResourceRepository<ResilientService> resilientServiceRepository;
 
   public EnvironmentStep(KubernetesClient kubernetesClient,
-                         CustomResourceRepository<ResilientService> resilientServiceRepository) {
+                        CustomResourceRepository<ResilientService> resilientServiceRepository) {
     super(kubernetesClient);
     this.resilientServiceRepository = resilientServiceRepository;
   }
@@ -97,7 +99,9 @@ public class EnvironmentStep extends ExecutorStep<Deployment> {
             .deployments()
             .inNamespace(deployment.getMetadata().getNamespace())
             .withName(deployment.getMetadata().getName())
-            .waitUntilCondition(pod -> pod.getStatus().getReadyReplicas().equals(pod.getStatus().getReplicas()), 1, TimeUnit.MINUTES);
+            .waitUntilCondition(pod -> pod.getStatus().getConditions().stream().anyMatch(
+              condition -> "Ready".equals(condition.getType()) && "True".equals(condition.getStatus()
+            )), 1, TimeUnit.MINUTES);
     logger.info("Pods restarted successfully");
   }
 }
