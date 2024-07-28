@@ -99,9 +99,20 @@ public class EnvironmentStep extends ExecutorStep<Deployment> {
             .deployments()
             .inNamespace(deployment.getMetadata().getNamespace())
             .withName(deployment.getMetadata().getName())
-            .waitUntilCondition(pod -> pod.getStatus().getConditions().stream().anyMatch(
-              condition -> "Ready".equals(condition.getType()) && "True".equals(condition.getStatus()
-            )), 1, TimeUnit.MINUTES);
+            .waitUntilCondition(this::waitUntilCondition, 2, TimeUnit.MINUTES);
     logger.info("Pods restarted successfully");
+  }
+
+  public boolean waitUntilCondition(Deployment deployment) {
+    var pods = kubernetesClient().pods()
+      .inNamespace(deployment.getMetadata().getNamespace())
+      .withLabel("app", deployment.getMetadata().getName())
+      .list()
+      .getItems();
+
+      return pods.stream().allMatch(pod -> {
+          return pod.getStatus().getConditions().stream()
+                  .anyMatch(condition -> "Ready".equals(condition.getType()) && "True".equals(condition.getStatus()));
+      });
   }
 }
