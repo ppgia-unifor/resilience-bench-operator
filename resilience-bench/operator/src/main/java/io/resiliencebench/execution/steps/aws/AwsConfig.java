@@ -11,7 +11,6 @@ import io.resiliencebench.execution.LocalFileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -25,22 +24,22 @@ public class AwsConfig {
   @Value("${AWS_BUCKET_NAME:none}")
   private String bucketName;
 
-  @Bean AmazonS3 createS3Client(AWSCredentialsProvider credentialsProvider) {
+  AmazonS3 createS3Client(AWSCredentialsProvider credentialsProvider) {
     return AmazonS3ClientBuilder.standard().withCredentials(credentialsProvider).withRegion(region).build();
   }
 
-  @Bean AWSCredentialsProvider credentialsProvider() {
+  AWSCredentialsProvider credentialsProvider() {
     return new DefaultAWSCredentialsProviderChain();
 }
 
-  @Bean FileManager fileManager(AmazonS3 amazonS3) {
+  FileManager fileManager(AmazonS3 amazonS3) {
     try {
-      logger.info("Attempting to connect to S3 bucket " + bucketName + " in region " + region);
+      logger.info("Attempting to connect to S3 bucket {} in region {}", bucketName, region);
       amazonS3.headBucket(new HeadBucketRequest(bucketName));
-      logger.info("Successfully connected to S3 bucket " + bucketName);
+      logger.info("Successfully connected to S3 bucket {}", bucketName);
       return new S3FileManager(amazonS3, bucketName);
     } catch (SdkClientException ex) {
-      logger.error("Failed to connect to S3 bucket " + bucketName + ex.getMessage() + ". Using local file manager instead");
+      logger.error("Failed to connect to S3 bucket {}{}. Using local file manager instead", bucketName, ex.getMessage());
       return new LocalFileManager();
     }
   }
