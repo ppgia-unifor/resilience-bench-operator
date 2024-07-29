@@ -1,7 +1,6 @@
 package io.resiliencebench.execution.steps;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.resiliencebench.execution.FileManager;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
 import io.vertx.core.json.JsonArray;
@@ -19,14 +18,12 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
 @Service
-public class ResultFileStep extends ExecutorStep<ExecutionQueue> {
+public class ResultLocalFileStep extends ExecutorStep<ExecutionQueue> {
 
-  private final FileManager fileManager;
-  private final static Logger logger = LoggerFactory.getLogger(ResultFileStep.class);
+  private final static Logger logger = LoggerFactory.getLogger(ResultLocalFileStep.class);
 
-  public ResultFileStep(KubernetesClient kubernetesClient, FileManager fileManager) {
+  public ResultLocalFileStep(KubernetesClient kubernetesClient) {
     super(kubernetesClient);
-    this.fileManager = fileManager;
   }
 
   @Override
