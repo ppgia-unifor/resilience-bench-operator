@@ -90,7 +90,12 @@ public class ScenarioExecutor implements Watcher<Job> {
 
   private void runJob(Job job) {
     var jobsClient = kubernetesClient.batch().v1().jobs();
-    job = jobsClient.resource(job).create();
+    var createdJob =
+            jobsClient.inNamespace(job.getMetadata().getNamespace()).withName(job.getMetadata().getName()).get();
+    if (createdJob != null) {
+      jobsClient.resource(createdJob).delete();
+    }
+    jobsClient.resource(job).create();
     jobsClient.resource(job).watch(this);
     logger.info("Job created: {}", job.getMetadata().getName());
   }
@@ -106,7 +111,6 @@ public class ScenarioExecutor implements Watcher<Job> {
       runPreparationSteps(scenario.get(), executionQueue);
       var job = createLoadGenerationJob(scenario.get(), executionQueue);
       runJob(job);
-      logger.info("Job created: {}", job.getMetadata().getName());
     } else {
       throw new RuntimeException(format("Scenario not found: %s.%s", namespace, scenarioName));
     }
