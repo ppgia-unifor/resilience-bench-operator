@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static io.resiliencebench.support.Annotations.CONTAINER;
+
 @Service
 public class EnvironmentStep extends ExecutorStep<Deployment> {
 
@@ -44,7 +46,7 @@ public class EnvironmentStep extends ExecutorStep<Deployment> {
   public void applyServiceEnvironment(Scenario scenario, io.resiliencebench.resources.scenario.Service service) {
     var env = service.getEnvs();
     var resilientService = resilientServiceRepository.get(scenario.getMetadata().getNamespace(), service.getName());
-    var containerName = resilientService.getMetadata().getAnnotations().get("resiliencebench.io/container");
+    var containerName = resilientService.getMetadata().getAnnotations().get(CONTAINER);
 
     var deployment = kubernetesClient()
             .apps()
@@ -89,8 +91,13 @@ public class EnvironmentStep extends ExecutorStep<Deployment> {
       }
     }
 
-    logger.info("Deleting pods for deployment {}", targetDeployment.getMetadata().getName());
-    getPods(targetDeployment).delete();
+    kubernetesClient().apps().deployments()
+            .inNamespace(targetDeployment.getMetadata().getNamespace())
+            .resource(targetDeployment)
+            .update();
+
+//    logger.info("Deleting pods for deployment {}", targetDeployment.getMetadata().getName());
+//    getPods(targetDeployment).delete();
     logger.info("Waiting for the pods to restart.");
     getPods(targetDeployment).waitUntilCondition(this::waitUntilCondition, 60, TimeUnit.SECONDS);
     logger.info("Pods restarted successfully");
