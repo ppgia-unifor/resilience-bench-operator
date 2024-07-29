@@ -15,7 +15,7 @@ public class WorkloadSpec {
 
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   @JsonPropertyDescription("Environment variables to set in the k6 container. See here for more information: https://k6.io/docs/using-k6/k6-options/reference/")
-  private NameValueProperties options = new NameValueProperties();
+  private final NameValueProperties options = new NameValueProperties();
 
 
   @JsonPropertyDescription("The k6 container image to use")

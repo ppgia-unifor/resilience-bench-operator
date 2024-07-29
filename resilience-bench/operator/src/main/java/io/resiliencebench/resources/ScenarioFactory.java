@@ -9,12 +9,15 @@ import io.resiliencebench.resources.benchmark.ServiceTemplate;
 import io.resiliencebench.resources.scenario.*;
 import io.resiliencebench.resources.workload.Workload;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static io.resiliencebench.resources.ListExpansion.*;
+import static io.resiliencebench.resources.ListExpansion.expandConfigTemplate;
 import static io.resiliencebench.support.Annotations.OWNED_BY;
 import static java.util.Collections.emptyList;
-import static java.util.List.*;
+import static java.util.List.of;
 
 public final class ScenarioFactory {
 
