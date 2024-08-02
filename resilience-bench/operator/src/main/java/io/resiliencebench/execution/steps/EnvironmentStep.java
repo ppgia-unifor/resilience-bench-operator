@@ -2,11 +2,8 @@ package io.resiliencebench.execution.steps;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
-import io.fabric8.kubernetes.client.dsl.PodResource;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
 import io.resiliencebench.resources.service.ResilientService;
@@ -87,33 +84,42 @@ public class EnvironmentStep extends ExecutorStep<Deployment> {
     for (var variable : deploymentVars) {
       var newValue = env.get(variable.getName());
       if (newValue != null) {
+        logger.info("Container {}. variable {} new value {}", containerName, variable.getName(), newValue);
         variable.setValue(newValue.toString());
       }
     }
 
+    updateDeployment(targetDeployment);
+    restartPods(targetDeployment);
+  }
+
+  private void updateDeployment(Deployment targetDeployment) {
     kubernetesClient().apps().deployments()
             .inNamespace(targetDeployment.getMetadata().getNamespace())
             .resource(targetDeployment)
             .update();
+  }
 
-//    logger.info("Deleting pods for deployment {}", targetDeployment.getMetadata().getName());
-//    getPods(targetDeployment).delete();
-    logger.info("Waiting for the pods to restart.");
-    getPods(targetDeployment).waitUntilCondition(this::waitUntilCondition, 60, TimeUnit.SECONDS);
+  private void restartPods(Deployment targetDeployment) {
+    logger.info("Waiting for the pods to restart");
+    kubernetesClient().pods()
+            .inNamespace(targetDeployment.getMetadata().getNamespace())
+            .withLabel("app", targetDeployment.getMetadata().getName())
+            .waitUntilCondition(this::waitUntilCondition, 60, TimeUnit.SECONDS);
     logger.info("Pods restarted successfully");
   }
 
-  public FilterWatchListDeletable<Pod, PodList, PodResource> getPods(Deployment targetDeployment) {
-    return kubernetesClient().pods()
-      .inNamespace(targetDeployment.getMetadata().getNamespace())
-      .withLabel("app", targetDeployment.getMetadata().getName());
-  }
-
   public boolean waitUntilCondition(Pod pod) {
-    var match = pod.getMetadata().getDeletionTimestamp() == null &&
-      pod.getStatus().getConditions().stream()
-        .anyMatch(condition -> "Ready".equals(condition.getType()) && "True".equals(condition.getStatus()));
-    logger.info("Pod {} is ready: {}", pod.getMetadata().getName(), match);
-    return match;
+    var isMarkedForDeletion = pod.getMetadata().getDeletionTimestamp() == null;
+    if (!isMarkedForDeletion) return false;
+    var isReady = pod.getStatus()
+            .getConditions()
+            .stream()
+            .anyMatch(condition -> "Ready".equals(condition.getType()) && "True".equals(condition.getStatus()));
+    if (isReady) {
+      logger.info("Pod {} is ready", pod.getMetadata().getName());
+    }
+
+    return isReady;
   }
 }

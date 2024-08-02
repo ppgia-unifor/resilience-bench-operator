@@ -1,13 +1,9 @@
 package io.resiliencebench.execution.steps.aws;
 
-import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.HeadBucketRequest;
-import io.resiliencebench.execution.FileManager;
-import io.resiliencebench.execution.LocalFileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,16 +27,4 @@ public class AwsConfig {
   AWSCredentialsProvider credentialsProvider() {
     return new DefaultAWSCredentialsProviderChain();
 }
-
-  FileManager fileManager(AmazonS3 amazonS3) {
-    try {
-      logger.info("Attempting to connect to S3 bucket {} in region {}", bucketName, region);
-      amazonS3.headBucket(new HeadBucketRequest(bucketName));
-      logger.info("Successfully connected to S3 bucket {}", bucketName);
-      return new S3FileManager(amazonS3, bucketName);
-    } catch (SdkClientException ex) {
-      logger.error("Failed to connect to S3 bucket {}{}. Using local file manager instead", bucketName, ex.getMessage());
-      return new LocalFileManager();
-    }
-  }
 }

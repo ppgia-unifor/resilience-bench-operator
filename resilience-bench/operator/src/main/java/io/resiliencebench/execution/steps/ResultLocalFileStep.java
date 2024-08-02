@@ -41,6 +41,9 @@ public class ResultLocalFileStep extends ExecutorStep<ExecutionQueue> {
 
     var currentResults = getFileString(item.getResultFile());
     if (currentResults.isPresent()) {
+      var currentResultsJson = new JsonObject(currentResults.get());
+      currentResultsJson.put("metadata", scenario.getSpec().toJson());
+
       var results = getFileString(queue.getSpec().getResultFile());
       JsonObject resultsJson;
       if (results.isPresent()) {
@@ -49,8 +52,6 @@ public class ResultLocalFileStep extends ExecutorStep<ExecutionQueue> {
         resultsJson = new JsonObject();
         resultsJson.put("results", new JsonArray());
       }
-      var currentResultsJson = new JsonObject(currentResults.get());
-      currentResultsJson.put("metadata", scenario.getSpec().toJson());
       resultsJson.getJsonArray("results").add(currentResultsJson);
       writeToFile(queue.getSpec().getResultFile(), resultsJson.encode());
     }
