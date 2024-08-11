@@ -84,7 +84,7 @@ public class EnvironmentStep extends ExecutorStep<Deployment> {
     for (var variable : deploymentVars) {
       var newValue = env.get(variable.getName());
       if (newValue != null) {
-        logger.info("Container {}. Envvar {}={}", containerName, variable.getName(), newValue);
+        logger.info("Container {}. EnvVar {}={}", containerName, variable.getName(), newValue);
         variable.setValue(newValue.toString());
       }
     }
@@ -111,7 +111,7 @@ public class EnvironmentStep extends ExecutorStep<Deployment> {
 
   public boolean waitUntilCondition(Pod pod) {
     var isMarkedForDeletion = pod.getMetadata().getDeletionTimestamp() != null;
-    if (!isMarkedForDeletion) return false;
+    if (isMarkedForDeletion) return false;
     var isReady = pod.getStatus()
             .getConditions()
             .stream()
