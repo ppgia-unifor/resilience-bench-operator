@@ -13,6 +13,9 @@ public class Maps {
   private static final ObjectMapper mapper = new ObjectMapper();
 
   public static Map<String, JsonNode> toJsonMap(Map<String, Object> mapObject) {
+    if (mapObject == null) {
+      return Map.of();
+    }
     return mapObject.entrySet().stream()
             .collect(LinkedHashMap::new,
                     (map, entry) -> map.put(entry.getKey(), mapper.valueToTree(entry.getValue())),
@@ -27,6 +30,9 @@ public class Maps {
   }
 
   public static Object toObject(JsonNode jsonNode) {
+    if (jsonNode == null) {
+      return null;
+    }
     if (jsonNode.isArray()) {
       List<Object> list = new ArrayList<>();
       jsonNode.elements().forEachRemaining(element -> list.add(toObject(element)));
@@ -46,7 +52,6 @@ public class Maps {
     } else if (jsonNode.isNull()) {
       return null;
     }
-
     return jsonNode;
   }
 }
