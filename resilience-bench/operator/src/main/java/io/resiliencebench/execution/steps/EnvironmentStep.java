@@ -1,7 +1,6 @@
 package io.resiliencebench.execution.steps;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.resiliencebench.resources.queue.ExecutionQueue;
@@ -106,24 +105,6 @@ public class EnvironmentStep extends ExecutorStep<Deployment> {
             .inNamespace(targetDeployment.getMetadata().getNamespace())
             .withLabel("app", targetDeployment.getMetadata().getName())
             .waitUntilReady(60, TimeUnit.SECONDS);
-            //.waitUntilCondition(this::waitUntilCondition, 60, TimeUnit.SECONDS);
     logger.info("Pods restarted successfully");
-  }
-
-  /**
-   * Test if the pod is ready, if yes return true, otherwise return false
-   */
-  public boolean waitUntilCondition(Pod pod) {
-    var isMarkedForDeletion = pod.getMetadata().getDeletionTimestamp() != null;
-    if (isMarkedForDeletion) return false;
-    var isReady = pod.getStatus()
-            .getConditions()
-            .stream()
-            .anyMatch(condition -> "Ready".equals(condition.getType()) && "True".equals(condition.getStatus()));
-    if (isReady) {
-      logger.info("Pod {} is ready", pod.getMetadata().getName());
-    }
-
-    return isReady;
   }
 }
