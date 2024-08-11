@@ -105,10 +105,14 @@ public class EnvironmentStep extends ExecutorStep<Deployment> {
     kubernetesClient().pods()
             .inNamespace(targetDeployment.getMetadata().getNamespace())
             .withLabel("app", targetDeployment.getMetadata().getName())
-            .waitUntilCondition(this::waitUntilCondition, 60, TimeUnit.SECONDS);
+            .waitUntilReady(60, TimeUnit.SECONDS);
+            //.waitUntilCondition(this::waitUntilCondition, 60, TimeUnit.SECONDS);
     logger.info("Pods restarted successfully");
   }
 
+  /**
+   * Test if the pod is ready, if yes return true, otherwise return false
+   */
   public boolean waitUntilCondition(Pod pod) {
     var isMarkedForDeletion = pod.getMetadata().getDeletionTimestamp() != null;
     if (isMarkedForDeletion) return false;
