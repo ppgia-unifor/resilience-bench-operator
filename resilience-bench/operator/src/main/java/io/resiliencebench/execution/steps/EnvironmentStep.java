@@ -41,6 +41,9 @@ public class EnvironmentStep extends ExecutorStep<Deployment> {
 
   public void applyServiceEnvironment(Scenario scenario, io.resiliencebench.resources.scenario.Service service) {
     var env = service.getEnvs();
+    if (env == null) {
+      return;
+    }
     var resilientService = resilientServiceRepository.get(scenario.getMetadata().getNamespace(), service.getName());
     var containerName = resilientService.getMetadata().getAnnotations().get(CONTAINER);
 
