@@ -41,6 +41,14 @@ public class IstioPattern {
   }
 
   public JsonObject toJson() {
-    return JsonObject.mapFrom(this);
+    var jsonTimeout = timeout == null ? JsonObject.of() : JsonObject.mapFrom(timeout);
+    var jsonCircuitBreaker = circuitBreaker == null ? JsonObject.of() : JsonObject.mapFrom(circuitBreaker);
+    var jsonRetry = retry == null ? JsonObject.of() : JsonObject.mapFrom(retry);
+
+    return JsonObject.of(
+            "retry", jsonRetry,
+            "timeout", jsonTimeout,
+            "circuitBreaker", jsonCircuitBreaker
+    );
   }
 }
