@@ -1,12 +1,13 @@
 package io.resiliencebench.execution.steps;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import io.resiliencebench.execution.steps.istio.IstioCircuitBreakerStep;
 import io.resiliencebench.execution.steps.istio.IstioFaultStep;
 import io.resiliencebench.execution.steps.istio.IstioRetryStep;
 import io.resiliencebench.execution.steps.istio.IstioTimeoutStep;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class StepRegister {

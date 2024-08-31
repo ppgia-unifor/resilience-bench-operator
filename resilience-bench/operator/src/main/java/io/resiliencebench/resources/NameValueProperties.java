@@ -1,13 +1,12 @@
 package io.resiliencebench.resources;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import static java.util.stream.Collectors.joining;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import static java.util.stream.Collectors.joining;
 
 public class NameValueProperties extends ArrayList<NameValueProperties.Attribute> {
   public NameValueProperties() {

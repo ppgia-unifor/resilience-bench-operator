@@ -1,15 +1,14 @@
 package io.resiliencebench.resources;
 
+import java.util.List;
+import java.util.UUID;
+
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.resiliencebench.resources.benchmark.Benchmark;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.queue.ExecutionQueueSpec;
 import io.resiliencebench.resources.queue.Item;
 import io.resiliencebench.resources.scenario.Scenario;
-
-import java.util.List;
-import java.util.UUID;
-
 import static io.resiliencebench.support.Annotations.OWNED_BY;
 
 public class ExecutionQueueFactory {

@@ -1,11 +1,12 @@
 package io.resiliencebench.execution.steps;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class ExecutorStep<TResult extends HasMetadata> {
 

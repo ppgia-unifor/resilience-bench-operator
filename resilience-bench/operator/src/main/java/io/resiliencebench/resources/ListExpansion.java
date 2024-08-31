@@ -1,19 +1,19 @@
 package io.resiliencebench.resources;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 final class ListExpansion {
     public ListExpansion() {
         throw new IllegalStateException("Utility class");
     }
 
-     public static List<Map<String, Object>> expandConfigTemplate(NameValueProperties patternConfigs) {
+    public static List<Map<String, Object>> expandConfigTemplate(NameValueProperties patternConfigs) {
         List<Map<String, Object>> resultList = new ArrayList<>();
         resultList.add(new HashMap<>());
 

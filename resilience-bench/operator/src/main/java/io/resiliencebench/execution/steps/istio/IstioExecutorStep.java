@@ -26,12 +26,16 @@ public abstract class IstioExecutorStep<TResult extends HasMetadata> extends Exe
     this.serviceRepository = serviceRepository;
   }
 
+  public CustomResourceRepository<ResilientService> getServiceRepository() {
+    return serviceRepository;
+  }
+
   protected IstioClient istioClient() {
     return istioClient;
   }
 
-  protected VirtualService findVirtualService(String namespace, String name) {
-    var targetService = serviceRepository.find(namespace, name);
+  public VirtualService findVirtualService(String namespace, String name) {
+    var targetService = getServiceRepository().find(namespace, name);
 
     if (targetService.isPresent()) {
       var virtualServiceName = targetService.get().getMetadata().getAnnotations().get("resiliencebench.io/virtual-service");

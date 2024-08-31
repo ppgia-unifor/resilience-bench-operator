@@ -1,6 +1,15 @@
 
 package io.resiliencebench.execution;
 
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.Watcher;
@@ -12,15 +21,6 @@ import io.resiliencebench.resources.queue.Item;
 import io.resiliencebench.resources.scenario.Scenario;
 import io.resiliencebench.support.Annotations;
 import io.resiliencebench.support.CustomResourceRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import java.util.Optional;
-
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 @Service
 public class ScenarioExecutor implements Watcher<Job> {
