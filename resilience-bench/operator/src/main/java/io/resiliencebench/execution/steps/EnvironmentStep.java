@@ -54,7 +54,7 @@ public class EnvironmentStep extends AbstractEnvironmentStep {
         .findFirst();
 
     if (deployment.isPresent()) {
-      var deploymentVars = getActualEnv(deployment.get(), CONTAINER);
+      var deploymentVars = getActualEnv(deployment.get(), containerName);
 
       for (var variable : deploymentVars) {
         var newValue = env.get(variable.getName());
@@ -81,9 +81,7 @@ public class EnvironmentStep extends AbstractEnvironmentStep {
   }
 
   private void saveActualEnv(List<EnvVar> deploymentVars, ResilientService resilientService) {
-    resilientService.getSpec().getEnvs().clear();
-    resilientService.getSpec().getEnvs().addAll(deploymentVars);
+    resilientService.getSpec().setEnvs(deploymentVars);
     resilientServiceRepository.update(resilientService);
   }
-
 }
