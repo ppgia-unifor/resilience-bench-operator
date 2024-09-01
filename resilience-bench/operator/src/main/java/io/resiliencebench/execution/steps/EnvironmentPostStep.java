@@ -1,6 +1,5 @@
 package io.resiliencebench.execution.steps;
 
-import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.resiliencebench.resources.queue.ExecutionQueue;
@@ -11,16 +10,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 import static io.resiliencebench.support.Annotations.CONTAINER;
 
 @Service
-public class EnvironmentStep extends AbstractEnvironmentStep {
+public class EnvironmentPostStep extends AbstractEnvironmentStep {
 
-  private final static Logger logger = LoggerFactory.getLogger(EnvironmentStep.class);
+  private final static Logger logger = LoggerFactory.getLogger(EnvironmentPostStep.class);
 
-  public EnvironmentStep(KubernetesClient kubernetesClient,
+  public EnvironmentPostStep(KubernetesClient kubernetesClient,
       CustomResourceRepository<ResilientService> resilientServiceRepository) {
     super(kubernetesClient, resilientServiceRepository);
   }
@@ -35,13 +32,23 @@ public class EnvironmentStep extends AbstractEnvironmentStep {
             connector.getSource().getEnvs() != null);
   }
 
-  public void applyServiceEnvironment(Scenario scenario, io.resiliencebench.resources.scenario.Service service) {
-    var env = service.getEnvs();
+  @Override
+  protected Deployment internalExecute(Scenario scenario, ExecutionQueue queue) {
+    for (var connector : scenario.getSpec().getConnectors()) {
+      restoreEnvironment(scenario, connector.getSource());
+      restoreEnvironment(scenario, connector.getDestination());
+    }
+    return null;
+  }
+
+  public void restoreEnvironment(Scenario scenario, io.resiliencebench.resources.scenario.Service service) {
+    var resilientService = resilientServiceRepository.get(scenario.getMetadata().getNamespace(), service.getName());
+    var containerName = resilientService.getMetadata().getAnnotations().get(CONTAINER);
+
+    var env = resilientService.getSpec().getEnvs();
     if (env == null) {
       return;
     }
-    var resilientService = resilientServiceRepository.get(scenario.getMetadata().getNamespace(), service.getName());
-    var containerName = resilientService.getMetadata().getAnnotations().get(CONTAINER);
 
     var deployment = kubernetesClient()
         .apps()
@@ -54,36 +61,16 @@ public class EnvironmentStep extends AbstractEnvironmentStep {
         .findFirst();
 
     if (deployment.isPresent()) {
-      var deploymentVars = getActualEnv(deployment.get(), CONTAINER);
+      var container = deployment.get().getSpec().getTemplate().getSpec().getContainers().stream()
+          .filter(c -> c.getName().equals(containerName))
+          .findFirst()
+          .orElseThrow(() -> new RuntimeException("Container not found: " + containerName));
 
-      for (var variable : deploymentVars) {
-        var newValue = env.get(variable.getName());
-        if (newValue != null) {
-          logger.info("Container {}. EnvVar {}={}", containerName, variable.getName(), newValue);
-          variable.setValue(newValue.toString());
-        }
-      }
+      container.setEnv(env);
       updateDeployment(deployment.get());
       restartPods(deployment.get());
-      saveActualEnv(deploymentVars, resilientService);
     } else {
       logger.warn("Deployment not found for ResilientService {}", service.getName());
     }
   }
-
-  @Override
-  protected Deployment internalExecute(Scenario scenario, ExecutionQueue queue) {
-    for (var connector : scenario.getSpec().getConnectors()) {
-      applyServiceEnvironment(scenario, connector.getSource());
-      applyServiceEnvironment(scenario, connector.getDestination());
-    }
-    return null;
-  }
-
-  private void saveActualEnv(List<EnvVar> deploymentVars, ResilientService resilientService) {
-    resilientService.getSpec().getEnvs().clear();
-    resilientService.getSpec().getEnvs().addAll(deploymentVars);
-    resilientServiceRepository.update(resilientService);
-  }
-
 }

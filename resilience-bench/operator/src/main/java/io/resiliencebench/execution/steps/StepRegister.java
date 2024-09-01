@@ -16,25 +16,25 @@ public class StepRegister {
   private final List<ExecutorStep<?>> postExecutionSteps;
 
   public StepRegister(UpdateStatusQueueStep updateStatusQueueStep,
-                      ResultLocalFileStep resultLocalFileStep,
-                      IstioCircuitBreakerStep istioCircuitBreakerStep,
-                      IstioRetryStep istioRetryStep,
-                      IstioTimeoutStep istioTimeoutStep,
-                      IstioFaultStep istioFaultStep,
-                      EnvironmentStep environmentStep) {
+      ResultLocalFileStep resultLocalFileStep,
+      IstioCircuitBreakerStep istioCircuitBreakerStep,
+      IstioRetryStep istioRetryStep,
+      IstioTimeoutStep istioTimeoutStep,
+      IstioFaultStep istioFaultStep,
+      EnvironmentStep environmentStep,
+      EnvironmentPostStep environmentPostStep) {
 
     preparationSteps = List.of(
-            updateStatusQueueStep,
-            istioRetryStep,
-            istioCircuitBreakerStep,
-            istioTimeoutStep,
-            istioFaultStep,
-            environmentStep
-    );
+        updateStatusQueueStep,
+        istioRetryStep,
+        istioCircuitBreakerStep,
+        istioTimeoutStep,
+        istioFaultStep,
+        environmentStep);
     postExecutionSteps = List.of(
-            updateStatusQueueStep,
-            resultLocalFileStep
-    );
+        updateStatusQueueStep,
+        resultLocalFileStep,
+        environmentPostStep);
   }
 
   public List<ExecutorStep<?>> getPostExecutionSteps() {
