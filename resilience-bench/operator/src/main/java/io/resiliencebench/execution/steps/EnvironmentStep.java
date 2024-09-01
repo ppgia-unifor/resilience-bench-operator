@@ -55,6 +55,7 @@ public class EnvironmentStep extends AbstractEnvironmentStep {
 
     if (deployment.isPresent()) {
       var deploymentVars = getActualEnv(deployment.get(), containerName);
+      saveActualEnv(deploymentVars, resilientService);
 
       for (var variable : deploymentVars) {
         var newValue = env.get(variable.getName());
@@ -65,7 +66,6 @@ public class EnvironmentStep extends AbstractEnvironmentStep {
       }
       updateDeployment(deployment.get());
       restartPods(deployment.get());
-      saveActualEnv(deploymentVars, resilientService);
     } else {
       logger.warn("Deployment not found for ResilientService {}", service.getName());
     }
