@@ -13,7 +13,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.5.0</maven-surefire-plugin.version>
         <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>
         <fabric8-client.version>6.11.0</fabric8-client.version>
         <junit.version>5.10.2</junit.version>
