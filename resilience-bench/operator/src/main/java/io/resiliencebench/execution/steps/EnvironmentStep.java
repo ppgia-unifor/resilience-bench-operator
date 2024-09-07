@@ -60,7 +60,11 @@ public class EnvironmentStep extends AbstractEnvironmentStep {
       for (var variable : deploymentVars) {
         var newValue = env.get(variable.getName());
         if (newValue != null) {
-          logger.info("Container {}. EnvVar {}={}", containerName, variable.getName(), newValue);
+          logger.info("deployment {} container {}. envVar {}={}",
+              deployment.get().getMetadata().getName(),
+              containerName,
+              variable.getName(),
+              newValue);
           variable.setValue(newValue.toString());
         }
       }
