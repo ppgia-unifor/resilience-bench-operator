@@ -66,6 +66,14 @@ public class EnvironmentPostStep extends AbstractEnvironmentStep {
           .findFirst()
           .orElseThrow(() -> new RuntimeException("Container not found: " + containerName));
 
+      env.forEach(variable -> {
+        logger.info("deployment {} container {}. envVar {}={}",
+            deployment.get().getMetadata().getName(),
+            containerName,
+            variable.getName(),
+            variable.getValue());
+      });
+
       container.setEnv(env);
       updateDeployment(deployment.get());
       restartPods(deployment.get());
