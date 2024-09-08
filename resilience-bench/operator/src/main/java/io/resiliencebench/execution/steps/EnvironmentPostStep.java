@@ -76,7 +76,7 @@ public class EnvironmentPostStep extends AbstractEnvironmentStep {
 
       container.setEnv(env);
       updateDeployment(deployment.get());
-      restartPods(deployment.get());
+      waitUntilReady(deployment.get());
     } else {
       logger.warn("Deployment not found for ResilientService {}", service.getName());
     }

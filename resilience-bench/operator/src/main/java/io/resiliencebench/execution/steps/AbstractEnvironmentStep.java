@@ -47,10 +47,16 @@ abstract class AbstractEnvironmentStep extends ExecutorStep<Deployment> {
         .update();
   }
 
-  protected void restartPods(Deployment targetDeployment) {
-    getPods(targetDeployment).delete();
-    logger.info("Waiting for the pods to restart");
-    getPods(targetDeployment).waitUntilCondition(this::waitUntilCondition, 120, TimeUnit.SECONDS);
+  protected void waitUntilReady(Deployment targetDeployment) {
+    var newGeneration = targetDeployment.getMetadata().getGeneration();
+    logger.info("Waiting for the deployment to restart");
+    kubernetesClient().apps().deployments().inNamespace(targetDeployment.getMetadata().getNamespace())
+        .withName(targetDeployment.getMetadata().getName())
+        .waitUntilCondition((d -> d.getStatus().getObservedGeneration() >= newGeneration
+            && d.getStatus().getReadyReplicas() != null
+            && d.getStatus().getReadyReplicas().equals(d.getSpec().getReplicas())), 
+            120, TimeUnit.SECONDS);
+
     logger.info("Pods restarted successfully");
   }
 

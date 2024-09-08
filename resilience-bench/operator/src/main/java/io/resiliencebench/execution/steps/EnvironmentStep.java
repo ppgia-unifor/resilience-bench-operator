@@ -69,7 +69,7 @@ public class EnvironmentStep extends AbstractEnvironmentStep {
         }
       }
       updateDeployment(deployment.get());
-      restartPods(deployment.get());
+      waitUntilReady(deployment.get());
     } else {
       logger.warn("Deployment not found for ResilientService {}", service.getName());
     }
