@@ -50,7 +50,7 @@ abstract class AbstractEnvironmentStep extends ExecutorStep<Deployment> {
   protected void restartPods(Deployment targetDeployment) {
     getPods(targetDeployment).delete();
     logger.info("Waiting for the pods to restart");
-    getPods(targetDeployment).waitUntilCondition(this::waitUntilCondition, 60, TimeUnit.SECONDS);
+    getPods(targetDeployment).waitUntilCondition(this::waitUntilCondition, 120, TimeUnit.SECONDS);
     logger.info("Pods restarted successfully");
   }
 
