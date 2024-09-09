@@ -48,41 +48,22 @@ abstract class AbstractEnvironmentStep extends ExecutorStep<Deployment> {
   }
 
   protected void waitUntilReady(Deployment targetDeployment) {
-    var newGeneration = targetDeployment.getMetadata().getGeneration();
     logger.info("Waiting for the deployment to restart");
-    kubernetesClient().apps().deployments().inNamespace(targetDeployment.getMetadata().getNamespace())
-        .withName(targetDeployment.getMetadata().getName())
-        .waitUntilCondition((d -> d.getStatus().getObservedGeneration() >= newGeneration
-            && d.getStatus().getReadyReplicas() != null
-            && d.getStatus().getReadyReplicas().equals(d.getSpec().getReplicas())), 
-            120, TimeUnit.SECONDS);
-
-    logger.info("Pods restarted successfully");
+    getPods(targetDeployment).waitUntilReady(2, TimeUnit.MINUTES);
+    logger.info("Deployment restarted successfully");
   }
 
   protected List<EnvVar> getActualEnv(Deployment targetDeployment, String containerName) {
-    var container = targetDeployment.getSpec().getTemplate().getSpec().getContainers().stream()
+    return targetDeployment.getSpec().getTemplate().getSpec().getContainers().stream()
         .filter(c -> c.getName().equals(containerName))
         .findFirst()
-        .orElseThrow(() -> new RuntimeException("Container not found: " + containerName));
-    return container.getEnv();
+        .orElseThrow(() -> new RuntimeException("Container not found: " + containerName))
+        .getEnv();
   }
 
   public FilterWatchListDeletable<Pod, PodList, PodResource> getPods(Deployment targetDeployment) {
     return kubernetesClient().pods()
         .inNamespace(targetDeployment.getMetadata().getNamespace())
         .withLabel("app", targetDeployment.getMetadata().getName());
-  }
-
-  public boolean waitUntilCondition(Pod pod) {
-    var match = pod.getMetadata().getDeletionTimestamp() == null &&
-        pod
-            .getStatus()
-            .getConditions()
-            .stream()
-            .anyMatch(condition -> "Ready".equals(condition.getType()) && "True".equals(condition.getStatus()));
-
-    logger.info("Pod {} is ready: {}", pod.getMetadata().getName(), match);
-    return match;
   }
 }
