@@ -65,7 +65,8 @@ public class EnvironmentStep extends AbstractEnvironmentStep {
               containerName,
               variable.getName(),
               newValue);
-          variable.setValue(newValue.toString());
+
+          variable.setValue(newValue.asText());
         }
       }
       updateDeployment(deployment.get());
