@@ -49,7 +49,7 @@ abstract class AbstractEnvironmentStep extends ExecutorStep<Deployment> {
 
   protected void waitUntilReady(Deployment targetDeployment) {
     logger.info("Waiting for the deployment to restart");
-    getPods(targetDeployment).waitUntilReady(2, TimeUnit.MINUTES);
+    getPods(targetDeployment).waitUntilCondition(this::waitUntilCondition, 2, TimeUnit.MINUTES);
     logger.info("Deployment restarted successfully");
   }
 
@@ -65,5 +65,22 @@ abstract class AbstractEnvironmentStep extends ExecutorStep<Deployment> {
     return kubernetesClient().pods()
         .inNamespace(targetDeployment.getMetadata().getNamespace())
         .withLabel("app", targetDeployment.getMetadata().getName());
+  }
+
+   /**
+   * Test if the pod is ready, if yes return true, otherwise return false
+   */
+  public boolean waitUntilCondition(Pod pod) {
+    var isMarkedForDeletion = pod.getMetadata().getDeletionTimestamp() != null;
+    if (isMarkedForDeletion) return false;
+    var isReady = pod.getStatus()
+            .getConditions()
+            .stream()
+            .anyMatch(condition -> "Ready".equals(condition.getType()) && "True".equals(condition.getStatus()));
+    if (isReady) {
+      logger.info("Pod {} is ready", pod.getMetadata().getName());
+    }
+
+    return isReady;
   }
 }
