@@ -48,9 +48,9 @@ abstract class AbstractEnvironmentStep extends ExecutorStep<Deployment> {
   }
 
   protected void waitUntilReady(Deployment targetDeployment) {
-    logger.info("Waiting for the deployment to restart");
+    logger.info("Restarting deployment: {}", targetDeployment.getMetadata().getName());
     getPods(targetDeployment).waitUntilCondition(this::waitUntilCondition, 2, TimeUnit.MINUTES);
-    logger.info("Deployment restarted successfully");
+    logger.info("Deployment restarted: {}", targetDeployment.getMetadata().getName());
   }
 
   protected List<EnvVar> getActualEnv(Deployment targetDeployment, String containerName) {
@@ -72,13 +72,16 @@ abstract class AbstractEnvironmentStep extends ExecutorStep<Deployment> {
    */
   public boolean waitUntilCondition(Pod pod) {
     var isMarkedForDeletion = pod.getMetadata().getDeletionTimestamp() != null;
-    if (isMarkedForDeletion) return false;
+    if (isMarkedForDeletion) {
+      logger.info("Pod marked for deletion {}", pod.getMetadata().getName());
+      return false;
+    }
     var isReady = pod.getStatus()
             .getConditions()
             .stream()
             .anyMatch(condition -> "Ready".equals(condition.getType()) && "True".equals(condition.getStatus()));
     if (isReady) {
-      logger.info("Pod {} is ready", pod.getMetadata().getName());
+      logger.info("Pod ready {}", pod.getMetadata().getName());
     }
 
     return isReady;
