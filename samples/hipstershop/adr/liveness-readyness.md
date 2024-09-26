@@ -1,0 +1,6 @@
+# As probes de readiness e liveness desempenham um papel crucial em processos frequentes de restart de pods, como o que ocorre durante atualizações de um Deployment.
+
+- `Readiness Probe:` As probes de readiness garantem que o Kubernetes só considera os novos pods prontos para receber tráfego quando eles estiverem totalmente operacionais. Isso é particularmente importante durante o rolling update, pois evita que o tráfego seja direcionado para pods que ainda não estão prontos, protegendo a integridade da aplicação e dos testes. No cenário descrito, a readiness probe é vital para assegurar que o código só continua a execução após os novos pods estarem totalmente configurados e prontos.
+
+- `Liveness Probe:` A liveness probe, por outro lado, monitora a saúde do pod durante a sua execução. Se um pod falhar ou entrar em um estado não saudável, o Kubernetes reiniciará automaticamente o pod. Isso é importante em cenários de atualização e restart frequente, pois garante que, se um pod falhar durante o processo de atualização, ele será automaticamente reiniciado, reduzindo a chance de falhas persistirem em produção ou nos testes.
+Ambas as probes ajudam a garantir que o ambiente esteja estável, e que o sistema aguarde corretamente pela prontidão dos novos pods, minimizando o risco de falhas durante o ciclo de atualização.
