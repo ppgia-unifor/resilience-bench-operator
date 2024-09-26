@@ -9,6 +9,7 @@ import io.resiliencebench.resources.service.ResilientService;
 import io.resiliencebench.support.CustomResourceRepository;
 import org.springframework.stereotype.Service;
 
+import static io.resiliencebench.support.Annotations.VIRTUAL_SERVICE;
 import static java.lang.String.format;
 
 @Service
@@ -38,7 +39,7 @@ public abstract class IstioExecutorStep<TResult extends HasMetadata> extends Exe
     var targetService = getServiceRepository().find(namespace, name);
 
     if (targetService.isPresent()) {
-      var virtualServiceName = targetService.get().getMetadata().getAnnotations().get("resiliencebench.io/virtual-service");
+      var virtualServiceName = targetService.get().getMetadata().getAnnotations().get(VIRTUAL_SERVICE);
       return istioClient
               .v1beta1()
               .virtualServices()

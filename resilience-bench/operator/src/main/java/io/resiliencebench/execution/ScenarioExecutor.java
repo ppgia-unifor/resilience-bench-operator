@@ -1,6 +1,7 @@
 
 package io.resiliencebench.execution;
 
+import static io.resiliencebench.support.Annotations.SCENARIO;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -81,7 +82,7 @@ public class ScenarioExecutor implements Watcher<Job> {
   private boolean isRunning(String namespace) {
     var jobs = kubernetesClient.batch().v1().jobs().inNamespace(namespace).list();
     return jobs.getItems().stream().anyMatch(job ->
-            isNull(job.getStatus().getCompletionTime()) && job.getMetadata().getAnnotations().containsKey("resiliencebench.io/scenario"));
+            isNull(job.getStatus().getCompletionTime()) && job.getMetadata().getAnnotations().containsKey(SCENARIO));
   }
 
   private Job createLoadGenerationJob(Scenario scenario, ExecutionQueue executionQueue) {
@@ -122,7 +123,7 @@ public class ScenarioExecutor implements Watcher<Job> {
     if (action.equals(Action.MODIFIED)) {
       if (nonNull(resource.getStatus().getCompletionTime())) {
         logger.debug("Finished job: {}", resource.getMetadata().getName());
-        var scenarioName = resource.getMetadata().getAnnotations().get("resiliencebench.io/scenario");
+        var scenarioName = resource.getMetadata().getAnnotations().get(SCENARIO);
         var scenario = scenarioRepository.get(namespace, scenarioName);
         var executionQueue = executionRepository.get(
                 namespace,

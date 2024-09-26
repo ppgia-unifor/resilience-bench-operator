@@ -13,6 +13,7 @@ import io.resiliencebench.resources.service.ResilientService;
 import io.resiliencebench.support.CustomResourceRepository;
 import org.springframework.stereotype.Service;
 
+import static io.resiliencebench.support.Annotations.DESTINATION_RULE;
 import static java.lang.String.format;
 
 @Service
@@ -89,7 +90,7 @@ public class IstioCircuitBreakerStep extends IstioExecutorStep<Scenario> {
     var targetService = getServiceRepository().find(namespace, name);
 
     if (targetService.isPresent()) {
-      var destinationRouteName = targetService.get().getMetadata().getAnnotations().get("resiliencebench.io/destination-rule");
+      var destinationRouteName = targetService.get().getMetadata().getAnnotations().get(DESTINATION_RULE);
       return istioClient()
               .v1beta1()
               .destinationRules()
