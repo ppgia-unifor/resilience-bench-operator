@@ -1,6 +1,6 @@
-# resilience-bench operator
+# ResilienceBench Operator
 
-A Kubernetes Operator developed using the Java Operator Framework.
+ResilienceBench is a language-agnostic benchmark environment to support the experimental evaluation of microservice resiliency patterns, such as Retry and Circuit Breaker. Consider a microservices-based application, where the connectors represent communication between the different services. Each service is subject to various failure possibilities and workload variations, and for each of these situations, there is an appropriate configuration of resilience patterns. In this context, the tool's purpose is to automate the creation of test scenarios, exhaustively evaluating all possible scenarios under different load levels and failure conditions with minimal configuration.
 
 ## Prerequisites
 
