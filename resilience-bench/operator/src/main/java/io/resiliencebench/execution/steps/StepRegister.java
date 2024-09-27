@@ -9,6 +9,8 @@ import io.resiliencebench.execution.steps.istio.IstioFaultStep;
 import io.resiliencebench.execution.steps.istio.IstioRetryStep;
 import io.resiliencebench.execution.steps.istio.IstioTimeoutStep;
 
+import static java.util.List.of;
+
 @Service
 public class StepRegister {
 
@@ -16,25 +18,27 @@ public class StepRegister {
   private final List<ExecutorStep<?>> postExecutionSteps;
 
   public StepRegister(UpdateStatusQueueStep updateStatusQueueStep,
-      ResultLocalFileStep resultLocalFileStep,
-      IstioCircuitBreakerStep istioCircuitBreakerStep,
-      IstioRetryStep istioRetryStep,
-      IstioTimeoutStep istioTimeoutStep,
-      IstioFaultStep istioFaultStep,
-      EnvironmentStep environmentStep,
-      EnvironmentPostStep environmentPostStep) {
+                      ResultLocalFileStep resultLocalFileStep,
+                      IstioCircuitBreakerStep istioCircuitBreakerStep,
+                      IstioRetryStep istioRetryStep,
+                      IstioTimeoutStep istioTimeoutStep,
+                      IstioFaultStep istioFaultStep,
+                      EnvironmentStep environmentStep,
+                      EnvironmentPostStep environmentPostStep,
+                      ApplicationReadinessStep applicationReadinessStep) {
 
-    preparationSteps = List.of(
-        updateStatusQueueStep,
-        istioRetryStep,
-        istioCircuitBreakerStep,
-        istioTimeoutStep,
-        istioFaultStep,
-        environmentStep);
-    postExecutionSteps = List.of(
-        updateStatusQueueStep,
-        resultLocalFileStep,
-        environmentPostStep);
+    preparationSteps = of(
+            updateStatusQueueStep,
+            istioRetryStep,
+            istioCircuitBreakerStep,
+            istioTimeoutStep,
+            istioFaultStep,
+            environmentStep,
+            applicationReadinessStep);
+    postExecutionSteps = of(
+            updateStatusQueueStep,
+            resultLocalFileStep,
+            environmentPostStep);
   }
 
   public List<ExecutorStep<?>> getPostExecutionSteps() {
