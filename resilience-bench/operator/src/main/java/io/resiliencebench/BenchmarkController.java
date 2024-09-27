@@ -41,6 +41,7 @@ public class BenchmarkController implements Reconciler<Benchmark> {
     this.queueRepository = queueRepository;
   }
 
+  // Considering only creation and update events. if something changes in benchmark, we need to re-run the scenarios
   @Override
   public UpdateControl<Benchmark> reconcile(Benchmark benchmark, Context<Benchmark> context) {
     var workload = workloadRepository.find(benchmark.getMetadata().getNamespace(), benchmark.getSpec().getWorkload());
@@ -55,11 +56,7 @@ public class BenchmarkController implements Reconciler<Benchmark> {
       return UpdateControl.noUpdate();
     }
 
-    queueRepository.deleteAll(benchmark.getMetadata().getNamespace());
-    scenarioRepository.deleteAll(benchmark.getMetadata().getNamespace());
-
-    var executionQueue = getOrCreateQueue(benchmark, scenariosList);
-    scenariosList.forEach(this::createOrUpdateScenario);
+    var executionQueue = prepareToRunScenarios(benchmark, scenariosList);
 
     scenarioExecutor.run(executionQueue);
     logger.info("Benchmark reconciled {}. {} scenarios created",
@@ -70,24 +67,11 @@ public class BenchmarkController implements Reconciler<Benchmark> {
     return UpdateControl.updateStatus(benchmark);
   }
 
-  private ExecutionQueue getOrCreateQueue(Benchmark benchmark, List<Scenario> scenariosList) {
-    var queue = queueRepository.find(benchmark.getMetadata().getNamespace(), benchmark.getMetadata().getName());
-    if (queue.isPresent()) {
-      logger.debug("ExecutionQueue already exists: {}", benchmark.getMetadata().getName());
-      return queue.get();
-    } else {
-      var queueCreated = ExecutionQueueFactory.create(benchmark, scenariosList);
-      queueRepository.create(queueCreated);
-      return queueCreated;
-    }
-  }
-
-  private void createOrUpdateScenario(Scenario scenario) {
-    var foundScenario = scenarioRepository.find(scenario.getMetadata());
-    if (foundScenario.isEmpty()) {
-      scenarioRepository.create(scenario);
-    } else {
-      logger.debug("Scenario already exists: {}", scenario.getMetadata().getName());
-    }
+  private ExecutionQueue prepareToRunScenarios(Benchmark benchmark, List<Scenario> scenariosList) {
+    queueRepository.deleteAll(benchmark.getMetadata().getNamespace());
+    scenarioRepository.deleteAll(benchmark.getMetadata().getNamespace());
+    scenariosList.forEach(scenarioRepository::create);
+    var queueCreated = ExecutionQueueFactory.create(benchmark, scenariosList);
+    return queueRepository.create(queueCreated);
   }
 }
