@@ -2,6 +2,7 @@ package io.resiliencebench;
 
 import java.util.List;
 
+import io.resiliencebench.execution.QueueExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +10,6 @@ import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
 import io.javaoperatorsdk.operator.api.reconciler.Reconciler;
 import io.javaoperatorsdk.operator.api.reconciler.UpdateControl;
-import io.resiliencebench.execution.DefaultQueueExecutor;
 import io.resiliencebench.resources.ExecutionQueueFactory;
 import io.resiliencebench.resources.ScenarioFactory;
 import io.resiliencebench.resources.benchmark.Benchmark;
@@ -29,9 +29,9 @@ public class BenchmarkController implements Reconciler<Benchmark> {
   private final CustomResourceRepository<Workload> workloadRepository;
   private final CustomResourceRepository<ExecutionQueue> queueRepository;
 
-  private final DefaultQueueExecutor queueExecutor;
+  private final QueueExecutor queueExecutor;
 
-  public BenchmarkController(DefaultQueueExecutor queueExecutor,
+  public BenchmarkController(QueueExecutor queueExecutor,
                              CustomResourceRepository<Scenario> scenarioRepository,
                              CustomResourceRepository<Workload> workloadRepository,
                              CustomResourceRepository<ExecutionQueue> queueRepository) {
