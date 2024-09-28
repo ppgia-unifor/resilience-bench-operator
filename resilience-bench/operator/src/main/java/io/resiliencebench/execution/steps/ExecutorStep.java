@@ -1,13 +1,10 @@
 package io.resiliencebench.execution.steps;
 
 import io.resiliencebench.resources.queue.ExecutionQueue;
-import io.resiliencebench.resources.queue.ExecutionQueueItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.github.resilience4j.retry.Retry;
-import io.github.resilience4j.retry.RetryRegistry;
 import io.resiliencebench.resources.scenario.Scenario;
 
 public abstract class ExecutorStep {
@@ -15,8 +12,6 @@ public abstract class ExecutorStep {
   private final static Logger logger = LoggerFactory.getLogger(ExecutorStep.class);
 
   private final KubernetesClient kubernetesClient;
-
-  private final Retry retryConfig = RetryRegistry.ofDefaults().retry("executorStep");
 
   public ExecutorStep(KubernetesClient kubernetesClient) {
     this.kubernetesClient = kubernetesClient;
