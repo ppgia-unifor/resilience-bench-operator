@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 import static io.resiliencebench.support.Annotations.CONTAINER;
 
 @Service
@@ -33,12 +35,11 @@ public class EnvironmentPostStep extends AbstractEnvironmentStep {
   }
 
   @Override
-  protected Deployment internalExecute(Scenario scenario, ExecutionQueue queue) {
+  protected void internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
     for (var connector : scenario.getSpec().getConnectors()) {
       restoreEnvironment(scenario, connector.getSource());
       restoreEnvironment(scenario, connector.getDestination());
     }
-    return null;
   }
 
   public void restoreEnvironment(Scenario scenario, io.resiliencebench.resources.scenario.Service service) {
@@ -49,17 +50,7 @@ public class EnvironmentPostStep extends AbstractEnvironmentStep {
     if (env == null) {
       return;
     }
-
-    var deployment = kubernetesClient()
-        .apps()
-        .deployments()
-        .inNamespace(scenario.getMetadata().getNamespace())
-        .withLabelSelector(resilientService.getSpec().getSelector())
-        .list()
-        .getItems()
-        .stream()
-        .findFirst();
-
+    var deployment = findDeployment(scenario, resilientService);
     if (deployment.isPresent()) {
       var container = deployment.get().getSpec().getTemplate().getSpec().getContainers().stream()
           .filter(c -> c.getName().equals(containerName))
@@ -75,5 +66,18 @@ public class EnvironmentPostStep extends AbstractEnvironmentStep {
     } else {
       logger.warn("Deployment not found for ResilientService {}", service.getName());
     }
+  }
+
+  private Optional<Deployment> findDeployment(Scenario scenario, ResilientService resilientService) {
+    var deployment = kubernetesClient()
+        .apps()
+        .deployments()
+        .inNamespace(scenario.getMetadata().getNamespace())
+        .withLabelSelector(resilientService.getSpec().getSelector())
+        .list()
+        .getItems()
+        .stream()
+        .findFirst();
+    return deployment;
   }
 }

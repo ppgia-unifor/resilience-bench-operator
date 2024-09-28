@@ -6,19 +6,19 @@ public class ExecutionQueueSpec {
 
   private String resultFile;
 
-  private List<Item> items;
+  private List<ExecutionQueueItem> items;
   private String benchmark;
 
   public ExecutionQueueSpec() {
   }
 
-  public ExecutionQueueSpec(String resultFile, List<Item> items, String benchmark) {
+  public ExecutionQueueSpec(String resultFile, List<ExecutionQueueItem> items, String benchmark) {
     this.resultFile = resultFile;
     this.items = items;
     this.benchmark = benchmark;
   }
 
-  public List<Item> getItems() {
+  public List<ExecutionQueueItem> getItems() {
     return items;
   }
 

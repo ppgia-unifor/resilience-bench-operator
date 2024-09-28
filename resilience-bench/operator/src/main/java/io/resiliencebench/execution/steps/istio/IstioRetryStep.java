@@ -18,7 +18,7 @@ import java.util.Optional;
 import static java.util.Optional.*;
 
 @Service
-public class IstioRetryStep extends IstioExecutorStep<Scenario> {
+public class IstioRetryStep extends IstioExecutorStep {
 
   private final static Logger log = LoggerFactory.getLogger(IstioRetryStep.class);
 
@@ -36,11 +36,10 @@ public class IstioRetryStep extends IstioExecutorStep<Scenario> {
   }
 
   @Override
-  protected Scenario internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
+  protected void internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
     for (var connector : scenario.getSpec().getConnectors()) {
       configureRetryOnDestination(scenario.getMetadata().getNamespace(), connector);
     }
-    return scenario;
   }
 
   private void configureRetryOnDestination(String namespace, Connector connector) {

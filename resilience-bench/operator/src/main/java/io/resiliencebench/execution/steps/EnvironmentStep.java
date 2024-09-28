@@ -1,7 +1,6 @@
 package io.resiliencebench.execution.steps;
 
 import io.fabric8.kubernetes.api.model.EnvVar;
-import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
@@ -76,12 +75,11 @@ public class EnvironmentStep extends AbstractEnvironmentStep {
   }
 
   @Override
-  protected Deployment internalExecute(Scenario scenario, ExecutionQueue queue) {
+  protected void internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
     for (var connector : scenario.getSpec().getConnectors()) {
       applyServiceEnvironment(scenario, connector.getSource());
       applyServiceEnvironment(scenario, connector.getDestination());
     }
-    return null;
   }
 
   private void saveActualEnv(List<EnvVar> deploymentVars, ResilientService resilientService) {

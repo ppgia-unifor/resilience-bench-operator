@@ -3,13 +3,9 @@ package io.resiliencebench.execution.steps.k6;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.resiliencebench.execution.steps.ExecutorStep;
-import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
 import io.resiliencebench.resources.scenario.ScenarioWorkload;
 import io.resiliencebench.resources.workload.Workload;
-import io.resiliencebench.support.CustomResourceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,28 +15,29 @@ import java.util.Map;
 import static io.resiliencebench.support.Annotations.*;
 
 @Service
-public class K6LoadGeneratorStep extends ExecutorStep<Job> {
+public class K6JobFactory {
 
-  private final CustomResourceRepository<Workload> workloadRepository;
-
-  public K6LoadGeneratorStep(KubernetesClient kubernetesClient, CustomResourceRepository<Workload> workloadRepository) {
-    super(kubernetesClient);
-    this.workloadRepository = workloadRepository;
+  public K6JobFactory() {
   }
 
-  @Override
-  protected boolean isApplicable(Scenario scenario) {
-    return true;
-  }
-
-  @Override
-  protected Job internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
-    var workloadName = scenario.getSpec().getWorkload().getWorkloadName();
-    var workload = workloadRepository.find(scenario.getMetadata().getNamespace(), workloadName);
-    if (workload.isEmpty()) {
-      throw new IllegalArgumentException("Workload does not exists: %s".formatted(workloadName));
-    }
-    return createJob(scenario, workload.get(), scenario.getSpec().getWorkload());
+  public Job create(Scenario scenario, Workload workload) {
+    var meta = createMeta(scenario, workload);
+    return new JobBuilder()
+            .withMetadata(meta)
+            .withNewSpec()
+            .withNewTemplate()
+            .withNewMetadata()
+            .addToAnnotations("sidecar.istio.io/inject", "false")
+            .endMetadata()
+            .withNewSpec()
+            .withRestartPolicy("Never")
+            .withContainers(createK6Container(scenario, scenario.getSpec().getWorkload(), workload))
+            .withVolumes(createResultsVolume(), createScriptVolume(workload))
+            .endSpec()
+            .endTemplate()
+            .withBackoffLimit(4)
+            .endSpec()
+            .build();
   }
 
   public ObjectMeta createMeta(Scenario scenario, Workload workload) {
@@ -51,31 +48,6 @@ public class K6LoadGeneratorStep extends ExecutorStep<Job> {
             .addToAnnotations(CREATED_BY, "resiliencebench-operator")
             .addToAnnotations(SCENARIO, scenario.getMetadata().getName())
             .addToAnnotations(WORKLOAD, workload.getMetadata().getName())
-            .build();
-  }
-
-  public Job createJob(Scenario scenario, Workload workload, ScenarioWorkload scenarioWorkload) {
-    var meta = createMeta(scenario, workload);
-    var job = kubernetesClient().batch().v1().jobs().inNamespace(meta.getNamespace()).withName(meta.getName()).get();
-    if (job != null) {
-      return job;
-    }
-
-    return new JobBuilder()
-            .withMetadata(meta)
-            .withNewSpec()
-            .withNewTemplate()
-            .withNewMetadata()
-            .addToAnnotations("sidecar.istio.io/inject", "false")
-            .endMetadata()
-            .withNewSpec()
-            .withRestartPolicy("Never")
-            .withContainers(createK6Container(scenario, scenarioWorkload, workload))
-            .withVolumes(createResultsVolume(), createScriptVolume(workload))
-            .endSpec()
-            .endTemplate()
-            .withBackoffLimit(4)
-            .endSpec()
             .build();
   }
 

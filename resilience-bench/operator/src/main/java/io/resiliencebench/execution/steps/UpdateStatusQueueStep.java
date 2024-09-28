@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @Service
-public class UpdateStatusQueueStep extends ExecutorStep<ExecutionQueue> {
+public class UpdateStatusQueueStep extends ExecutorStep {
 
   private final CustomResourceRepository<ExecutionQueue> executionRepository;
 
@@ -25,10 +25,9 @@ public class UpdateStatusQueueStep extends ExecutorStep<ExecutionQueue> {
   }
 
   @Override
-  public ExecutionQueue internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
+  public void internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
     var namespace = scenario.getMetadata().getNamespace();
-    var queueItem = executionQueue.getSpec().getItems().stream().filter(item -> item.getScenario().equals( scenario.getMetadata().getName())).findFirst().get();
-
+    var queueItem = executionQueue.getItem(scenario.getMetadata().getName());
     if (queueItem.isRunning()) {
       queueItem.setStatus("finished");
       queueItem.setFinishedAt(LocalDateTime.now().atZone(ZoneId.of("UTC")).toString());
@@ -40,6 +39,6 @@ public class UpdateStatusQueueStep extends ExecutorStep<ExecutionQueue> {
     }
 
     executionQueue.getMetadata().setNamespace(namespace); // TODO verificar pq é necessário passar o namespace
-    return executionRepository.update(executionQueue);
+    executionRepository.update(executionQueue);
   }
 }
