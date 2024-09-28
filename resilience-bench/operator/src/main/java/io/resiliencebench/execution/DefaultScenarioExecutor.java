@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import static io.resiliencebench.support.Annotations.*;
 import static java.util.Objects.nonNull;
 
 @Service
@@ -24,15 +25,21 @@ public class DefaultScenarioExecutor implements ScenarioExecutor {
   private final StepRegistry stepRegistry;
   private final K6JobFactory k6JobFactory;
 
+  private final CustomResourceRepository<Scenario> scenarioRepository;
+  private final CustomResourceRepository<ExecutionQueue> executionRepository;
   private final CustomResourceRepository<Workload> workloadRepository;
 
   public DefaultScenarioExecutor(KubernetesClient kubernetesClient,
                                  StepRegistry stepRegistry,
                                  K6JobFactory k6JobFactory,
+                                 CustomResourceRepository<Scenario> scenarioRepository,
+                                 CustomResourceRepository<ExecutionQueue> executionRepository,
                                  CustomResourceRepository<Workload> workloadRepository) {
     this.kubernetesClient = kubernetesClient;
     this.stepRegistry = stepRegistry;
     this.k6JobFactory = k6JobFactory;
+    this.scenarioRepository = scenarioRepository;
+    this.executionRepository = executionRepository;
     this.workloadRepository = workloadRepository;
   }
 
@@ -53,14 +60,21 @@ public class DefaultScenarioExecutor implements ScenarioExecutor {
       @Override
       public void eventReceived(Action action, Job resource) {
         if (action.equals(Action.MODIFIED) && nonNull(resource.getStatus().getCompletionTime())) {
-          logger.debug("Finished job: {}", resource.getMetadata().getName());
+          logger.info("Finished job: {}", resource.getMetadata().getName());
+          var namespace = resource.getMetadata().getNamespace();
+          var scenarioName = resource.getMetadata().getAnnotations().get(SCENARIO);
+          var scenario = scenarioRepository.get(namespace, scenarioName);
+          var executionQueue = executionRepository.get(
+                  namespace,
+                  scenario.getMetadata().getAnnotations().get(OWNED_BY)
+          );
           executePostExecutionSteps(scenario, executionQueue);
           onCompletion.run();
         }
       }
       @Override
       public void onClose(WatcherException cause) {
-        logger.info("Job watcher closed", cause);
+        logger.info("Job watcher closed", cause); // TODO pesquisar sobre o evento de close
       }
     });
   }

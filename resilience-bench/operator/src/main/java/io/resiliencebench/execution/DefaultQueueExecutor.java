@@ -3,6 +3,7 @@ package io.resiliencebench.execution;
 
 import static java.lang.String.format;
 
+import io.resiliencebench.resources.queue.ExecutionQueueItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -38,9 +39,8 @@ public class DefaultQueueExecutor implements QueueExecutor {
     var nextItem = queueToExecute.getNextPendingItem();
 
     if (nextItem.isPresent()) {
-      var namespace = queueToExecute.getMetadata().getNamespace();
       if (nextItem.get().isPending()) {
-        executeScenario(namespace, nextItem.get().getScenario(), queueToExecute);
+        executeScenario(nextItem.get(), queueToExecute);
       }
     } else {
       logger.info("No item available for queue: {}", queueToExecute.getMetadata().getName());
@@ -50,7 +50,9 @@ public class DefaultQueueExecutor implements QueueExecutor {
     }
   }
 
-  private void executeScenario(String namespace, String scenarioName, ExecutionQueue executionQueue) {
+  private void executeScenario(ExecutionQueueItem item, ExecutionQueue executionQueue) {
+    var scenarioName = item.getScenario();
+    var namespace = executionQueue.getMetadata().getNamespace();
     logger.info("Running scenario: {}", scenarioName);
     var scenario = scenarioRepository.find(namespace, scenarioName);
     if (scenario.isPresent()) {
