@@ -38,10 +38,8 @@ public class DefaultQueueExecutor implements QueueExecutor {
 
     var nextItem = queueToExecute.getNextPendingItem();
 
-    if (nextItem.isPresent()) {
-      if (nextItem.get().isPending()) {
-        executeScenario(nextItem.get(), queueToExecute);
-      }
+    if (nextItem.isPresent() && nextItem.get().isPending()) {
+      executeScenario(nextItem.get(), queueToExecute);
     } else {
       logger.info("No item available for queue: {}", queueToExecute.getMetadata().getName());
       if (queueToExecute.isDone()) {
@@ -53,10 +51,10 @@ public class DefaultQueueExecutor implements QueueExecutor {
   private void executeScenario(ExecutionQueueItem item, ExecutionQueue executionQueue) {
     var scenarioName = item.getScenario();
     var namespace = executionQueue.getMetadata().getNamespace();
-    logger.info("Running scenario: {}", scenarioName);
     var scenario = scenarioRepository.find(namespace, scenarioName);
     if (scenario.isPresent()) {
-      scenarioExecutor.execute(scenario.get(), executionQueue, () -> this.execute(executionQueue));
+      logger.info("Running scenario: {}", scenarioName);
+      scenarioExecutor.execute(scenario.get(), executionQueue, () -> execute(executionQueue));
     } else {
       throw new RuntimeException(format("Scenario not found: %s.%s", namespace, scenarioName));
     }
