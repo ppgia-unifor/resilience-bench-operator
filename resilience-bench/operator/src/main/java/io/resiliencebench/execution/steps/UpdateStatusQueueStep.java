@@ -27,8 +27,7 @@ public class UpdateStatusQueueStep extends ExecutorStep {
   @Override
   public void internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
     var namespace = scenario.getMetadata().getNamespace();
-    var queue = executionRepository.get(namespace, executionQueue.getMetadata().getName());
-    var queueItem = queue.getItem(scenario.getMetadata().getName());
+    var queueItem = executionQueue.getItem(scenario.getMetadata().getName());
 
     if (queueItem.isRunning()) {
       queueItem.setStatus("finished");
