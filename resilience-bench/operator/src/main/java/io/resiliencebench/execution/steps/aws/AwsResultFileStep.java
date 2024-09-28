@@ -7,7 +7,6 @@ import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
 import com.amazonaws.services.s3.model.PartETag;
 import com.amazonaws.services.s3.model.UploadPartRequest;
-import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.resiliencebench.execution.steps.ExecutorStep;
 import io.resiliencebench.resources.queue.ExecutionQueue;
@@ -19,7 +18,7 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-public class AwsResultFileStep extends ExecutorStep<HasMetadata> {
+public class AwsResultFileStep extends ExecutorStep {
 
   private final Logger log = LoggerFactory.getLogger(AwsResultFileStep.class);
   private final AmazonS3 s3Client;
@@ -39,8 +38,7 @@ public class AwsResultFileStep extends ExecutorStep<HasMetadata> {
   }
 
   @Override
-  protected HasMetadata internalExecute(Scenario scenario, ExecutionQueue queue) {
-    return null;
+  protected void internalExecute(Scenario scenario, ExecutionQueue queue) {
   }
 
   public void save(String fileName, String destinationPath) {

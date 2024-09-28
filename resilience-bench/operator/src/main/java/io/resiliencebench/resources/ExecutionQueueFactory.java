@@ -7,7 +7,7 @@ import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.resiliencebench.resources.benchmark.Benchmark;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.queue.ExecutionQueueSpec;
-import io.resiliencebench.resources.queue.Item;
+import io.resiliencebench.resources.queue.ExecutionQueueItem;
 import io.resiliencebench.resources.scenario.Scenario;
 import static io.resiliencebench.support.Annotations.OWNED_BY;
 
@@ -24,7 +24,7 @@ public class ExecutionQueueFactory {
             .withName(benchmark.getMetadata().getName())
             .build();
 
-    var items = scenarios.stream().map(s -> new Item(s.getMetadata().getName()));
+    var items = scenarios.stream().map(s -> new ExecutionQueueItem(s.getMetadata().getName()));
     var spec = new ExecutionQueueSpec(
             "/results/%s.json".formatted(UUID.randomUUID().toString()),
             items.toList(),

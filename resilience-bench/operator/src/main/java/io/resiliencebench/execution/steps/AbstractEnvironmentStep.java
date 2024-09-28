@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-abstract class AbstractEnvironmentStep extends ExecutorStep<Deployment> {
+abstract class AbstractEnvironmentStep extends ExecutorStep {
 
   private final static Logger logger = LoggerFactory.getLogger(AbstractEnvironmentStep.class);
   protected final CustomResourceRepository<ResilientService> resilientServiceRepository;

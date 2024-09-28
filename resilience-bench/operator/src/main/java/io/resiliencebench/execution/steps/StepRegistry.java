@@ -12,12 +12,12 @@ import io.resiliencebench.execution.steps.istio.IstioTimeoutStep;
 import static java.util.List.of;
 
 @Service
-public class StepRegister {
+public class StepRegistry {
 
-  private final List<ExecutorStep<?>> preparationSteps;
-  private final List<ExecutorStep<?>> postExecutionSteps;
+  private final List<ExecutorStep> preparationSteps;
+  private final List<ExecutorStep> postExecutionSteps;
 
-  public StepRegister(UpdateStatusQueueStep updateStatusQueueStep,
+  public StepRegistry(UpdateStatusQueueStep updateStatusQueueStep,
                       ResultLocalFileStep resultLocalFileStep,
                       IstioCircuitBreakerStep istioCircuitBreakerStep,
                       IstioRetryStep istioRetryStep,
@@ -41,11 +41,11 @@ public class StepRegister {
             environmentPostStep);
   }
 
-  public List<ExecutorStep<?>> getPostExecutionSteps() {
+  public List<ExecutorStep> getPostExecutionSteps() {
     return postExecutionSteps;
   }
 
-  public List<ExecutorStep<?>> getPreparationSteps() {
+  public List<ExecutorStep> getPreparationSteps() {
     return preparationSteps;
   }
 }

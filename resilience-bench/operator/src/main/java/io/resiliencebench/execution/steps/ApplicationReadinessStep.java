@@ -1,6 +1,5 @@
 package io.resiliencebench.execution.steps;
 
-import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
@@ -27,7 +26,7 @@ public class ApplicationReadinessStep extends AbstractEnvironmentStep {
   }
 
   @Override
-  protected Deployment internalExecute(Scenario scenario, ExecutionQueue queue) {
+  protected void internalExecute(Scenario scenario, ExecutionQueue queue) {
     var ns = scenario.getMetadata().getNamespace();
     resilientServiceRepository.list(ns).forEach(resilientService -> {
       var deployment = getDeployment(scenario, resilientService);
@@ -37,6 +36,5 @@ public class ApplicationReadinessStep extends AbstractEnvironmentStep {
         waitUntilReady(deployment);
       }
     });
-    return null;
   }
 }

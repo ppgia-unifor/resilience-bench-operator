@@ -13,7 +13,7 @@ import static io.resiliencebench.support.Annotations.VIRTUAL_SERVICE;
 import static java.lang.String.format;
 
 @Service
-public abstract class IstioExecutorStep<TResult extends HasMetadata> extends ExecutorStep<TResult> {
+public abstract class IstioExecutorStep extends ExecutorStep {
 
   private final IstioClient istioClient;
   private final CustomResourceRepository<ResilientService> serviceRepository;

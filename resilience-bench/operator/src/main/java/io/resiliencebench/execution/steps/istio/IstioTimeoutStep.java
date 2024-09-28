@@ -18,7 +18,7 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
 @Service
-public class IstioTimeoutStep extends IstioExecutorStep<Scenario> {
+public class IstioTimeoutStep extends IstioExecutorStep {
 
   private final static Logger logger = LoggerFactory.getLogger(IstioTimeoutStep.class);
 
@@ -36,11 +36,10 @@ public class IstioTimeoutStep extends IstioExecutorStep<Scenario> {
   }
 
   @Override
-  protected Scenario internalExecute(Scenario scenario, ExecutionQueue queue) {
+  protected void internalExecute(Scenario scenario, ExecutionQueue queue) {
     for (var connector : scenario.getSpec().getConnectors()) {
       configureTimeoutOnDestination(scenario.getMetadata().getNamespace(), connector);
     }
-    return scenario;
   }
 
   private void configureTimeoutOnDestination(String namespace, Connector connector) {

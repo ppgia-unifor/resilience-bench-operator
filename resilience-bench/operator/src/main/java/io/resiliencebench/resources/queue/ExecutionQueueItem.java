@@ -3,7 +3,7 @@ package io.resiliencebench.resources.queue;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Item {
+public class ExecutionQueueItem {
 
   @JsonProperty(required = true)
   private String scenario;
@@ -14,14 +14,14 @@ public class Item {
 
   private String resultFile;
 
-  public Item(String scenario) {
+  public ExecutionQueueItem(String scenario) {
     this.scenario = scenario;
     this.status = Status.PENDING;
     this.finishedAt = "";
     this.startedAt = "";
   }
 
-  public Item() {
+  public ExecutionQueueItem() {
   }
 
   public String getScenario() {

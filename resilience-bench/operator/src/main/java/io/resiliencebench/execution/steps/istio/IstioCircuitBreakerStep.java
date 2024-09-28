@@ -17,7 +17,7 @@ import static io.resiliencebench.support.Annotations.DESTINATION_RULE;
 import static java.lang.String.format;
 
 @Service
-public class IstioCircuitBreakerStep extends IstioExecutorStep<Scenario> {
+public class IstioCircuitBreakerStep extends IstioExecutorStep {
   public IstioCircuitBreakerStep(KubernetesClient kubernetesClient, IstioClient istioClient, CustomResourceRepository<ResilientService> serviceRepository) {
     super(kubernetesClient, istioClient, serviceRepository);
   }
@@ -32,11 +32,10 @@ public class IstioCircuitBreakerStep extends IstioExecutorStep<Scenario> {
   }
 
   @Override
-  protected Scenario internalExecute(Scenario scenario, ExecutionQueue queue) {
+  protected void internalExecute(Scenario scenario, ExecutionQueue queue) {
     for (var connector : scenario.getSpec().getConnectors()) {
       configureCircuitBreakerOnDestination(scenario.getMetadata().getNamespace(), connector);
     }
-    return scenario;
   }
 
   public void configureCircuitBreakerOnDestination(String namespace, Connector connector) {

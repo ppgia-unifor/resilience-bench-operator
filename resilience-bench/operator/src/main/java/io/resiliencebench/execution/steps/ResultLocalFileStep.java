@@ -18,7 +18,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 @Service
-public class ResultLocalFileStep extends ExecutorStep<ExecutionQueue> {
+public class ResultLocalFileStep extends ExecutorStep {
 
   private final static Logger logger = LoggerFactory.getLogger(ResultLocalFileStep.class);
 
@@ -32,19 +32,14 @@ public class ResultLocalFileStep extends ExecutorStep<ExecutionQueue> {
   }
 
   @Override
-  protected ExecutionQueue internalExecute(Scenario scenario, ExecutionQueue queue) {
-    var itemsStream = queue.getSpec().getItems().stream();
-    var item = itemsStream
-            .filter(i -> i.getScenario().equals(scenario.getMetadata().getName()))
-            .findFirst()
-            .orElseThrow(() -> new RuntimeException("Scenario not found in queue"));
-
-    var currentResults = getFileString(item.getResultFile());
+  protected void internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
+    var executionQueueItem = executionQueue.getItem(scenario.getMetadata().getName());
+    var currentResults = getFileString(executionQueueItem.getResultFile());
     if (currentResults.isPresent()) {
       var currentResultsJson = new JsonObject(currentResults.get());
       currentResultsJson.put("metadata", scenario.getSpec().toJson());
 
-      var results = getFileString(queue.getSpec().getResultFile());
+      var results = getFileString(executionQueue.getSpec().getResultFile());
       JsonObject resultsJson;
       if (results.isPresent()) {
         resultsJson = new JsonObject(results.get());
@@ -53,9 +48,8 @@ public class ResultLocalFileStep extends ExecutorStep<ExecutionQueue> {
         resultsJson.put("results", new JsonArray());
       }
       resultsJson.getJsonArray("results").add(currentResultsJson);
-      writeToFile(queue.getSpec().getResultFile(), resultsJson.encode());
+      writeToFile(executionQueue.getSpec().getResultFile(), resultsJson.encode());
     }
-    return queue;
   }
 
   private void writeToFile(String resultFile, String content) {

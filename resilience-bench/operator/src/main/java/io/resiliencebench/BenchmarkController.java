@@ -2,6 +2,7 @@ package io.resiliencebench;
 
 import java.util.List;
 
+import io.resiliencebench.execution.QueueExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +10,6 @@ import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
 import io.javaoperatorsdk.operator.api.reconciler.Reconciler;
 import io.javaoperatorsdk.operator.api.reconciler.UpdateControl;
-import io.resiliencebench.execution.ScenarioExecutor;
 import io.resiliencebench.resources.ExecutionQueueFactory;
 import io.resiliencebench.resources.ScenarioFactory;
 import io.resiliencebench.resources.benchmark.Benchmark;
@@ -29,13 +29,13 @@ public class BenchmarkController implements Reconciler<Benchmark> {
   private final CustomResourceRepository<Workload> workloadRepository;
   private final CustomResourceRepository<ExecutionQueue> queueRepository;
 
-  private final ScenarioExecutor scenarioExecutor;
+  private final QueueExecutor queueExecutor;
 
-  public BenchmarkController(ScenarioExecutor scenarioExecutor,
+  public BenchmarkController(QueueExecutor queueExecutor,
                              CustomResourceRepository<Scenario> scenarioRepository,
                              CustomResourceRepository<Workload> workloadRepository,
                              CustomResourceRepository<ExecutionQueue> queueRepository) {
-    this.scenarioExecutor = scenarioExecutor;
+    this.queueExecutor = queueExecutor;
     this.scenarioRepository = scenarioRepository;
     this.workloadRepository = workloadRepository;
     this.queueRepository = queueRepository;
@@ -58,7 +58,7 @@ public class BenchmarkController implements Reconciler<Benchmark> {
 
     var executionQueue = prepareToRunScenarios(benchmark, scenariosList);
 
-    scenarioExecutor.run(executionQueue);
+    queueExecutor.execute(executionQueue);
     logger.info("Benchmark reconciled {}. {} scenarios created",
             benchmark.getMetadata().getName(),
             scenariosList.size()

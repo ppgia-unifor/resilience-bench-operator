@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class IstioFaultStep extends IstioExecutorStep<Scenario> {
+public class IstioFaultStep extends IstioExecutorStep {
 
   private final static Logger logger = LoggerFactory.getLogger(IstioFaultStep.class);
 
@@ -30,11 +30,10 @@ public class IstioFaultStep extends IstioExecutorStep<Scenario> {
   }
 
   @Override
-  public Scenario internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
+  public void internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
     for (var connector : scenario.getSpec().getConnectors()) {
       configureFaultOnTarget(scenario.getMetadata().getNamespace(), connector);
     }
-    return scenario;
   }
 
   private void configureFaultOnTarget(String namespace, Connector connector) {
