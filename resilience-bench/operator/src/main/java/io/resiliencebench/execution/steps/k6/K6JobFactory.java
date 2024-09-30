@@ -30,6 +30,7 @@ public class K6JobFactory {
             .addToAnnotations("sidecar.istio.io/inject", "false")
             .endMetadata()
             .withNewSpec()
+            .withSecurityContext(new PodSecurityContextBuilder().withRunAsUser(1000L).withRunAsGroup(1000L).build())
             .withRestartPolicy("Never")
             .withContainers(createK6Container(scenario, scenario.getSpec().getWorkload(), workload))
             .withVolumes(createResultsVolume(), createScriptVolume(workload))
