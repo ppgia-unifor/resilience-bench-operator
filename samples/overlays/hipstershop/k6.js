@@ -83,8 +83,8 @@ const errorShippingOnCheckout = new Counter('custom_shipping_checkout_error');
 const successShippingOnCart = new Counter('custom_shipping_cart_success');
 const errorShippingOnCart = new Counter('custom_shipping_cart_error');
 
-const successPaymentOnCart = new Counter('custom_payment_cart_success');
-const errorPaymentOnCart = new Counter('custom_payment_cart_error');
+// const successPaymentOnCart = new Counter('custom_payment_cart_success');
+// const errorPaymentOnCart = new Counter('custom_payment_cart_error');
 
 const successRecommendations = new Counter('custom_recommendations_success');
 const errorRecommendations = new Counter('custom_recommendations_error');
@@ -111,8 +111,10 @@ const errorCheckout = new Counter('custom_checkout_error');
 
 export default function () {
   index();
-  browseProduct();
-  addToCart();
+  for (let i = 0; i < 3; i++) {
+    browseProduct();
+    addToCart();
+  }
   viewCart();
   setCurrency();
   checkout();

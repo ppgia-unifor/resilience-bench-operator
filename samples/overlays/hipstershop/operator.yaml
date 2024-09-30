@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: resiliencebench-operator
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: resiliencebench-operator-role
+  namespace: default
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["*"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["*"]
+- apiGroups: ["resiliencebench.io"]
+  resources: ["benchmarks", "scenarios", "queues", "resilientservices", "workloads", "benchmarks/status"]
+  verbs: ["*"]
+- apiGroups: ["batch"]
+  resources: ["jobs"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["networking.istio.io"]
+  resources: ["virtualservices"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: resiliencebench-operator-rolebinding
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: resiliencebench-operator
+roleRef:
+  kind: ClusterRole
+  name: resiliencebench-operator-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resiliencebench-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: resiliencebench-operator
+  template:
+    metadata:
+      labels:
+        app: resiliencebench-operator
+        sidecar.istio.io/inject: "false"
+    spec:
+      serviceAccountName: resiliencebench-operator
+      containers:
+      - name: resiliencebench-operator
+        image: ghcr.io/cmendesce/resilience-bench-operator/resiliencebench-operator:2c9b702b2e6b287d02dfd81957f23788b6d64279
+        imagePullPolicy: Always
+        # ports:
+        # - containerPort: 8080
+        volumeMounts:
+        - mountPath: /results
+          mountPropagation: HostToContainer
+          name: test-results
+        # resources:
+        #   requests:
+        #     memory: "512Mi"
+        #     cpu: "1000m"
+        #   limits:
+        #     memory: "1024Mi"
+        #     cpu: "2000m"
+      volumes:
+      - name: test-results
+        persistentVolumeClaim:
+          claimName: test-results
+        # readinessProbe:
+        #   httpGet:
+        #     path: /healthz
+        #     port: 8080
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 10

@@ -28,14 +28,14 @@
   value: 20
 - op: replace
   path: /spec/template/spec/containers/0/livenessProbe/periodSeconds
-  value: 15
+  value: 5
 
 - op: add
   path: /spec/template/spec/containers/0/lifecycle
   value:
     preStop:
       exec:
-        command: ["/bin/sh", "-c", "sleep 15"]
+        command: ["/bin/sh", "-c", "sleep 20"]
 
 # envoy container
 
