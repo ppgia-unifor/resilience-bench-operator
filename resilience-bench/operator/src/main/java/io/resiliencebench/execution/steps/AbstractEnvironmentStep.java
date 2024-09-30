@@ -7,6 +7,8 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
 import io.fabric8.kubernetes.client.dsl.PodResource;
+import io.github.resilience4j.retry.Retry;
+import io.github.resilience4j.retry.RetryConfig;
 import io.resiliencebench.resources.scenario.Scenario;
 import io.resiliencebench.resources.service.ResilientService;
 import io.resiliencebench.support.CustomResourceRepository;
@@ -40,11 +42,32 @@ abstract class AbstractEnvironmentStep extends ExecutorStep {
         .orElse(null);
   }
 
-  protected void updateDeployment(Deployment targetDeployment) {
-    kubernetesClient().apps().deployments()
-        .inNamespace(targetDeployment.getMetadata().getNamespace())
-        .resource(targetDeployment)
-        .update();
+  private void internalUpdateVariablesDeployment(Deployment targetDeployment, String containerName, List<EnvVar> envVars) {
+    var deployment = kubernetesClient()
+            .apps()
+            .deployments()
+            .inNamespace(targetDeployment.getMetadata().getNamespace())
+            .withName(targetDeployment.getMetadata().getName())
+            .get();
+
+    var container = deployment
+            .getSpec()
+            .getTemplate()
+            .getSpec()
+            .getContainers()
+            .stream()
+            .filter(c -> c.getName().equals(containerName))
+            .findFirst();
+
+    if (container.isPresent()) {
+      container.get().setEnv(envVars);
+      kubernetesClient().apps().deployments().inNamespace(targetDeployment.getMetadata().getNamespace()).resource(deployment).update();
+    }
+  }
+
+  protected void updateVariablesDeployment(Deployment targetDeployment, String containerName, List<EnvVar> envVars) {
+    Retry.of("updateVariablesDeployment", RetryConfig.custom().maxAttempts(3).build())
+            .executeRunnable(() -> internalUpdateVariablesDeployment(targetDeployment, containerName, envVars));
   }
 
   protected void waitUntilReady(Deployment targetDeployment) {
@@ -53,7 +76,7 @@ abstract class AbstractEnvironmentStep extends ExecutorStep {
     logger.info("Deployment restarted: {}", targetDeployment.getMetadata().getName());
   }
 
-  protected List<EnvVar> getActualEnv(Deployment targetDeployment, String containerName) {
+  protected List<EnvVar> getActualContainerEnv(Deployment targetDeployment, String containerName) {
     return targetDeployment.getSpec().getTemplate().getSpec().getContainers().stream()
         .filter(c -> c.getName().equals(containerName))
         .findFirst()

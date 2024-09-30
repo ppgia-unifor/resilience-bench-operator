@@ -61,7 +61,7 @@ public class EnvironmentPostStep extends AbstractEnvironmentStep {
       logger.info("deployment {} container {}. {}", deployment.get().getMetadata().getName(), containerName, textEnvs);
 
       container.setEnv(env);
-      updateDeployment(deployment.get());
+      updateVariablesDeployment(deployment.get(), containerName, env);
       waitUntilReady(deployment.get());
     } else {
       logger.warn("Deployment not found for ResilientService {}", service.getName());

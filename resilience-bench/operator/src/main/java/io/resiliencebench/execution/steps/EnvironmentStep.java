@@ -53,10 +53,11 @@ public class EnvironmentStep extends AbstractEnvironmentStep {
         .findFirst();
 
     if (deployment.isPresent()) {
-      var deploymentVars = getActualEnv(deployment.get(), containerName);
-      saveActualEnv(deploymentVars, resilientService);
+      var targetDeployment = deployment.get();
+      var containerEnvs = getActualContainerEnv(targetDeployment, containerName);
+      saveActualEnv(containerEnvs, resilientService);
 
-      for (var variable : deploymentVars) {
+      for (var variable : containerEnvs) {
         var newValue = env.get(variable.getName());
         if (newValue != null) {
           logger.info("deployment {} container {}. envVar {}={}",
@@ -68,7 +69,7 @@ public class EnvironmentStep extends AbstractEnvironmentStep {
           variable.setValue(newValue.asText());
         }
       }
-      updateDeployment(deployment.get());
+      updateVariablesDeployment(targetDeployment, containerName, containerEnvs);
     } else {
       logger.warn("Deployment not found for ResilientService {}", service.getName());
     }
