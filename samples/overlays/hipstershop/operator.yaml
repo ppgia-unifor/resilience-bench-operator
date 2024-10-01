@@ -57,7 +57,7 @@ spec:
       serviceAccountName: resiliencebench-operator
       containers:
       - name: resiliencebench-operator
-        image: ghcr.io/cmendesce/resilience-bench-operator/resiliencebench-operator:2c9b702b2e6b287d02dfd81957f23788b6d64279
+        image: ghcr.io/cmendesce/resilience-bench-operator/resiliencebench-operator:latest
         imagePullPolicy: Always
         # ports:
         # - containerPort: 8080
