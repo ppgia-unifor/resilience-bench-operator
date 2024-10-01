@@ -111,10 +111,8 @@ const errorCheckout = new Counter('custom_checkout_error');
 
 export default function () {
   index();
-  for (let i = 0; i < 3; i++) {
-    browseProduct();
-    addToCart();
-  }
+  browseProduct();
+  addToCart();
   viewCart();
   setCurrency();
   checkout();
@@ -178,20 +176,23 @@ function checkout() {
     'checkout is 200': (r) => r.status === 200,
   });
 
-  if (res.status !== 200) {
+  if (res.status === 200) {
+    const errorShipping = res.body.includes('failed to get shipping quote');
+    const errorPaymentFlag = res.body.includes('failed to charge card');
+
+    successShippingOnCheckout.add(errorShipping ? 0 : 1);
+    errorShippingOnCheckout.add(errorShipping ? 1 : 0);
+    successPayment.add(errorPayment ? 0 : 1);
+    errorPayment.add(errorPaymentFlag ? 1 : 0);
+    httpDurationCheckout.add(res.timings.duration);
+    successCheckout.add(res.status === 200 ? 1 : 0);
+    errorCheckout.add(res.status !== 200 ? 1 : 0);
+  } else {
     console.error(`Failed to checkout: ${res.status}`, res.body);
+    errorShippingOnCheckout.add(1);
+    errorPayment.add(1);
+    errorCheckout.add(1);
   }
-
-  const errorShipping = res.body.includes('failed to get shipping quote');
-  const errorPaymentFlag = res.body.includes('failed to charge card');
-
-  successShippingOnCheckout.add(errorShipping ? 0 : 1);
-  errorShippingOnCheckout.add(errorShipping ? 1 : 0);
-  successPayment.add(errorPayment ? 0 : 1);
-  errorPayment.add(errorPaymentFlag ? 1 : 0);
-  httpDurationCheckout.add(res.timings.duration);
-  successCheckout.add(res.status === 200 ? 1 : 0);
-  errorCheckout.add(res.status !== 200 ? 1 : 0);
 }
 
 function setCurrency() {
