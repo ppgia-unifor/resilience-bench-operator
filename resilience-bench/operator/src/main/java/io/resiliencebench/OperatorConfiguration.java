@@ -2,6 +2,7 @@ package io.resiliencebench;
 
 import java.util.List;
 
+import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -30,8 +31,22 @@ class OperatorConfiguration {
     return new KubernetesClientBuilder().build();
   }
 
+  @PreDestroy
+  public void closeKubernetesClient(KubernetesClient client) {
+    if (client != null) {
+      client.close();
+    }
+  }
+
   @Bean IstioClient istioClient(KubernetesClient kubernetesClient) {
     return new DefaultIstioClient(kubernetesClient);
+  }
+
+  @PreDestroy
+  public void closeIstioClient(IstioClient client) {
+    if (client != null) {
+      client.close();
+    }
   }
 
   @Bean(destroyMethod = "stop")
