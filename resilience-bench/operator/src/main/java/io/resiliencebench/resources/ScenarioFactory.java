@@ -16,6 +16,7 @@ import java.util.Map;
 
 import static io.resiliencebench.resources.ListExpansion.expandConfigTemplate;
 import static io.resiliencebench.support.Annotations.OWNED_BY;
+import static io.resiliencebench.support.JsonNodeObjects.toObject;
 import static java.util.Collections.emptyList;
 import static java.util.List.of;
 
@@ -29,34 +30,9 @@ public final class ScenarioFactory {
     Map<String, Object> resultMap = new HashMap<>();
 
     if (jsonNode != null && jsonNode.isObject()) {
-      jsonNode.fields().forEachRemaining(entry -> resultMap.put(entry.getKey(), convertJsonNode(entry.getValue())));
+      jsonNode.fields().forEachRemaining(entry -> resultMap.put(entry.getKey(), toObject(entry.getValue())));
     }
     return resultMap;
-  }
-
-  public static Object convertJsonNode(JsonNode jsonNode) {
-    if (jsonNode.isObject()) {
-      return convertJsonNodeToMap(jsonNode);
-    } else if (jsonNode.isArray()) {
-      List<Object> list = new ArrayList<>();
-      jsonNode.elements().forEachRemaining(element -> list.add(convertJsonNode(element)));
-      return list;
-    } else if (jsonNode.isTextual()) {
-      return jsonNode.textValue();
-    } else if (jsonNode.isBoolean()) {
-      return jsonNode.booleanValue();
-    } else if (jsonNode.isNumber()) {
-      if (jsonNode.isDouble() || jsonNode.isFloatingPointNumber()) {
-        return jsonNode.doubleValue();
-      } else {
-        return jsonNode.longValue();
-
-      }
-    } else if (jsonNode.isNull()) {
-      return null;
-    }
-
-    return jsonNode;
   }
 
   public static List<Service> expandService(ServiceTemplate serviceTemplate) {

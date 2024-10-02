@@ -2,6 +2,8 @@ package io.resiliencebench.resources;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import static io.resiliencebench.support.JsonNodeObjects.toObject;
 import static java.util.stream.Collectors.joining;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -56,25 +58,7 @@ public class NameValueProperties extends ArrayList<NameValueProperties.Attribute
 
     @JsonIgnore
     public Object getValueAsObject() {
-      if (getValue().isTextual()) {
-        return getValue().asText();
-      } else if (getValue().isNumber()) {
-        if (getValue().isDouble() || getValue().isFloatingPointNumber()) {
-          return getValue().doubleValue();
-        } else if (getValue().isLong()) {
-          return getValue().longValue();
-        } else {
-          return getValue().intValue();
-        }
-      } else if (getValue().isBoolean()) {
-        return getValue().asBoolean();
-      } else if (getValue().isArray()) {
-        var list = new ArrayList<>();
-        getValue().elements().forEachRemaining(list::add);
-        return list;
-      } else {
-        return getValue();
-      }
+      return toObject(value);
     }
 
     @Override

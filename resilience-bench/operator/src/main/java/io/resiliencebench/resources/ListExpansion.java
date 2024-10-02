@@ -5,8 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+
+import static io.resiliencebench.support.JsonNodeObjects.toObject;
 
 final class ListExpansion {
     public ListExpansion() {
@@ -16,53 +17,28 @@ final class ListExpansion {
     public static List<Map<String, Object>> expandConfigTemplate(NameValueProperties patternConfigs) {
         List<Map<String, Object>> resultList = new ArrayList<>();
         resultList.add(new HashMap<>());
-
         for (var config : patternConfigs) {
-            String key = config.getName();
-            JsonNode value = config.getValue();
-
+            var key = config.getName();
+            var value = config.getValue();
             if (value.isArray()) {
-                ArrayNode arrayNode = (ArrayNode) value;
+                var arrayNode = (ArrayNode) value;
                 resultList = multiplyList(resultList, key, arrayNode);
             } else {
-                for (Map<String, Object> map : resultList) {
-                    map.put(key, jsonNodeToObject(value));
-                }
+              resultList.forEach(map -> map.put(key, toObject(value)));
             }
         }
-
         return resultList;
     }
 
     private static List<Map<String, Object>> multiplyList(List<Map<String, Object>> currentList, String key, ArrayNode valueArray) {
         List<Map<String, Object>> newList = new ArrayList<>();
-
-        for (Map<String, Object> existingMap : currentList) {
-            for (JsonNode arrayItem : valueArray) {
+        for (var existingMap : currentList) {
+            for (var arrayItem : valueArray) {
                 Map<String, Object> newMap = new HashMap<>(existingMap);
-                newMap.put(key, jsonNodeToObject(arrayItem));
+                newMap.put(key, toObject(arrayItem));
                 newList.add(newMap);
             }
         }
-
         return newList;
-    }
-
-    private static Object jsonNodeToObject(JsonNode jsonNode) {
-        if (jsonNode.isTextual()) {
-            return jsonNode.asText();
-        } else if (jsonNode.isNumber()) {
-            if (jsonNode.isDouble() || jsonNode.isFloatingPointNumber()) {
-                return jsonNode.doubleValue();
-            } else if (jsonNode.isLong()) {
-                return jsonNode.longValue();
-            } else {
-                return jsonNode.intValue();
-            }
-        } else if (jsonNode.isBoolean()) {
-            return jsonNode.asBoolean();
-        } else {
-            return jsonNode;
-        }
     }
 }

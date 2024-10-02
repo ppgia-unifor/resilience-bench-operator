@@ -1,4 +1,4 @@
-package io.resiliencebench.resources;
+package io.resiliencebench.support;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
