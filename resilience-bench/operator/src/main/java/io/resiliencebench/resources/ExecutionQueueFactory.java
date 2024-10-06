@@ -1,7 +1,7 @@
 package io.resiliencebench.resources;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.resiliencebench.resources.benchmark.Benchmark;
@@ -24,9 +24,15 @@ public class ExecutionQueueFactory {
             .withName(benchmark.getMetadata().getName())
             .build();
 
-    var items = scenarios.stream().map(s -> new ExecutionQueueItem(s.getMetadata().getName()));
+    var resultsFolder = LocalDateTime.now().toString();
+    var finalResultsFile = "/%s/results.json".formatted(LocalDateTime.now().toString());
+    var itemResultsFile = "/" + resultsFolder + "/%s.json";
+
+    var items = scenarios.stream().map(s -> new ExecutionQueueItem(
+            s.getMetadata().getName(), itemResultsFile.formatted(s.getMetadata().getName()))
+    );
     var spec = new ExecutionQueueSpec(
-            "/results/%s.json".formatted(UUID.randomUUID().toString()),
+            finalResultsFile,
             items.toList(),
             benchmark.getMetadata().getNamespace()
     );

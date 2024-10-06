@@ -14,8 +14,9 @@ public class ExecutionQueueItem {
 
   private String resultFile;
 
-  public ExecutionQueueItem(String scenario) {
+  public ExecutionQueueItem(String scenario, String resultFile) {
     this.scenario = scenario;
+    this.resultFile = resultFile;
     this.status = Status.PENDING;
     this.finishedAt = "";
     this.startedAt = "";
@@ -55,15 +56,11 @@ public class ExecutionQueueItem {
     return status.equals(Status.RUNNING);
   }
 
-  public void setResultFile(String resultFile) {
-    this.resultFile = resultFile;
-  }
-
   public String getResultFile() {
     return resultFile;
   }
 
-  interface Status {
+  public interface Status {
     String PENDING = "pending";
     String RUNNING = "running";
     String FINISHED = "finished";

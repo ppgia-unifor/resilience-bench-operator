@@ -1,4 +1,4 @@
-package io.resiliencebench;
+package io.resiliencebench.config;
 
 import java.util.List;
 
@@ -23,29 +23,31 @@ import io.resiliencebench.resources.workload.Workload;
 import io.resiliencebench.support.CustomResourceRepository;
 
 @Configuration
-class OperatorConfiguration {
+public class OperatorConfiguration {
 
   private static final Logger log = LoggerFactory.getLogger(OperatorConfiguration.class);
 
-  @Bean KubernetesClient kubernetesClient() {
-    return new KubernetesClientBuilder().build();
-  }
+  private KubernetesClient kubernetesClient;
+  private IstioClient istioClient;
 
-  @PreDestroy
-  public void closeKubernetesClient(KubernetesClient client) {
-    if (client != null) {
-      client.close();
-    }
+  @Bean KubernetesClient kubernetesClient() {
+    kubernetesClient = new KubernetesClientBuilder().build();
+    return kubernetesClient;
   }
 
   @Bean IstioClient istioClient(KubernetesClient kubernetesClient) {
-    return new DefaultIstioClient(kubernetesClient);
+    istioClient = new DefaultIstioClient(kubernetesClient);
+    return istioClient;
   }
 
   @PreDestroy
-  public void closeIstioClient(IstioClient client) {
-    if (client != null) {
-      client.close();
+  public void closeClients() {
+    if (istioClient != null) {
+      istioClient.close();
+    }
+
+    if (kubernetesClient != null) {
+      kubernetesClient.close();
     }
   }
 

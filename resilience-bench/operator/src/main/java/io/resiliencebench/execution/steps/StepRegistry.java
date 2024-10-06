@@ -18,7 +18,7 @@ public class StepRegistry {
   private final List<ExecutorStep> postExecutionSteps;
 
   public StepRegistry(UpdateStatusQueueStep updateStatusQueueStep,
-                      ResultLocalFileStep resultLocalFileStep,
+                      ResultFileStep resultFileStep,
                       IstioCircuitBreakerStep istioCircuitBreakerStep,
                       IstioRetryStep istioRetryStep,
                       IstioTimeoutStep istioTimeoutStep,
@@ -37,7 +37,7 @@ public class StepRegistry {
             applicationReadinessStep);
     postExecutionSteps = of(
             updateStatusQueueStep,
-            resultLocalFileStep,
+            resultFileStep,
             environmentPostStep);
   }
 
