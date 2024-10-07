@@ -2,6 +2,8 @@ package io.resiliencebench.execution.steps;
 
 import io.resiliencebench.execution.io.FileProvider;
 import io.resiliencebench.execution.io.FileProviderFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -13,12 +15,13 @@ import io.vertx.core.json.JsonObject;
 @Service
 public class ResultFileStep extends ExecutorStep {
 
+  private final static Logger logger = LoggerFactory.getLogger(ResultFileStep.class);
+
   private final FileProvider fileProvider;
 
-  public ResultFileStep(KubernetesClient kubernetesClient, FileProviderFactory fileProviderFactory) {
+  public ResultFileStep(KubernetesClient kubernetesClient, FileProviderFactory defaultFileProviderFactory) {
     super(kubernetesClient);
-    // TODO decidir de onde vem o parâmetro useCloud
-    this.fileProvider = fileProviderFactory.getFileProvider(false);
+    this.fileProvider = defaultFileProviderFactory.create();
   }
 
   @Override
@@ -36,6 +39,8 @@ public class ResultFileStep extends ExecutorStep {
       var resultsJson = getJsonResults(executionQueue);
       resultsJson.getJsonArray("results").add(currentResultsJson);
       fileProvider.writeToFile(executionQueue.getSpec().getResultFile(), resultsJson.encode());
+    } else {
+      logger.warn("No results found for {}", executionQueueItem.getResultFile());
     }
   }
 
