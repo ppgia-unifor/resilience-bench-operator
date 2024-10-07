@@ -35,19 +35,25 @@ spec:
                       nullable: true
                       properties:
                         abort:
+                          description: The abort fault. If applied the request will
+                            be aborted with the specified status code
                           properties:
                             httpStatus:
+                              description: The HTTP status code to be returned
                               maximum: 599.0
                               minimum: 100.0
                               type: integer
                           type: object
                         delay:
+                          description: The delay fault. If applied the delay will
+                            be added to the response time
                           properties:
                             duration:
                               description: Delay duration in milliseconds
                               type: integer
                           type: object
                         percentage:
+                          description: The percentage of the fault to be applied
                           type: integer
                       type: object
                     istio:

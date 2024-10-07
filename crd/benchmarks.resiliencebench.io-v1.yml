@@ -25,14 +25,23 @@ spec:
           spec:
             properties:
               scenarios:
+                description: The set of scenarios templates to be processed and then
+                  generated as scenarios
                 items:
                   properties:
                     connectors:
+                      description: The set of connectors to be processed and then
+                        generated as scenarios
                       items:
                         properties:
                           destination:
+                            description: The destination service of the connector.
+                              This is the service that will be called by the source
+                              service.
                             properties:
                               envs:
+                                description: The set of environments to apply to the
+                                  ResilientService
                                 items:
                                   properties:
                                     name:
@@ -43,32 +52,44 @@ spec:
                                 nullable: true
                                 type: array
                               name:
+                                description: The name of the ResilientService to apply
+                                  the environments to
                                 type: string
                             type: object
                           fault:
+                            description: Specification of the failure type to be injected
+                              in the destination service.
                             nullable: true
                             properties:
                               abort:
+                                description: The abort fault. If applied the request
+                                  will be aborted with the specified status code
                                 properties:
                                   httpStatus:
+                                    description: The HTTP status code to be returned
                                     maximum: 599.0
                                     minimum: 100.0
                                     type: integer
                                 type: object
                               delay:
+                                description: The delay fault. If applied the delay
+                                  will be added to the response time
                                 properties:
                                   duration:
                                     description: Delay duration in milliseconds
                                     type: integer
                                 type: object
                               percentage:
+                                description: The percentage of the fault to be applied
                                 items:
                                   type: integer
                                 type: array
                             type: object
                           name:
+                            description: Name of the connector
                             type: string
                           pattern:
+                            description: The pattern to apply to the connector
                             nullable: true
                             properties:
                               istio:
@@ -104,8 +125,13 @@ spec:
                                 type: object
                             type: object
                           source:
+                            description: The source service of the connector. This
+                              is the service that will be calling the destination
+                              service.
                             properties:
                               envs:
+                                description: The set of environments to apply to the
+                                  ResilientService
                                 items:
                                   properties:
                                     name:
@@ -116,15 +142,19 @@ spec:
                                 nullable: true
                                 type: array
                               name:
+                                description: The name of the ResilientService to apply
+                                  the environments to
                                 type: string
                             type: object
                         type: object
                       type: array
                     name:
+                      description: The name of the scenario template
                       type: string
                   type: object
                 type: array
               workload:
+                description: The workload name to be used for the benchmark
                 type: string
             type: object
           status:
