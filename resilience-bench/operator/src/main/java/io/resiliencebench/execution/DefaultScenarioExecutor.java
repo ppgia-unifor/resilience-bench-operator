@@ -51,7 +51,8 @@ public class DefaultScenarioExecutor implements ScenarioExecutor {
             .orElseThrow(() -> new IllegalArgumentException("Workload does not exists: %s".formatted(workloadName)));
 
     executePreparationSteps(scenario, executionQueue);
-    var job = k6JobFactory.create(scenario, workload);
+    var executionQueueItem = executionQueue.getItem(scenario.getMetadata().getName());
+    var job = k6JobFactory.create(scenario, workload, executionQueueItem);
     var jobsClient = kubernetesClient.batch().v1().jobs();
     jobsClient.inNamespace(job.getMetadata().getNamespace()).withName(job.getMetadata().getName()).delete();
     jobsClient.resource(job).create();
