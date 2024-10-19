@@ -125,14 +125,22 @@ metadata:
 spec:
   options:
     - name: K6_ITERATIONS
-      value: "100"
+      value: "10"
     - name: K6_NO_THRESHOLDS
       value: "true"
+    - name: AWS_REGION
+      value: "us-east-1"
+    - name: AWS_ACCESS_KEY_ID
+      value: some-value
+    - name: AWS_SECRET_ACCESS_KEY
+      value: some-value
+    - name: BUCKET_NAME
+      value: phd-carlos-results
   script:
     configMap:
-      name: k6-config-mh4kfg456g
+      name: k6-config
       file: k6.js
-  users: [5]
+  users: [1]
 ---
 apiVersion: resiliencebench.io/v1beta1
 kind: Benchmark
@@ -148,15 +156,15 @@ spec:
             name: checkoutservice
             envs:
               - name: GRPC_MAX_ATTEMPTS
-                value: ["1", "3", "5"]
+                value: ["3", "5"]
               - name: GRPC_INITIAL_BACKOFF
-                value: ["0.4s", "0.7s", "1s"]
+                value: ["0.4s", "0.8s"]
               - name: GRPC_MAX_BACKOFF
                 value: ["15s"]
               - name: GRPC_BACKOFF_MULTIPLIER
-                value: ["1.1", "1.3", "1.5"]
+                value: ["1.1"]
           destination:
             name: paymentservice
             envs:
               - name: FAULT_PERCENTAGE
-                value: [25, 50, 75]
+                value: [50]

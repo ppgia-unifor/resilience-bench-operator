@@ -2,6 +2,17 @@ import { parseHTML } from 'k6/html';
 import { check } from 'k6';
 import http from 'k6/http';
 import { Counter, Trend } from 'k6/metrics';
+import {
+  AWSConfig,
+  S3Client,
+} from 'https://jslib.k6.io/aws/0.12.3/s3.js';
+
+const s3 = new S3Client(new AWSConfig({
+  region: "us-east-1",
+  accessKeyId: __ENV.AWS_ACCESS_KEY_ID,
+  secretAccessKey: __ENV.AWS_SECRET_ACCESS_KEY,
+}));
+
 
 const creditCard = {
   email: 'someoneelse@example.com',
@@ -16,55 +27,8 @@ const creditCard = {
   credit_card_cvv: '665',
 };
 
-function randomCurrency() {
-  const currencies = ['EUR', 'USD', 'JPY', 'CAD', 'GBP', 'TRY'];
-  return currencies[Math.floor(Math.random() * currencies.length)];
-}
-
-function randomProduct() {
-  const products = [
-    '0PUK6V6EV0',
-    '1YMWWN1N4O',
-    '2ZYFJ3GM2N',
-    '66VCHSJNUP',
-    '6E92ZMYYFZ',
-    '9SIQT8TOJO',
-    'L9ECAV7KIM',
-    'LS4PSXUNUM',
-    'OLJCESPC7Z'
-  ];
-  return products[Math.floor(Math.random() * products.length)];
-}
-
-function randomQuantity() {
-  return Math.floor(Math.random() * 10) + 1;
-}
-
-function randomCurrency() {
-  const currencies = ['EUR', 'USD', 'JPY', 'CAD', 'GBP', 'TRY'];
-  return currencies[Math.floor(Math.random() * currencies.length)];
-}
-
-function randomProduct() {
-  const products = [
-    '0PUK6V6EV0',
-    '1YMWWN1N4O',
-    '2ZYFJ3GM2N',
-    '66VCHSJNUP',
-    '6E92ZMYYFZ',
-    '9SIQT8TOJO',
-    'L9ECAV7KIM',
-    'LS4PSXUNUM',
-    'OLJCESPC7Z'
-  ];
-  return products[Math.floor(Math.random() * products.length)];
-}
-
-function randomQuantity() {
-  return Math.floor(Math.random() * 10) + 1;
-}
-
-const outputPath = `${__ENV.OUTPUT_PATH}.json`;
+const bucketName = __ENV.BUCKET_NAME;
+const outputPath = __ENV.OUTPUT_PATH;
 const HOST = __ENV.HOST || 'frontend';
 
 const httpDurationIndex = new Trend('custom_index_http_req_duration');
@@ -116,6 +80,54 @@ export default function () {
   viewCart();
   setCurrency();
   checkout();
+}
+
+function randomCurrency() {
+  const currencies = ['EUR', 'USD', 'JPY', 'CAD', 'GBP', 'TRY'];
+  return currencies[Math.floor(Math.random() * currencies.length)];
+}
+
+function randomProduct() {
+  const products = [
+    '0PUK6V6EV0',
+    '1YMWWN1N4O',
+    '2ZYFJ3GM2N',
+    '66VCHSJNUP',
+    '6E92ZMYYFZ',
+    '9SIQT8TOJO',
+    'L9ECAV7KIM',
+    'LS4PSXUNUM',
+    'OLJCESPC7Z'
+  ];
+  return products[Math.floor(Math.random() * products.length)];
+}
+
+function randomQuantity() {
+  return Math.floor(Math.random() * 10) + 1;
+}
+
+function randomCurrency() {
+  const currencies = ['EUR', 'USD', 'JPY', 'CAD', 'GBP', 'TRY'];
+  return currencies[Math.floor(Math.random() * currencies.length)];
+}
+
+function randomProduct() {
+  const products = [
+    '0PUK6V6EV0',
+    '1YMWWN1N4O',
+    '2ZYFJ3GM2N',
+    '66VCHSJNUP',
+    '6E92ZMYYFZ',
+    '9SIQT8TOJO',
+    'L9ECAV7KIM',
+    'LS4PSXUNUM',
+    'OLJCESPC7Z'
+  ];
+  return products[Math.floor(Math.random() * products.length)];
+}
+
+function randomQuantity() {
+  return Math.floor(Math.random() * 10) + 1;
 }
 
 function index() {
@@ -202,8 +214,7 @@ function setCurrency() {
   errorCurrency.add(res.status !== 200 ? 1 : 0);
 }
 
-export function handleSummary(data) {
-  const summary = {};
+export async function handleSummary(data) {
   const metrics = {};
 
   for (const [metricName, metricData] of Object.entries(data.metrics)) {
@@ -229,22 +240,6 @@ export function handleSummary(data) {
     iteration_duration: data.metrics.iteration_duration.values.med,
   });
 
-  summary[outputPath] = JSON.stringify(sortObjectKeys(metrics), null, 2);
   console.log(`checkout_success_rate=${metrics.checkout_success_rate}`);
-  return summary;
-}
-
-function sortObjectKeys(obj) {
-  if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-    return obj; // Return the value if obj is not an object or is an array
-  }
-
-  const sortedKeys = Object.keys(obj).sort();
-  const sortedObj = {};
-
-  for (let key of sortedKeys) {
-    sortedObj[key] = sortObjectKeys(obj[key]);
-  }
-
-  return sortedObj;
+  await s3.putObject(bucketName, outputPath, JSON.stringify(metrics, null, 2));
 }
