@@ -50,7 +50,7 @@ public class BenchmarkController implements Reconciler<Benchmark> {
       return UpdateControl.noUpdate();
     }
 
-    var scenariosList = ScenarioFactory.create(benchmark, workload.get());
+    var scenariosList = createScenarios(benchmark, workload.get());
     if (scenariosList.isEmpty()) {
       logger.error("No scenarios generated for benchmark {}", benchmark.getMetadata().getName());
       return UpdateControl.noUpdate();
@@ -58,19 +58,28 @@ public class BenchmarkController implements Reconciler<Benchmark> {
 
     var executionQueue = prepareToRunScenarios(benchmark, scenariosList);
 
-    queueExecutor.execute(executionQueue);
     logger.info("Benchmark reconciled {}. {} scenarios created",
             benchmark.getMetadata().getName(),
             scenariosList.size()
     );
     benchmark.setStatus(new BenchmarkStatus(scenariosList.size()));
+    queueExecutor.execute(executionQueue);
     return UpdateControl.updateStatus(benchmark);
   }
 
+  private List<Scenario> createScenarios(Benchmark benchmark, Workload workload) {
+    scenarioRepository.deleteAll(benchmark.getMetadata().getNamespace()); // TODO we don't support (yet) multiple reconciles loops
+
+    var scenariosList = ScenarioFactory.create(benchmark, workload);
+    scenariosList.forEach(scenarioRepository::create);
+    return scenariosList;
+  }
+
   private ExecutionQueue prepareToRunScenarios(Benchmark benchmark, List<Scenario> scenariosList) {
-    queueRepository.deleteAll(benchmark.getMetadata().getNamespace());
     scenarioRepository.deleteAll(benchmark.getMetadata().getNamespace());
     scenariosList.forEach(scenarioRepository::create);
+
+    queueRepository.deleteAll(benchmark.getMetadata().getNamespace());
     var queueCreated = ExecutionQueueFactory.create(benchmark, scenariosList);
     return queueRepository.create(queueCreated);
   }

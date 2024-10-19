@@ -19,9 +19,9 @@ public class ResultFileStep extends ExecutorStep {
 
   private final FileProvider fileProvider;
 
-  public ResultFileStep(KubernetesClient kubernetesClient, FileProviderFactory defaultFileProviderFactory) {
+  public ResultFileStep(KubernetesClient kubernetesClient, FileProviderFactory fileProviderFactory) {
     super(kubernetesClient);
-    this.fileProvider = defaultFileProviderFactory.create();
+    this.fileProvider = fileProviderFactory.create();
   }
 
   @Override
