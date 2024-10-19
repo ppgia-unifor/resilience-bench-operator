@@ -1,6 +1,7 @@
 package io.resiliencebench.resources;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
@@ -24,9 +25,9 @@ public class ExecutionQueueFactory {
             .withName(benchmark.getMetadata().getName())
             .build();
 
-    var resultsFolder = LocalDateTime.now().toString();
-    var finalResultsFile = "/%s/results.json".formatted(LocalDateTime.now().toString());
-    var itemResultsFile = "/" + resultsFolder + "/%s.json";
+    var resultsFolder = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+    var finalResultsFile = "%s/results.json".formatted(LocalDateTime.now().toString());
+    var itemResultsFile = resultsFolder + "/%s.json";
 
     var items = scenarios.stream().map(s -> new ExecutionQueueItem(
             s.getMetadata().getName(), itemResultsFile.formatted(s.getMetadata().getName()))

@@ -1,5 +1,6 @@
 package io.resiliencebench.execution.io;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -14,8 +15,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
@@ -35,7 +36,7 @@ public class S3FileProvider implements FileProvider {
   @Override
   public void writeToFile(String resultFile, String content) {
     try {
-      byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8);
+      var contentBytes = content.getBytes(UTF_8);
       InputStream inputStream = new ByteArrayInputStream(contentBytes);
       var metadata = new ObjectMetadata();
       metadata.setContentLength(contentBytes.length);
@@ -51,9 +52,15 @@ public class S3FileProvider implements FileProvider {
   public Optional<String> getFileAsString(String resultFile) {
     try {
       InputStream inputStream = s3Client.getObject(new GetObjectRequest(bucketName, resultFile)).getObjectContent();
-      String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+      var content = new String(inputStream.readAllBytes(), UTF_8);
       return of(content);
-    } catch (Exception e) {
+    } catch (AmazonServiceException e) {
+      if (e.getErrorCode().equals("NoSuchKey")) {
+        logger.info("File {} not found in bucket {}.", resultFile, bucketName);
+      }
+      return empty();
+    }
+    catch (Exception e) {
       logger.warn("Error reading file {}. {}", resultFile, e.getMessage());
       return empty();
     }
