@@ -30,8 +30,10 @@ public class DefaultFileProviderFactory implements FileProviderFactory {
     var storageType = ofNullable(env.getProperty("STORAGE_TYPE"));
     if (storageType.isPresent()) {
       if ("CLOUD".equalsIgnoreCase(storageType.get())) {
+        logger.info("Using S3 storage");
         return s3FileProvider;
       } else {
+        logger.info("Using local storage");
         return localFileProvider;
       }
     } else {
