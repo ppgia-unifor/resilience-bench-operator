@@ -26,15 +26,14 @@ public class ExecutionQueueFactory {
             .withName(benchmark.getMetadata().getName())
             .build();
 
-    var now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
-    var finalResultsFile = Paths.get(now,  "results.json").toString();
+    var now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss"));
     var itemResultsFile = Paths.get(now, "%s.json").toString();
 
     var items = scenarios.stream().map(s -> new ExecutionQueueItem(
             s.getMetadata().getName(), itemResultsFile.formatted(s.getMetadata().getName()))
     );
     var spec = new ExecutionQueueSpec(
-            finalResultsFile,
+            Paths.get(now,  "results.json").toString(),
             items.toList(),
             benchmark.getMetadata().getNamespace()
     );

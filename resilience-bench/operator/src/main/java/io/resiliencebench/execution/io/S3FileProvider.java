@@ -2,7 +2,6 @@ package io.resiliencebench.execution.io;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +42,8 @@ public class S3FileProvider implements FileProvider {
       var putObjectRequest = new PutObjectRequest(bucketName, resultFile, inputStream, metadata);
       s3Client.putObject(putObjectRequest);
       logger.info("File {} uploaded to bucket {}.", resultFile, bucketName);
+    } catch (AmazonServiceException e) {
+      logger.warn("Error writing file {}. Error code: {}. Message: {}", resultFile, e.getErrorCode(), e.getErrorMessage());
     } catch (Exception e) {
       logger.warn("Error writing file {}. {}", resultFile, e.getMessage());
     }
@@ -51,13 +52,14 @@ public class S3FileProvider implements FileProvider {
   @Override
   public Optional<String> getFileAsString(String resultFile) {
     try {
-      InputStream inputStream = s3Client.getObject(new GetObjectRequest(bucketName, resultFile)).getObjectContent();
-      var content = new String(inputStream.readAllBytes(), UTF_8);
+      var content = s3Client.getObjectAsString(bucketName, resultFile);
+      if (content == null) {
+        logger.warn("File {} not found in bucket {}.", resultFile, bucketName);
+        return empty();
+      }
       return of(content);
     } catch (AmazonServiceException e) {
-      if (e.getErrorCode().equals("NoSuchKey")) {
-        logger.info("File {} not found in bucket {}.", resultFile, bucketName);
-      }
+      logger.warn("Error reading file {}. Error code: {}. Message: {}", resultFile, e.getErrorCode(), e.getErrorMessage());
       return empty();
     }
     catch (Exception e) {
