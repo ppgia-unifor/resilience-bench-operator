@@ -1,13 +1,19 @@
 package io.resiliencebench.resources.queue;
 
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+
 import java.util.List;
 
 public class ExecutionQueueSpec {
 
+  @JsonPropertyDescription("The path of the file with the result's compilation. Automatically created.")
   private String resultFile;
 
-  private List<ExecutionQueueItem> items;
+  @JsonPropertyDescription("The name of the benchmark it belongs to.")
   private String benchmark;
+
+  @JsonPropertyDescription("The list of items to execute.")
+  private List<ExecutionQueueItem> items;
 
   public ExecutionQueueSpec() {
   }

@@ -2,16 +2,21 @@ package io.resiliencebench.resources.queue;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 
 public class ExecutionQueueItem {
 
+  @JsonPropertyDescription("The name of the scenario it belongs to.")
   @JsonProperty(required = true)
   private String scenario;
+  @JsonPropertyDescription("The status of the execution. Can be 'pending', 'running' or 'finished'. Automatically managed.")
   @JsonProperty(required = true)
   private String status;
+  @JsonPropertyDescription("The time when the execution started.")
   private String startedAt;
+  @JsonPropertyDescription("The time when the execution finished.")
   private String finishedAt;
-
+  @JsonPropertyDescription("The path of the file with the item's results. Automatically created.")
   private String resultFile;
 
   public ExecutionQueueItem(String scenario, String resultFile) {
