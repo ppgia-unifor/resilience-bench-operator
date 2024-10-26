@@ -27,8 +27,8 @@ Represents the configuration used for the test results.
 
 | Name                        | Type           | Description                                                                                   |
 |-----------------------------|----------------|-----------------------------------------------------------------------------------------------|
-| FAULT_PERCENTAGE            | Integer        | Specifies the percentage of faults to introduce in the service for resilience testing.        |
+| FAULT_PERCENTAGE            | Integer        | Specifies the percentage of faults introduced in the service.    |
 | GRPC_BACKOFF_MULTIPLIER     | Integer        | Sets the backoff multiplier for gRPC retry behavior.                                          |
 | GRPC_INITIAL_BACKOFF        | Integer        | Defines the initial backoff duration for gRPC retries.                                        |
 | GRPC_MAX_ATTEMPTS           | Integer        | Specifies the maximum number of retry attempts for gRPC calls.                                |
-| GRPC_MAX_BACKOFF            | Integer        | Sets the maximum backoff time for gRPC retries.                                               |
+| GRPC_MAX_BACKOFF            | Integer        | Sets the ceiling value for all retries.                                               |
