@@ -47,9 +47,6 @@ const errorShippingOnCheckout = new Counter('custom_shipping_checkout_error');
 const successShippingOnCart = new Counter('custom_shipping_cart_success');
 const errorShippingOnCart = new Counter('custom_shipping_cart_error');
 
-// const successPaymentOnCart = new Counter('custom_payment_cart_success');
-// const errorPaymentOnCart = new Counter('custom_payment_cart_error');
-
 const successRecommendations = new Counter('custom_recommendations_success');
 const errorRecommendations = new Counter('custom_recommendations_error');
 
@@ -72,6 +69,8 @@ const errorCurrency = new Counter('custom_currency_error');
 const httpDurationCheckout = new Trend('custom_checkout_http_req_duration');
 const successCheckout = new Counter('custom_checkout_success');
 const errorCheckout = new Counter('custom_checkout_error');
+
+const httpReqTotalDuration = new Trend('custom_http_req_total_duration');
 
 export default function () {
   index();
@@ -106,32 +105,10 @@ function randomQuantity() {
   return Math.floor(Math.random() * 10) + 1;
 }
 
-function randomCurrency() {
-  const currencies = ['EUR', 'USD', 'JPY', 'CAD', 'GBP', 'TRY'];
-  return currencies[Math.floor(Math.random() * currencies.length)];
-}
-
-function randomProduct() {
-  const products = [
-    '0PUK6V6EV0',
-    '1YMWWN1N4O',
-    '2ZYFJ3GM2N',
-    '66VCHSJNUP',
-    '6E92ZMYYFZ',
-    '9SIQT8TOJO',
-    'L9ECAV7KIM',
-    'LS4PSXUNUM',
-    'OLJCESPC7Z'
-  ];
-  return products[Math.floor(Math.random() * products.length)];
-}
-
-function randomQuantity() {
-  return Math.floor(Math.random() * 10) + 1;
-}
 
 function index() {
   const res = http.get(`http://${HOST}/`);
+  httpReqTotalDuration.add(res.timings.duration);
   const successfulIndex = res.status === 200 ? 1 : 0;
   httpDurationIndex.add(res.timings.duration);
   successIndex.add(successfulIndex ? 1 : 0);
@@ -140,6 +117,7 @@ function index() {
 
 function browseProduct() {
   const res = http.get(`http://${HOST}/product/${randomProduct()}`);
+  httpReqTotalDuration.add(res.timings.duration);
   const body = parseHTML(res.body);
 
   const ad = body.find('body > main > div.ad > div > div > strong');
@@ -160,6 +138,7 @@ function browseProduct() {
 function addToCart() {
   const body = { product_id: randomProduct(), quantity: randomQuantity() };
   const res = http.post(`http://${HOST}/cart`, body);
+  httpReqTotalDuration.add(res.timings.duration);
 
   const errorShipping = res.body.includes('failed to get shipping quote');
   successShippingOnCart.add(errorShipping ? 0 : 1);
@@ -172,6 +151,7 @@ function addToCart() {
 
 function viewCart() {
   const res = http.get(`http://${HOST}/cart`);
+  httpReqTotalDuration.add(res.timings.duration);
 
   const errorShipping = res.body.includes('failed to get shipping quote');
 
@@ -182,8 +162,17 @@ function viewCart() {
   errorViewCart.add(res.status !== 200 ? 1 : 0);
 }
 
+function setCurrency() {
+  const res = http.post(`http://${HOST}/setCurrency`, { currency_code: randomCurrency() });
+  httpReqTotalDuration.add(res.timings.duration);
+  httpDurationCurrency.add(res.timings.duration);
+  successCurrency.add(res.status === 200 ? 1 : 0);
+  errorCurrency.add(res.status !== 200 ? 1 : 0);
+}
+
 function checkout() {
   const res = http.post(`http://${HOST}/cart/checkout`, creditCard);
+  httpReqTotalDuration.add(res.timings.duration);
   check(res, {
     'checkout is 200': (r) => r.status === 200,
   });
@@ -204,14 +193,8 @@ function checkout() {
     errorShippingOnCheckout.add(1);
     errorPayment.add(1);
     errorCheckout.add(1);
+    httpReqTotalDuration = new Trend('custom_http_req_total_duration');
   }
-}
-
-function setCurrency() {
-  const res = http.post(`http://${HOST}/setCurrency`, { currency_code: randomCurrency() });
-  httpDurationCurrency.add(res.timings.duration);
-  successCurrency.add(res.status === 200 ? 1 : 0);
-  errorCurrency.add(res.status !== 200 ? 1 : 0);
 }
 
 export async function handleSummary(data) {
