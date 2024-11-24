@@ -71,6 +71,8 @@ const successCheckout = new Counter('custom_checkout_success');
 const errorCheckout = new Counter('custom_checkout_error');
 
 const httpReqTotalDuration = new Trend('custom_http_req_total_duration');
+let httpReqTotalDurationValue = 0;
+
 
 export default function () {
   index();
@@ -108,7 +110,7 @@ function randomQuantity() {
 
 function index() {
   const res = http.get(`http://${HOST}/`);
-  httpReqTotalDuration.add(res.timings.duration);
+  httpReqTotalDurationValue += res.timings.duration;
   const successfulIndex = res.status === 200 ? 1 : 0;
   httpDurationIndex.add(res.timings.duration);
   successIndex.add(successfulIndex ? 1 : 0);
@@ -117,7 +119,7 @@ function index() {
 
 function browseProduct() {
   const res = http.get(`http://${HOST}/product/${randomProduct()}`);
-  httpReqTotalDuration.add(res.timings.duration);
+  httpReqTotalDurationValue += res.timings.duration;
   const body = parseHTML(res.body);
 
   const ad = body.find('body > main > div.ad > div > div > strong');
@@ -138,7 +140,7 @@ function browseProduct() {
 function addToCart() {
   const body = { product_id: randomProduct(), quantity: randomQuantity() };
   const res = http.post(`http://${HOST}/cart`, body);
-  httpReqTotalDuration.add(res.timings.duration);
+  httpReqTotalDurationValue += res.timings.duration;
 
   const errorShipping = res.body.includes('failed to get shipping quote');
   successShippingOnCart.add(errorShipping ? 0 : 1);
@@ -151,7 +153,7 @@ function addToCart() {
 
 function viewCart() {
   const res = http.get(`http://${HOST}/cart`);
-  httpReqTotalDuration.add(res.timings.duration);
+  httpReqTotalDurationValue += res.timings.duration;
 
   const errorShipping = res.body.includes('failed to get shipping quote');
 
@@ -164,7 +166,7 @@ function viewCart() {
 
 function setCurrency() {
   const res = http.post(`http://${HOST}/setCurrency`, { currency_code: randomCurrency() });
-  httpReqTotalDuration.add(res.timings.duration);
+  httpReqTotalDurationValue += res.timings.duration;
   httpDurationCurrency.add(res.timings.duration);
   successCurrency.add(res.status === 200 ? 1 : 0);
   errorCurrency.add(res.status !== 200 ? 1 : 0);
@@ -172,7 +174,7 @@ function setCurrency() {
 
 function checkout() {
   const res = http.post(`http://${HOST}/cart/checkout`, creditCard);
-  httpReqTotalDuration.add(res.timings.duration);
+  httpReqTotalDurationValue += res.timings.duration;
   check(res, {
     'checkout is 200': (r) => r.status === 200,
   });
@@ -188,12 +190,12 @@ function checkout() {
     httpDurationCheckout.add(res.timings.duration);
     successCheckout.add(res.status === 200 ? 1 : 0);
     errorCheckout.add(res.status !== 200 ? 1 : 0);
+    httpReqTotalDuration.add(httpReqTotalDurationValue);
   } else {
     console.error(`Failed to checkout: ${res.status}`, res.body);
     errorShippingOnCheckout.add(1);
     errorPayment.add(1);
     errorCheckout.add(1);
-    httpReqTotalDuration = new Trend('custom_http_req_total_duration');
   }
 }
 
