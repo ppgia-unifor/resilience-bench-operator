@@ -193,6 +193,7 @@ function checkout() {
     httpReqTotalDuration.add(httpReqTotalDurationValue);
   } else {
     console.error(`Failed to checkout: ${res.status}`, res.body);
+    httpReqTotalDuration.add(0);
     errorShippingOnCheckout.add(1);
     errorPayment.add(1);
     errorCheckout.add(1);
