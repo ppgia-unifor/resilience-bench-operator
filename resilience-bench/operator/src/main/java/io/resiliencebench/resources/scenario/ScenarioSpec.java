@@ -37,8 +37,8 @@ public class ScenarioSpec {
     return connectors;
   }
 
-  public JsonObject toConnectorsInJson() {
-    var json = new JsonObject();
+  public JsonArray toConnectorsInJson() {
+    JsonArray json = new JsonArray();
     for (var connector : connectors) {
       var connectorJson = new JsonObject()
               .put("name", connector.getName())
@@ -51,7 +51,7 @@ public class ScenarioSpec {
       if (connector.getIstio() != null) {
         connectorJson.put("istio", connector.getIstio().toJson());
       }
-      json.getJsonArray("connectors").add(connectorJson);
+      json.add(connectorJson);
     }
     return json;
   }

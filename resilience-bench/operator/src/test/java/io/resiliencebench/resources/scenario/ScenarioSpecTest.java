@@ -3,41 +3,28 @@ package io.resiliencebench.resources.scenario;
 import io.resiliencebench.resources.fault.DelayFault;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
+import java.util.List;
 
-import static java.util.List.of;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ScenarioSpecTest {
 
   @Test
-  void testToJson() {
-//    var source = new Source("api-gateway", Map.of("backoffLimit", 100, "maxAttempts", 1));
-//    var delay = new DelayFault(1000);
-//    var fault = new Fault(10, delay);
-//    var target = new Target("service-x", fault);
-//    var connector = new Connector("connector-1", source, target);
-//
-//    var scenarioSpec = new ScenarioSpec(
-//            "scenario-1",
-//            new ScenarioWorkload("workload", 100),
-//            of(connector)
-//    );
-//
-//    var actual = scenarioSpec.toJson();
-//    assertEquals("scenario-1", actual.getString("scenario"));
-//    assertEquals(100, actual.getJsonObject("workload").getInteger("users"));
-//    assertEquals("workload", actual.getJsonObject("workload").getString("workloadName"));
-//
-//    var connectorObject = actual.getJsonArray("connectors").getJsonObject(0);
-//    assertEquals("connector-1", connectorObject.getString("name"));
-//
-//    var sourceJson = connectorObject.getJsonObject("source");
-//    assertEquals("api-gateway", sourceJson.getString("serviceName"));
-//    assertEquals(100, sourceJson.getJsonObject("patternConfig").getInteger("backoffLimit"));
-//
-//    var targetJson = connectorObject.getJsonObject("target");
-//    assertEquals("service-x", targetJson.getString("serviceName"));
-//    assertEquals(1000, targetJson.getJsonObject("fault").getJsonObject("delay").getInteger("duration"));
+  void testToConnectorsInJson_withEmptyConnectors() {
+    var scenarioSpec = new ScenarioSpec("Test Scenario", null, List.of());
+    var result = scenarioSpec.toConnectorsInJson();
+    assertEquals(0, result.size(), "JsonArray should be empty when there are no connectors.");
+  }
+
+  @Test
+  void testToConnectorsInJson_withOneConnector() {
+    var connector = new Connector.Builder()
+            .source(new Service("Test Source"))
+            .destination(new Service("Test Destination"))
+            .fault(new Fault(100, new DelayFault(10)))
+            .name("Test Connector").build();
+    var scenarioSpec = new ScenarioSpec("Test Scenario", null, List.of(connector));
+    var result = scenarioSpec.toConnectorsInJson();
+    assertEquals(1, result.size(), "JsonArray should have one element when there is one connector.");
   }
 }
