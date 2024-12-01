@@ -29,7 +29,8 @@ public class UpdateStatusQueueStep extends ExecutorStep {
   @Override
   public void internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
     var namespace = scenario.getMetadata().getNamespace();
-    var queueItem = executionQueue.getItem(scenario.getMetadata().getName());
+    var queue = executionRepository.get(namespace, executionQueue.getMetadata().getName());
+    var queueItem = queue.getItem(scenario.getMetadata().getName());
     var now = LocalDateTime.now().atZone(of("UTC")).toString();
     if (queueItem.isRunning()) {
       queueItem.setStatus(FINISHED);
@@ -38,7 +39,7 @@ public class UpdateStatusQueueStep extends ExecutorStep {
       queueItem.setStatus(RUNNING);
       queueItem.setStartedAt(now);
     }
-    executionQueue.getMetadata().setNamespace(namespace); // TODO verificar pq é necessário passar o namespace
-    executionRepository.update(executionQueue);
+    queue.getMetadata().setNamespace(namespace);
+    executionRepository.update(queue);
   }
 }
