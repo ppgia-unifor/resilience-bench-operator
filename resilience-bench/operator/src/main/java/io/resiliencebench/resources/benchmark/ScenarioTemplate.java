@@ -12,6 +12,9 @@ public class ScenarioTemplate {
   @JsonPropertyDescription("The set of connectors to be processed and then generated as scenarios")
   private List<ConnectorTemplate> connectors = new ArrayList<>();
 
+  @JsonPropertyDescription("The fault to be applied to the services mentioned in the scenario")
+  private ScenarioFaultTemplate fault;
+
   public ScenarioTemplate() {
   }
 
@@ -20,11 +23,21 @@ public class ScenarioTemplate {
     this.connectors = connectors;
   }
 
+  public ScenarioTemplate(String name, List<ConnectorTemplate> connectors, ScenarioFaultTemplate fault) {
+    this.name = name;
+    this.connectors = connectors;
+    this.fault = fault;
+  }
+
   public List<ConnectorTemplate> getConnectors() {
     return connectors;
   }
 
   public String getName() {
     return name;
+  }
+
+  public ScenarioFaultTemplate getFault() {
+    return fault;
   }
 }

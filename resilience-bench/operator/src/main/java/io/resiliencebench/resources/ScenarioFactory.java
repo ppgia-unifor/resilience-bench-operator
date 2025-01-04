@@ -1,6 +1,5 @@
 package io.resiliencebench.resources;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.resiliencebench.resources.benchmark.Benchmark;
@@ -9,14 +8,10 @@ import io.resiliencebench.resources.benchmark.ServiceTemplate;
 import io.resiliencebench.resources.scenario.*;
 import io.resiliencebench.resources.workload.Workload;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static io.resiliencebench.resources.ListExpansion.expandConfigTemplate;
 import static io.resiliencebench.support.Annotations.OWNED_BY;
-import static io.resiliencebench.support.JsonNodeObjects.toObject;
 import static java.util.Collections.emptyList;
 import static java.util.List.of;
 
@@ -24,15 +19,6 @@ public final class ScenarioFactory {
 
   public ScenarioFactory() {
     throw new IllegalStateException("Utility class");
-  }
-
-  private static Map<String, Object> convertJsonNodeToMap(JsonNode jsonNode) {
-    Map<String, Object> resultMap = new HashMap<>();
-
-    if (jsonNode != null && jsonNode.isObject()) {
-      jsonNode.fields().forEachRemaining(entry -> resultMap.put(entry.getKey(), toObject(entry.getValue())));
-    }
-    return resultMap;
   }
 
   public static List<Service> expandService(ServiceTemplate serviceTemplate) {
@@ -141,18 +127,31 @@ public final class ScenarioFactory {
       var workloadUsers = workload.getSpec().getUsers();
       var workloadName = workload.getMetadata().getName();
 
+      var faultPercentages = List.<Integer>of();
+
+      if (scenarioTemplate.getFault() != null) {
+        faultPercentages = scenarioTemplate.getFault().getPercentages();
+      }
+
       for (var workloadUser : workloadUsers) {
         for (int i = 0; i < expandedConnectorsCombined.size(); i++) {
-          var scenarioName = generateScenarioName(scenarioTemplate.getName() + "-" + workloadUser + "vu", i+1);
-          var connectors = expandedConnectorsCombined.get(i);
-          var spec = new ScenarioSpec(
-                  scenarioName,
-                  new ScenarioWorkload(workloadName, workloadUser),
-                  connectors);
-          var scenario = new Scenario();
-          scenario.setSpec(spec);
-          scenario.setMetadata(createMeta(scenarioName, benchmark));
-          executions.add(scenario);
+          for (int j = 0; j < Math.max(1, faultPercentages.size()); j++) {
+            var scenarioName = generateScenarioName(scenarioTemplate.getName() + "-" + workloadUser + "vu", i + 1);
+            var connectors = expandedConnectorsCombined.get(i);
+            ScenarioFault scenarioFault = null;
+            if (scenarioTemplate.getFault() != null) {
+              scenarioFault =
+                      new ScenarioFault(scenarioTemplate.getFault().getProvider(), faultPercentages.get(j), scenarioTemplate.getFault().getServices());
+            }
+            var spec = new ScenarioSpec(
+                    scenarioName,
+                    new ScenarioWorkload(workloadName, workloadUser),
+                    connectors, scenarioFault);
+            var scenario = new Scenario();
+            scenario.setSpec(spec);
+            scenario.setMetadata(createMeta(scenarioName, benchmark));
+            executions.add(scenario);
+          }
         }
       }
     }

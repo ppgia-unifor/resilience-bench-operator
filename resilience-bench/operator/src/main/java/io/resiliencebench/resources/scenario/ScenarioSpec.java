@@ -1,5 +1,6 @@
 package io.resiliencebench.resources.scenario;
 
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -10,11 +11,16 @@ import static io.vertx.core.json.JsonObject.mapFrom;
 
 public class ScenarioSpec {
 
+  @JsonPropertyDescription("The workload to be used in the scenario")
   private ScenarioWorkload workload;
 
+  @JsonPropertyDescription("The name of the scenario")
   private String scenario;
 
+  @JsonPropertyDescription("The set of connectors to be configured while running the scenario")
   private List<Connector> connectors = new ArrayList<>();
+
+  private ScenarioFault fault;
 
   public ScenarioSpec() {
   }
@@ -23,6 +29,11 @@ public class ScenarioSpec {
     this.workload = workload;
     this.scenario = scenario;
     this.connectors = connectors;
+  }
+
+  public ScenarioSpec(String scenario, ScenarioWorkload workload, List<Connector> connectors, ScenarioFault fault) {
+    this(scenario, workload, connectors);
+    this.fault = fault;
   }
 
   public ScenarioWorkload getWorkload() {
@@ -35,6 +46,10 @@ public class ScenarioSpec {
 
   public List<Connector> getConnectors() {
     return connectors;
+  }
+
+  public ScenarioFault getFault() {
+    return fault;
   }
 
   public JsonArray toConnectorsInJson() {
