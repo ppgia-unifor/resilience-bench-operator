@@ -8,9 +8,11 @@ import io.resiliencebench.resources.service.ResilientService;
 import io.resiliencebench.support.CustomResourceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import static io.resiliencebench.support.Annotations.CONTAINER;
 
+@Service
 public class ScenarioFaultStep extends EnvironmentStep {
 
   private final static Logger logger = LoggerFactory.getLogger(ScenarioFaultStep.class);
