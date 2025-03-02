@@ -136,17 +136,24 @@ public final class ScenarioFactory {
       for (var workloadUser : workloadUsers) {
         for (int i = 0; i < expandedConnectorsCombined.size(); i++) {
           for (int j = 0; j < Math.max(1, faultPercentages.size()); j++) {
-            var scenarioName = generateScenarioName(scenarioTemplate.getName() + "-" + workloadUser + "vu", i + 1);
             var connectors = expandedConnectorsCombined.get(i);
+            var scenarioNameBuilder = new StringBuilder();
+            scenarioNameBuilder.append(scenarioTemplate.getName()).append("-").append(workloadUser).append("vu");
             ScenarioFault scenarioFault = null;
             if (scenarioTemplate.getFault() != null) {
-              scenarioFault =
-                      new ScenarioFault(scenarioTemplate.getFault().getProvider(), faultPercentages.get(j), scenarioTemplate.getFault().getServices());
+              scenarioFault = new ScenarioFault(
+                      scenarioTemplate.getFault().getProvider(),
+                      faultPercentages.get(j),
+                      scenarioTemplate.getFault().getServices()
+              );
+              scenarioNameBuilder.append("-").append(faultPercentages.get(j)).append("f");
             }
+            var scenarioName = generateScenarioName(scenarioNameBuilder.toString(), i + 1);
             var spec = new ScenarioSpec(
                     scenarioName,
                     new ScenarioWorkload(workloadName, workloadUser),
-                    connectors, scenarioFault);
+                    connectors,
+                    scenarioFault);
             var scenario = new Scenario();
             scenario.setSpec(spec);
             scenario.setMetadata(createMeta(scenarioName, benchmark));
