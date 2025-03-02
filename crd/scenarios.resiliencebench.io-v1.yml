@@ -20,6 +20,8 @@ spec:
           spec:
             properties:
               connectors:
+                description: The set of connectors to be configured while running
+                  the scenario
                 items:
                   properties:
                     destination:
@@ -85,9 +87,22 @@ spec:
                       type: object
                   type: object
                 type: array
+              fault:
+                properties:
+                  percentage:
+                    type: integer
+                  provider:
+                    type: string
+                  services:
+                    items:
+                      type: string
+                    type: array
+                type: object
               scenario:
+                description: The name of the scenario
                 type: string
               workload:
+                description: The workload to be used in the scenario
                 properties:
                   users:
                     type: integer

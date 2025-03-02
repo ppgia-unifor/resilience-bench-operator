@@ -20,23 +20,34 @@ spec:
           spec:
             properties:
               benchmark:
+                description: The name of the benchmark it belongs to.
                 type: string
               items:
+                description: The list of items to execute.
                 items:
                   properties:
                     finishedAt:
+                      description: The time when the execution finished.
                       type: string
                     resultFile:
+                      description: The path of the file with the item's results. Automatically
+                        created.
                       type: string
                     scenario:
+                      description: The name of the scenario it belongs to.
                       type: string
                     startedAt:
+                      description: The time when the execution started.
                       type: string
                     status:
+                      description: "The status of the execution. Can be 'pending',\
+                        \ 'running' or 'finished'. Automatically managed."
                       type: string
                   type: object
                 type: array
               resultFile:
+                description: The path of the file with the result's compilation. Automatically
+                  created.
                 type: string
             type: object
           status:

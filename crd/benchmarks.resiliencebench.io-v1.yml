@@ -148,6 +148,21 @@ spec:
                             type: object
                         type: object
                       type: array
+                    fault:
+                      description: The fault to be applied to the services mentioned
+                        in the scenario
+                      properties:
+                        percentages:
+                          items:
+                            type: integer
+                          type: array
+                        provider:
+                          type: string
+                        services:
+                          items:
+                            type: string
+                          type: array
+                      type: object
                     name:
                       description: The name of the scenario template
                       type: string
