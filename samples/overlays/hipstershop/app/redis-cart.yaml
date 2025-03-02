@@ -43,11 +43,11 @@ spec:
           name: redis-data
         resources:
           limits:
-            memory: 256Mi
-            cpu: 125m
+            memory: 1Gi
+            cpu: "1"
           requests:
-            cpu: 70m
-            memory: 200Mi
+            cpu: "1"
+            memory: 1Gi
       volumes:
       - name: redis-data
         emptyDir: {}
