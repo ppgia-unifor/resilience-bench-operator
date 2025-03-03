@@ -192,7 +192,7 @@ function checkout() {
     errorCheckout.add(res.status !== 200 ? 1 : 0);
     httpReqTotalDuration.add(httpReqTotalDurationValue);
   } else {
-    console.error(`Failed to checkout: ${res.status}`, res.body);
+    console.error(`Failed to checkout: ${res.status}`);
     httpReqTotalDuration.add(0);
     errorShippingOnCheckout.add(1);
     errorPayment.add(1);
