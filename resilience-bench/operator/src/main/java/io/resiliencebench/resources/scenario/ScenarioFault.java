@@ -1,6 +1,7 @@
 package io.resiliencebench.resources.scenario;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,5 +33,13 @@ public class ScenarioFault {
 
   public List<String> getServices() {
     return services;
+  }
+
+  public String toJson() {
+    var object = new JsonObject();
+    object.put("provider", provider);
+    object.put("percentage", percentage);
+    object.put("services", services);
+    return object.encode();
   }
 }
