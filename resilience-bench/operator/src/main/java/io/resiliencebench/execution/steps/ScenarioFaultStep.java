@@ -54,7 +54,9 @@ public class ScenarioFaultStep extends EnvironmentStep {
     if (deployment.isPresent()) {
       var targetDeployment = deployment.get();
       var containerEnvs = getActualContainerEnv(targetDeployment, containerName);
-      containerEnvs.stream().filter(env -> env.getName().equals("FAULT_PERCENTAGE")).forEach(containerEnvs::remove);
+      if (containerEnvs != null && !containerEnvs.isEmpty()) {
+        containerEnvs.stream().filter(env -> env != null && "FAULT_PERCENTAGE".equals(env.getName())).forEach(containerEnvs::remove);
+      }
       containerEnvs.add(
               new EnvVar("FAULT_PERCENTAGE", String.valueOf(scenario.getSpec().getFault().getPercentage()), null)
       );
