@@ -35,6 +35,7 @@ public class StepRegistry {
             istioTimeoutStep,
             istioFaultStep,
             environmentStep,
+            applicationReadinessStep,
             scenarioFaultStep,
             applicationReadinessStep);
     postExecutionSteps = of(

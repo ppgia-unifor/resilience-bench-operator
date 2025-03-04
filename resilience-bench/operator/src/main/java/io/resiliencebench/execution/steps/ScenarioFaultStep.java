@@ -39,8 +39,6 @@ public class ScenarioFaultStep extends EnvironmentStep {
   }
 
   public void applyServiceFault(Scenario scenario, ResilientService resilientService) {
-    var containerName = resilientService.getMetadata().getAnnotations().get(CONTAINER);
-
     var deployment = kubernetesClient()
             .apps()
             .deployments()
@@ -53,10 +51,9 @@ public class ScenarioFaultStep extends EnvironmentStep {
 
     if (deployment.isPresent()) {
       var targetDeployment = deployment.get();
+      var containerName = resilientService.getMetadata().getAnnotations().get(CONTAINER);
       var containerEnvs = getActualContainerEnv(targetDeployment, containerName);
-      if (containerEnvs != null && !containerEnvs.isEmpty()) {
-        containerEnvs.stream().filter(env -> env != null && "FAULT_PERCENTAGE".equals(env.getName())).forEach(containerEnvs::remove);
-      }
+      containerEnvs.removeIf(env -> env != null && "FAULT_PERCENTAGE".equals(env.getName()));
       containerEnvs.add(
               new EnvVar("FAULT_PERCENTAGE", String.valueOf(scenario.getSpec().getFault().getPercentage()), null)
       );
