@@ -1,6 +1,9 @@
 package io.resiliencebench.execution.steps;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.github.resilience4j.retry.Retry;
+import io.github.resilience4j.retry.RetryConfig;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
 import io.resiliencebench.support.CustomResourceRepository;
@@ -9,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 import static io.resiliencebench.resources.queue.ExecutionQueueItem.Status.*;
+import static java.time.Duration.ofSeconds;
 import static java.time.ZoneId.*;
 
 @Service
@@ -26,11 +30,9 @@ public class UpdateStatusQueueStep extends ExecutorStep {
     return true;
   }
 
-  @Override
-  public void internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
-    var namespace = scenario.getMetadata().getNamespace();
-    var queue = executionRepository.get(namespace, executionQueue.getMetadata().getName());
-    var queueItem = queue.getItem(scenario.getMetadata().getName());
+  private void updateQueueItem(String queueName, String scenarioName, String namespace) {
+    var queue = executionRepository.get(namespace, queueName);
+    var queueItem = queue.getItem(scenarioName);
     var now = LocalDateTime.now().atZone(of("UTC")).toString();
     if (queueItem.isRunning()) {
       queueItem.setStatus(FINISHED);
@@ -41,5 +43,19 @@ public class UpdateStatusQueueStep extends ExecutorStep {
     }
     queue.getMetadata().setNamespace(namespace);
     executionRepository.update(queue);
+  }
+
+  @Override
+  public void internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
+    var config = RetryConfig
+            .custom()
+            .retryExceptions(KubernetesClientException.class)
+            .waitDuration(ofSeconds(1))
+            .maxAttempts(3)
+            .build();
+    Retry.of("updateQueueItem", config)
+            .executeRunnable(() ->
+                    updateQueueItem(executionQueue.getMetadata().getName(), scenario.getMetadata().getName(), scenario.getMetadata().getNamespace())
+            );
   }
 }
