@@ -55,6 +55,7 @@ public class UpdateStatusQueueStep extends ExecutorStep {
     queue.setStatus(creteStatus(queue));
     queue.getMetadata().setNamespace(namespace);
     executionRepository.update(queue);
+    executionRepository.updateStatus(queue);
   }
 
   private static ExecutionQueueStatus creteStatus(ExecutionQueue queue) {
