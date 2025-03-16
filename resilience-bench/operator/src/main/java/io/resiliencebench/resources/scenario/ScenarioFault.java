@@ -35,11 +35,10 @@ public class ScenarioFault {
     return services;
   }
 
-  public String toJson() {
-    var object = new JsonObject();
-    object.put("provider", provider);
-    object.put("percentage", percentage);
-    object.put("services", services);
-    return object.encode();
+  public JsonObject toJson() {
+    return new JsonObject()
+            .put("fault_provider", provider)
+            .put("fault_percentage", percentage)
+            .put("fault_services", services);
   }
 }

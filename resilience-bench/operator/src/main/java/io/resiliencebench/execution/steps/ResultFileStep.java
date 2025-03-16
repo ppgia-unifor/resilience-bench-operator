@@ -36,9 +36,15 @@ public class ResultFileStep extends ExecutorStep {
     if (currentResults.isPresent()) {
       var currentResultsJson = new JsonObject(currentResults.get());
       currentResultsJson.put("scenario", scenario.getMetadata().getName());
-      currentResultsJson.put("fault", scenario.getSpec().getFault().toJson());
-      currentResultsJson.put("workloadName", scenario.getSpec().getWorkload().getWorkloadName());
-      currentResultsJson.put("workloadUsers", scenario.getSpec().getWorkload().getUsers());
+
+      if (scenario.getSpec().getFault() != null) {
+        for (var json : scenario.getSpec().getFault().toJson()) {
+          currentResultsJson.put(json.getKey(), json.getValue());
+        }
+      }
+      currentResultsJson.put("workload_name", scenario.getSpec().getWorkload().getWorkloadName());
+      currentResultsJson.put("workload_users", scenario.getSpec().getWorkload().getUsers());
+
       currentResultsJson.put("connectors", scenario.getSpec().toConnectorsInJson());
       var resultsJson = getJsonResults(executionQueue);
       resultsJson.getJsonArray("results").add(currentResultsJson);

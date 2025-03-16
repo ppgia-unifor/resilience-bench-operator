@@ -55,16 +55,32 @@ public class ScenarioSpec {
   public JsonArray toConnectorsInJson() {
     JsonArray json = new JsonArray();
     for (var connector : connectors) {
-      var connectorJson = new JsonObject()
-              .put("name", connector.getName())
-              .put("source", mapFrom(connector.getSource()))
-              .put("destination", mapFrom(connector.getDestination()));
+      var connectorJson = new JsonObject();
+
+      connectorJson.put("name", connector.getName());
+      connectorJson.put("source", connector.getSource().getName());
+      if (connector.getSource().getEnvs() != null) {
+        for (var key : connector.getSource().getEnvs().keySet()) {
+          connectorJson.put("source" + "_env_" + key, connector.getSource().getEnvs().get(key));
+        }
+      }
+
+      connectorJson.put("destination", connector.getDestination().getName());
+      if (connector.getSource().getEnvs() != null) {
+        for (var key : connector.getSource().getEnvs().keySet()) {
+          connectorJson.put("destination" + "_env_" + key, connector.getSource().getEnvs().get(key));
+        }
+      }
 
       if (connector.getFault() != null) {
-        connectorJson.put("fault", connector.getFault().toJson());
+        for (var item : connector.getFault().toJson()) {
+          connectorJson.put(item.getKey(), item.getValue());
+        }
       }
       if (connector.getIstio() != null) {
-        connectorJson.put("istio", connector.getIstio().toJson());
+        for (var item : connector.getIstio().toJson()) {
+          connectorJson.put(item.getKey(), item.getValue());
+        }
       }
       json.add(connectorJson);
     }
