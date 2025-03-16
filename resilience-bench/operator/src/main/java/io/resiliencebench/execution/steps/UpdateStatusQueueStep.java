@@ -5,6 +5,8 @@ import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.resiliencebench.resources.queue.ExecutionQueue;
+import io.resiliencebench.resources.queue.ExecutionQueueItem;
+import io.resiliencebench.resources.queue.ExecutionQueueStatus;
 import io.resiliencebench.resources.scenario.Scenario;
 import io.resiliencebench.support.CustomResourceRepository;
 import org.springframework.stereotype.Service;
@@ -20,9 +22,17 @@ public class UpdateStatusQueueStep extends ExecutorStep {
 
   private final CustomResourceRepository<ExecutionQueue> executionRepository;
 
+  private final RetryConfig retryConfig;
+
   public UpdateStatusQueueStep(KubernetesClient kubernetesClient, CustomResourceRepository<ExecutionQueue> executionRepository) {
     super(kubernetesClient);
     this.executionRepository = executionRepository;
+    this.retryConfig = RetryConfig
+            .custom()
+            .retryExceptions(KubernetesClientException.class)
+            .waitDuration(ofSeconds(1))
+            .maxAttempts(3)
+            .build();
   }
 
   @Override
@@ -41,21 +51,27 @@ public class UpdateStatusQueueStep extends ExecutorStep {
       queueItem.setStatus(RUNNING);
       queueItem.setStartedAt(now);
     }
+
+    queue.setStatus(creteStatus(queue));
     queue.getMetadata().setNamespace(namespace);
     executionRepository.update(queue);
   }
 
+  private static ExecutionQueueStatus creteStatus(ExecutionQueue queue) {
+    var running = queue.getSpec().getItems().stream().filter(ExecutionQueueItem::isRunning).count();
+    var pending = queue.getSpec().getItems().stream().filter(ExecutionQueueItem::isPending).count();
+    var finished = queue.getSpec().getItems().stream().filter(ExecutionQueueItem::isFinished).count();
+
+    return new ExecutionQueueStatus(running, pending, finished);
+  }
+
+
   @Override
   public void internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
-    var config = RetryConfig
-            .custom()
-            .retryExceptions(KubernetesClientException.class)
-            .waitDuration(ofSeconds(1))
-            .maxAttempts(3)
-            .build();
-    Retry.of("updateQueueItem", config)
+    Retry.of("updateQueueItem", retryConfig)
             .executeRunnable(() ->
                     updateQueueItem(executionQueue.getMetadata().getName(), scenario.getMetadata().getName(), scenario.getMetadata().getNamespace())
             );
+
   }
 }
