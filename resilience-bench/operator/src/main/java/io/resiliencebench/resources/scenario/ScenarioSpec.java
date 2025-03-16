@@ -1,11 +1,13 @@
 package io.resiliencebench.resources.scenario;
 
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static io.vertx.core.json.JsonObject.mapFrom;
 
@@ -58,19 +60,8 @@ public class ScenarioSpec {
       var connectorJson = new JsonObject();
 
       connectorJson.put("name", connector.getName());
-      connectorJson.put("source", connector.getSource().getName());
-      if (connector.getSource().getEnvs() != null) {
-        for (var key : connector.getSource().getEnvs().keySet()) {
-          connectorJson.put("source" + "_env_" + key, connector.getSource().getEnvs().get(key));
-        }
-      }
-
-      connectorJson.put("destination", connector.getDestination().getName());
-      if (connector.getSource().getEnvs() != null) {
-        for (var key : connector.getSource().getEnvs().keySet()) {
-          connectorJson.put("destination" + "_env_" + key, connector.getSource().getEnvs().get(key));
-        }
-      }
+      normalizeEnvs(connectorJson, "source", connector.getSource(), connector.getSource().getEnvs());
+      normalizeEnvs(connectorJson, "destination", connector.getDestination(), connector.getDestination().getEnvs());
 
       if (connector.getFault() != null) {
         for (var item : connector.getFault().toJson()) {
@@ -85,5 +76,14 @@ public class ScenarioSpec {
       json.add(connectorJson);
     }
     return json;
+  }
+
+  private static void normalizeEnvs(JsonObject connectorJson, String name, Service service, Map<String, JsonNode> envs) {
+    connectorJson.put(name, service.getName());
+    if (envs != null) {
+      for (var key : envs.keySet()) {
+        connectorJson.put(name + "_env_" + key, service.getEnvs().get(key));
+      }
+    }
   }
 }
