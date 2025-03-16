@@ -13,7 +13,20 @@ spec:
     singular: queue
   scope: Namespaced
   versions:
-  - name: v1beta1
+  - additionalPrinterColumns:
+    - jsonPath: .status.finished
+      name: Finished
+      priority: 0
+      type: integer
+    - jsonPath: .status.pending
+      name: Pending
+      priority: 0
+      type: integer
+    - jsonPath: .status.running
+      name: Running
+      priority: 0
+      type: integer
+    name: v1beta1
     schema:
       openAPIV3Schema:
         properties:
@@ -51,6 +64,13 @@ spec:
                 type: string
             type: object
           status:
+            properties:
+              finished:
+                type: integer
+              pending:
+                type: integer
+              running:
+                type: integer
             type: object
         type: object
     served: true
