@@ -70,11 +70,11 @@ public class ScenarioFaultStep extends AbstractEnvironmentStep {
       var runtimeModifyUrl = "http://%s:%d/runtime_modify?filter.http.fault.abort.percent=%d".formatted(
               clusterIP, portNumber, scenario.getSpec().getFault().getPercentage()
       );
-      var response = restTemplate.postForEntity(runtimeModifyUrl, null, ResponseEntity.class);
-      if (response.getStatusCode().is2xxSuccessful()) {
+      var response = restTemplate.postForObject(runtimeModifyUrl, null, Object.class);
+      if ("OK".equals(response)) {
         logger.info("Service fault applied for {}", resilientService.getMetadata().getName());
       } else {
-        logger.error("Service fault not applied for {}. Error {}", resilientService.getMetadata().getName(), response.getBody());
+        logger.error("Service fault not applied for {}. Error {}", resilientService.getMetadata().getName(), response);
       }
     } catch (RestClientException e) {
       logger.error("Service fault not applied for {}. Error {}", resilientService.getMetadata().getName(), e);
