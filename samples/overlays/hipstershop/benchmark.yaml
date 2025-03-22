@@ -15,8 +15,7 @@ kind: ResilientService
 metadata:
   name: paymentservice
   annotations:
-    resiliencebench.io/virtual-service: "paymentservice" 
-    resiliencebench.io/container: "envoy"
+    resiliencebench.io/envoy-service: paymentservice
 spec:
   selector:
     matchLabels:

@@ -37,7 +37,10 @@ spec:
           grpc:
             port: 50051
       - name: envoy
-        image: ghcr.io/cmendesce/server-app:latest
+        image: ghcr.io/cmendesce/envoy:latest
+        ports:
+        - containerPort: 9901
+        - containerPort: 10000
         env:
           - name: FAULT_PERCENTAGE
             value: "0"
@@ -55,6 +58,9 @@ spec:
   selector:
     app: paymentservice
   ports:
+  - name: envoy
+    port: 9901
+    targetPort: 9901
   - name: grpc
     port: 50051
     targetPort: 10000
