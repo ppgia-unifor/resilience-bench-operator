@@ -21,6 +21,7 @@ import io.resiliencebench.resources.scenario.Scenario;
 import io.resiliencebench.resources.service.ResilientService;
 import io.resiliencebench.resources.workload.Workload;
 import io.resiliencebench.support.CustomResourceRepository;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class OperatorConfiguration {
@@ -82,5 +83,9 @@ public class OperatorConfiguration {
 
   @Bean CustomResourceRepository<ResilientService> resilientServiceRepository(KubernetesClient kubernetesClient) {
     return new CustomResourceRepository<>(kubernetesClient, ResilientService.class);
+  }
+
+  @Bean RestTemplate restTemplate() {
+    return new RestTemplate();
   }
 }

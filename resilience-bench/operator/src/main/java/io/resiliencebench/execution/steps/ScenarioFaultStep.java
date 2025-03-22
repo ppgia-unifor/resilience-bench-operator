@@ -1,6 +1,5 @@
 package io.resiliencebench.execution.steps;
 
-import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.scenario.Scenario;
@@ -8,18 +7,25 @@ import io.resiliencebench.resources.service.ResilientService;
 import io.resiliencebench.support.CustomResourceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
-import static io.resiliencebench.support.Annotations.CONTAINER;
+import static io.resiliencebench.support.Annotations.*;
+import static java.lang.Integer.*;
 
 @Service
-public class ScenarioFaultStep extends EnvironmentStep {
+public class ScenarioFaultStep extends AbstractEnvironmentStep {
 
   private final static Logger logger = LoggerFactory.getLogger(ScenarioFaultStep.class);
-
+  private final RestTemplate restTemplate;
+  
   public ScenarioFaultStep(KubernetesClient kubernetesClient,
-                           CustomResourceRepository<ResilientService> resilientServiceRepository) {
+                           CustomResourceRepository<ResilientService> resilientServiceRepository,
+                           RestTemplate restTemplate) {
     super(kubernetesClient, resilientServiceRepository);
+    this.restTemplate = restTemplate;
   }
 
   @Override
@@ -31,7 +37,6 @@ public class ScenarioFaultStep extends EnvironmentStep {
   @Override
   protected void internalExecute(Scenario scenario, ExecutionQueue queue) {
     var fault = scenario.getSpec().getFault();
-
     for (var service : fault.getServices()) {
       var resilientService = resilientServiceRepository.get(scenario.getMetadata().getNamespace(), service);
       applyServiceFault(scenario, resilientService);
@@ -39,27 +44,21 @@ public class ScenarioFaultStep extends EnvironmentStep {
   }
 
   public void applyServiceFault(Scenario scenario, ResilientService resilientService) {
-    var deployment = kubernetesClient()
-            .apps()
-            .deployments()
-            .inNamespace(scenario.getMetadata().getNamespace())
-            .withLabelSelector(resilientService.getSpec().getSelector())
-            .list()
-            .getItems()
-            .stream()
-            .findFirst();
+    var port = resilientService.getMetadata().getAnnotations().get(ENVOY_PORT);
+    var service = resilientService.getMetadata().getAnnotations().get(ENVOY_SERVICE);
 
-    if (deployment.isPresent()) {
-      var targetDeployment = deployment.get();
-      var containerName = resilientService.getMetadata().getAnnotations().get(CONTAINER);
-      var containerEnvs = getActualContainerEnv(targetDeployment, containerName);
-      containerEnvs.removeIf(env -> env != null && "FAULT_PERCENTAGE".equals(env.getName()));
-      containerEnvs.add(
-              new EnvVar("FAULT_PERCENTAGE", String.valueOf(scenario.getSpec().getFault().getPercentage()), null)
+    try {
+      var url = "http://%s:%d/runtime_modify?filter.http.fault.abort.percent=%d".formatted(
+              service, parseInt(port), scenario.getSpec().getFault().getPercentage()
       );
-      updateVariablesDeployment(targetDeployment, containerName, containerEnvs);
-    } else {
-      logger.warn("Deployment not found for ResilientService {}", resilientService.getMetadata().getName());
+      var response = restTemplate.postForEntity(url, null, ResponseEntity.class);
+      if (response.getStatusCode().is2xxSuccessful()) {
+        logger.info("Service fault applied for {}", resilientService.getMetadata().getName());
+      } else {
+        logger.error("Service fault not applied for {}. Error {}", resilientService.getMetadata().getName(), response.getBody());
+      }
+    } catch (RestClientException e) {
+      logger.error("Service fault not applied for {}. Error {}", resilientService.getMetadata().getName(), e);
     }
   }
 }

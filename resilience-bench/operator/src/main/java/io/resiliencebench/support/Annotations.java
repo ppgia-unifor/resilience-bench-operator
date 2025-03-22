@@ -15,4 +15,8 @@ public interface Annotations {
   String WORKLOAD = "resiliencebench.io/workload";
 
   String DESTINATION_RULE = "resiliencebench.io/destination-rule";
+
+  String ENVOY_PORT = "resiliencebench.io/envoy-port";
+
+  String ENVOY_SERVICE = "resiliencebench.io/envoy-service";
 }
