@@ -36,8 +36,7 @@ public class StepRegistry {
             istioFaultStep,
             environmentStep,
             applicationReadinessStep,
-            scenarioFaultStep,
-            applicationReadinessStep);
+            scenarioFaultStep);
     postExecutionSteps = of(
             updateStatusQueueStep,
             resultFileStep,
