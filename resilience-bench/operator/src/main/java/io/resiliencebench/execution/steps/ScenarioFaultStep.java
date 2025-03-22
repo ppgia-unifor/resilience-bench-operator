@@ -7,13 +7,11 @@ import io.resiliencebench.resources.service.ResilientService;
 import io.resiliencebench.support.CustomResourceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import static io.resiliencebench.support.Annotations.*;
-import static java.lang.Integer.*;
 
 @Service
 public class ScenarioFaultStep extends AbstractEnvironmentStep {
@@ -71,11 +69,7 @@ public class ScenarioFaultStep extends AbstractEnvironmentStep {
               clusterIP, portNumber, scenario.getSpec().getFault().getPercentage()
       );
       var response = restTemplate.postForObject(runtimeModifyUrl, null, String.class);
-      if ("OK".equals(response)) {
-        logger.info("Service fault applied for {}", resilientService.getMetadata().getName());
-      } else {
-        logger.error("Service fault not applied for {}. Error {}", resilientService.getMetadata().getName(), response);
-      }
+      logger.info("Service fault applied for {}. Response {}", resilientService.getMetadata().getName(), response);
     } catch (RestClientException e) {
       logger.error("Service fault not applied for {}. Error {}", resilientService.getMetadata().getName(), e);
     }
