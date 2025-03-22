@@ -43,6 +43,10 @@ public class ExecutionQueueItem {
     this.status = status;
   }
 
+   public String getStatus() {
+    return status;
+  }
+
   public void setStartedAt(String startedAt) {
     this.startedAt = startedAt;
   }

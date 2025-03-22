@@ -12,10 +12,12 @@ import io.resiliencebench.support.CustomResourceRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 import static io.resiliencebench.resources.queue.ExecutionQueueItem.Status.*;
 import static java.time.Duration.ofSeconds;
 import static java.time.ZoneId.*;
+import static java.util.stream.Collectors.*;
 
 @Service
 public class UpdateStatusQueueStep extends ExecutorStep {
@@ -52,20 +54,20 @@ public class UpdateStatusQueueStep extends ExecutorStep {
       queueItem.setStartedAt(now);
     }
 
-    queue.setStatus(creteStatus(queue));
     queue.getMetadata().setNamespace(namespace);
     executionRepository.update(queue);
+    queue.setStatus(creteStatus(queue));
     executionRepository.updateStatus(queue);
   }
 
   private static ExecutionQueueStatus creteStatus(ExecutionQueue queue) {
-    var running = queue.getSpec().getItems().stream().filter(ExecutionQueueItem::isRunning).count();
-    var pending = queue.getSpec().getItems().stream().filter(ExecutionQueueItem::isPending).count();
-    var finished = queue.getSpec().getItems().stream().filter(ExecutionQueueItem::isFinished).count();
-
-    return new ExecutionQueueStatus(running, pending, finished);
+    var statusCounts = queue.getSpec().getItems().stream().collect(groupingBy(ExecutionQueueItem::getStatus, counting()));
+    return new ExecutionQueueStatus(
+            statusCounts.getOrDefault(RUNNING, 0L),
+            statusCounts.getOrDefault(PENDING, 0L),
+            statusCounts.getOrDefault(FINISHED, 0L)
+    );
   }
-
 
   @Override
   public void internalExecute(Scenario scenario, ExecutionQueue executionQueue) {
