@@ -44,17 +44,31 @@ public class ScenarioFaultStep extends AbstractEnvironmentStep {
   }
 
   public void applyServiceFault(Scenario scenario, ResilientService resilientService) {
-    var service = resilientService.getMetadata().getAnnotations().get(ENVOY_SERVICE);
+    var serviceName = resilientService.getMetadata().getAnnotations().get(ENVOY_SERVICE);
 
-    var url = kubernetesClient()
+    var serviceSpec = kubernetesClient()
             .services()
             .inNamespace(resilientService.getMetadata().getNamespace())
-            .withName(service)
-            .getURL(ENVOY_PORT);
+            .withName(serviceName)
+            .get().getSpec();
+
+    var portNumber = 9901;
+
+    for (var port : serviceSpec.getPorts()) {
+      if (port.getName().equals(ENVOY_PORT)) {
+        portNumber = port.getPort();
+      }
+    }
+
+    String clusterIP = serviceSpec.getClusterIP();
+    if (clusterIP == null || "None".equalsIgnoreCase(clusterIP)) {
+      logger.error("Service {} has no cluster IP or uses 'Headless' service.", serviceName);
+      return;
+    }
 
     try {
-      var runtimeModifyUrl = "http://%s/runtime_modify?filter.http.fault.abort.percent=%d".formatted(
-              url, scenario.getSpec().getFault().getPercentage()
+      var runtimeModifyUrl = "http://%s:%d/runtime_modify?filter.http.fault.abort.percent=%d".formatted(
+              clusterIP, portNumber, scenario.getSpec().getFault().getPercentage()
       );
       var response = restTemplate.postForEntity(runtimeModifyUrl, null, ResponseEntity.class);
       if (response.getStatusCode().is2xxSuccessful()) {
