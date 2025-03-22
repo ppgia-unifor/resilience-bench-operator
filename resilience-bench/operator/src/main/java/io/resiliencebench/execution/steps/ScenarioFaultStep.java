@@ -44,14 +44,19 @@ public class ScenarioFaultStep extends AbstractEnvironmentStep {
   }
 
   public void applyServiceFault(Scenario scenario, ResilientService resilientService) {
-    var port = resilientService.getMetadata().getAnnotations().get(ENVOY_PORT);
     var service = resilientService.getMetadata().getAnnotations().get(ENVOY_SERVICE);
 
+    var url = kubernetesClient()
+            .services()
+            .inNamespace(resilientService.getMetadata().getNamespace())
+            .withName(service)
+            .getURL(ENVOY_PORT);
+
     try {
-      var url = "http://%s:%d/runtime_modify?filter.http.fault.abort.percent=%d".formatted(
-              service, parseInt(port), scenario.getSpec().getFault().getPercentage()
+      var runtimeModifyUrl = "http://%s/runtime_modify?filter.http.fault.abort.percent=%d".formatted(
+              url, scenario.getSpec().getFault().getPercentage()
       );
-      var response = restTemplate.postForEntity(url, null, ResponseEntity.class);
+      var response = restTemplate.postForEntity(runtimeModifyUrl, null, ResponseEntity.class);
       if (response.getStatusCode().is2xxSuccessful()) {
         logger.info("Service fault applied for {}", resilientService.getMetadata().getName());
       } else {

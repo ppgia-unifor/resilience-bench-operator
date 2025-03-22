@@ -16,7 +16,7 @@ public interface Annotations {
 
   String DESTINATION_RULE = "resiliencebench.io/destination-rule";
 
-  String ENVOY_PORT = "resiliencebench.io/envoy-port";
-
   String ENVOY_SERVICE = "resiliencebench.io/envoy-service";
+
+  String ENVOY_PORT = "envoy";
 }
