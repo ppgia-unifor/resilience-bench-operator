@@ -50,7 +50,7 @@ public class ScenarioFaultStep extends AbstractEnvironmentStep {
             .withName(serviceName)
             .get().getSpec();
 
-    var portNumber = 9901;
+    var portNumber = 9901; // default admin envoy port
 
     for (var port : serviceSpec.getPorts()) {
       if (port.getName().equals(ENVOY_PORT)) {
@@ -58,9 +58,9 @@ public class ScenarioFaultStep extends AbstractEnvironmentStep {
       }
     }
 
-    String clusterIP = serviceSpec.getClusterIP();
+    var clusterIP = serviceSpec.getClusterIP();
     if (clusterIP == null || "None".equalsIgnoreCase(clusterIP)) {
-      logger.error("Service {} has no cluster IP or uses 'Headless' service.", serviceName);
+      logger.error("Service {} has no ClusterIP or uses 'Headless' service.", serviceName);
       return;
     }
 
@@ -69,7 +69,11 @@ public class ScenarioFaultStep extends AbstractEnvironmentStep {
               clusterIP, portNumber, scenario.getSpec().getFault().getPercentage()
       );
       var response = restTemplate.postForObject(runtimeModifyUrl, null, String.class);
-      logger.info("Service fault applied for {}. Response {}", resilientService.getMetadata().getName(), response);
+      logger.info("Fault {}% applied for {}. Response {}",
+              scenario.getSpec().getFault().getPercentage(),
+              resilientService.getMetadata().getName(),
+              response
+      );
     } catch (RestClientException e) {
       logger.error("Service fault not applied for {}. Error {}", resilientService.getMetadata().getName(), e);
     }
