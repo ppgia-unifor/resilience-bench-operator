@@ -52,10 +52,11 @@ public class K6JobFactory {
             .build();
   }
 
-  private List<EnvVar> resolveEnvVars(Workload workload, ExecutionQueueItem executionQueueItem) {
+  private List<EnvVar> resolveEnvVars(Workload workload, ScenarioWorkload scenarioWorkload, ExecutionQueueItem executionQueueItem) {
     List<EnvVar> envs = new ArrayList<>();
 
     envs.add(new EnvVar("OUTPUT_PATH", executionQueueItem.getResultFile(), null));
+    envs.add(new EnvVar("VIRTUAL_USERS", String.valueOf(scenarioWorkload.getUsers()), null));
     for (var item : workload.getSpec().getOptions()) {
       envs.add(new EnvVar(item.getName(), item.getValue().asText(), null));
     }
@@ -66,14 +67,14 @@ public class K6JobFactory {
     var container = new ContainerBuilder()
             .withName("k6")
             .withImage(workload.getSpec().getK6ContainerImage())
-            .withCommand("k6", "run", "/scripts/k6.js", "--vus", String.valueOf(scenarioWorkload.getUsers()))
+            .withCommand("k6", "run", "/scripts/k6.js")
             .withImagePullPolicy("IfNotPresent")
             .withPorts(new ContainerPortBuilder().withContainerPort(6565).build())
             .withVolumeMounts(
                     new VolumeMount("/scripts", "None", "script-volume", false, null, null),
                     new VolumeMount("/results", "HostToContainer", "test-results", false, null, null)
             )
-            .withEnv(resolveEnvVars(workload, executionQueueItem));
+            .withEnv(resolveEnvVars(workload, scenarioWorkload, executionQueueItem));
 
     return container.build();
   }
