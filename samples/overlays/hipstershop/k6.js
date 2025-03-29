@@ -13,6 +13,13 @@ const s3 = new S3Client(new AWSConfig({
   secretAccessKey: __ENV.AWS_SECRET_ACCESS_KEY,
 }));
 
+export const options = {
+  scenarios: {
+    defaultScenario: {
+      executor: 'per-vu-iterations',
+    },
+  },
+};
 
 const creditCard = {
   email: 'someoneelse@example.com',
@@ -67,12 +74,9 @@ const successCurrency = new Counter('custom_currency_success');
 const errorCurrency = new Counter('custom_currency_error');
 
 const httpDurationCheckout = new Trend('custom_checkout_http_req_duration');
+const httpErrorDurationCheckout = new Trend('custom_checkout_error_http_req_duration');
 const successCheckout = new Counter('custom_checkout_success');
 const errorCheckout = new Counter('custom_checkout_error');
-
-const httpReqTotalDuration = new Trend('custom_http_req_total_duration');
-let httpReqTotalDurationValue = 0;
-
 
 export default function () {
   index();
@@ -110,7 +114,6 @@ function randomQuantity() {
 
 function index() {
   const res = http.get(`http://${HOST}/`);
-  httpReqTotalDurationValue += res.timings.duration;
   const successfulIndex = res.status === 200 ? 1 : 0;
   httpDurationIndex.add(res.timings.duration);
   successIndex.add(successfulIndex ? 1 : 0);
@@ -119,7 +122,6 @@ function index() {
 
 function browseProduct() {
   const res = http.get(`http://${HOST}/product/${randomProduct()}`);
-  httpReqTotalDurationValue += res.timings.duration;
   const body = parseHTML(res.body);
 
   const ad = body.find('body > main > div.ad > div > div > strong');
@@ -140,7 +142,6 @@ function browseProduct() {
 function addToCart() {
   const body = { product_id: randomProduct(), quantity: randomQuantity() };
   const res = http.post(`http://${HOST}/cart`, body);
-  httpReqTotalDurationValue += res.timings.duration;
 
   const errorShipping = res.body.includes('failed to get shipping quote');
   successShippingOnCart.add(errorShipping ? 0 : 1);
@@ -153,7 +154,6 @@ function addToCart() {
 
 function viewCart() {
   const res = http.get(`http://${HOST}/cart`);
-  httpReqTotalDurationValue += res.timings.duration;
 
   const errorShipping = res.body.includes('failed to get shipping quote');
 
@@ -166,7 +166,6 @@ function viewCart() {
 
 function setCurrency() {
   const res = http.post(`http://${HOST}/setCurrency`, { currency_code: randomCurrency() });
-  httpReqTotalDurationValue += res.timings.duration;
   httpDurationCurrency.add(res.timings.duration);
   successCurrency.add(res.status === 200 ? 1 : 0);
   errorCurrency.add(res.status !== 200 ? 1 : 0);
@@ -174,7 +173,6 @@ function setCurrency() {
 
 function checkout() {
   const res = http.post(`http://${HOST}/cart/checkout`, creditCard);
-  httpReqTotalDurationValue += res.timings.duration;
   check(res, {
     'checkout is 200': (r) => r.status === 200,
   });
@@ -190,10 +188,9 @@ function checkout() {
     httpDurationCheckout.add(res.timings.duration);
     successCheckout.add(res.status === 200 ? 1 : 0);
     errorCheckout.add(res.status !== 200 ? 1 : 0);
-    httpReqTotalDuration.add(httpReqTotalDurationValue);
   } else {
     console.error(`Failed to checkout: ${res.status}`);
-    httpReqTotalDuration.add(0);
+    httpErrorDurationCheckout.add(res.timings.duration);
     errorShippingOnCheckout.add(1);
     errorPayment.add(1);
     errorCheckout.add(1);
