@@ -26,7 +26,8 @@ public class StepRegistry {
                       EnvironmentStep environmentStep,
                       EnvironmentPostStep environmentPostStep,
                       ApplicationReadinessStep applicationReadinessStep,
-                      ScenarioFaultStep scenarioFaultStep) {
+                      ScenarioFaultEnvVarStep scenarioFaultEnvVarStep,
+                      ScenarioFaultAPIStep scenarioFaultAPIStep) {
 
     preparationSteps = of(
             updateStatusQueueStep,
@@ -36,7 +37,8 @@ public class StepRegistry {
             istioFaultStep,
             environmentStep,
             applicationReadinessStep,
-            scenarioFaultStep);
+            scenarioFaultEnvVarStep,
+            applicationReadinessStep);
     postExecutionSteps = of(
             updateStatusQueueStep,
             resultFileStep,

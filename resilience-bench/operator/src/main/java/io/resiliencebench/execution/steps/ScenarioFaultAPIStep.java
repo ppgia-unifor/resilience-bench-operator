@@ -14,14 +14,14 @@ import org.springframework.web.client.RestTemplate;
 import static io.resiliencebench.support.Annotations.*;
 
 @Service
-public class ScenarioFaultStep extends AbstractEnvironmentStep {
+ public class ScenarioFaultAPIStep extends AbstractEnvironmentStep {
 
-  private final static Logger logger = LoggerFactory.getLogger(ScenarioFaultStep.class);
+  private final static Logger logger = LoggerFactory.getLogger(ScenarioFaultAPIStep.class);
   private final RestTemplate restTemplate;
   
-  public ScenarioFaultStep(KubernetesClient kubernetesClient,
-                           CustomResourceRepository<ResilientService> resilientServiceRepository,
-                           RestTemplate restTemplate) {
+  public ScenarioFaultAPIStep(KubernetesClient kubernetesClient,
+                              CustomResourceRepository<ResilientService> resilientServiceRepository,
+                              RestTemplate restTemplate) {
     super(kubernetesClient, resilientServiceRepository);
     this.restTemplate = restTemplate;
   }
