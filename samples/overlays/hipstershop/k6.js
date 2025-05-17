@@ -1,5 +1,5 @@
 import { parseHTML } from 'k6/html';
-import { check } from 'k6';
+import { check, group } from 'k6';
 import http from 'k6/http';
 import { Counter, Trend } from 'k6/metrics';
 import {
@@ -13,12 +13,14 @@ const s3 = new S3Client(new AWSConfig({
   secretAccessKey: __ENV.AWS_SECRET_ACCESS_KEY,
 }));
 
+const vus = parseInt(__ENV.VIRTUAL_USERS || '10', 10);
+const iterations = parseInt(__ENV.K6_ITERATIONS || '10', 10);
+
+console.log(`DEBUG: VUs: ${vus}, Iterations per VU: ${iterations}`);
+
 export const options = {
-  scenarios: {
-    defaultScenario: {
-      executor: 'per-vu-iterations',
-    },
-  },
+      vus,
+      iterations,
 };
 
 const creditCard = {
@@ -39,6 +41,7 @@ const outputPath = __ENV.OUTPUT_PATH;
 const HOST = __ENV.HOST || 'frontend';
 
 const httpDurationIndex = new Trend('custom_index_http_req_duration');
+const httpErrorDurationIndex = new Trend('custom_index_error_http_req_duration');
 const successIndex = new Counter('custom_index_success');
 const errorIndex = new Counter('custom_index_error');
 
@@ -58,18 +61,22 @@ const successRecommendations = new Counter('custom_recommendations_success');
 const errorRecommendations = new Counter('custom_recommendations_error');
 
 const httpDurationProduct = new Trend('custom_product_http_req_duration');
+const httpErrorDurationProduct = new Trend('custom_product_error_http_req_duration');
 const successProduct = new Counter('custom_product_success');
 const errorProduct = new Counter('custom_product_error');
 
 const httpDurationCart = new Trend('custom_cart_http_req_duration');
+const httpErrorDurationCart = new Trend('custom_cart_error_http_req_duration');
 const successCart = new Counter('custom_cart_success');
 const errorCart = new Counter('custom_cart_error');
 
 const httpDurationViewCart = new Trend('custom_viewcart_http_req_duration');
+const httpErrorDurationViewCart = new Trend('custom_viewcart_error_http_req_duration');
 const successViewCart = new Counter('custom_viewcart_success');
 const errorViewCart = new Counter('custom_viewcart_error');
 
 const httpDurationCurrency = new Trend('custom_currency_http_req_duration');
+const httpErrorDurationCurrency = new Trend('custom_currency_error_http_req_duration');
 const successCurrency = new Counter('custom_currency_success');
 const errorCurrency = new Counter('custom_currency_error');
 
@@ -78,13 +85,20 @@ const httpErrorDurationCheckout = new Trend('custom_checkout_error_http_req_dura
 const successCheckout = new Counter('custom_checkout_success');
 const errorCheckout = new Counter('custom_checkout_error');
 
+const sessionDuration = new Trend('session_duration');
+
 export default function () {
-  index();
-  browseProduct();
-  addToCart();
-  viewCart();
-  setCurrency();
-  checkout();
+  const startTime = new Date();
+  group('main_session', function () {
+      index();
+      browseProduct();
+      addToCart();
+      viewCart();
+      setCurrency();
+      checkout();
+  });
+  const endTime = new Date();
+  sessionDuration.add(endTime - startTime);
 }
 
 function randomCurrency() {
@@ -111,11 +125,14 @@ function randomQuantity() {
   return Math.floor(Math.random() * 10) + 1;
 }
 
-
 function index() {
   const res = http.get(`http://${HOST}/`);
   const successfulIndex = res.status === 200 ? 1 : 0;
-  httpDurationIndex.add(res.timings.duration);
+  if (successfulIndex) {
+    httpDurationIndex.add(res.timings.duration);
+  } else {
+    httpErrorDurationIndex.add(res.timings.duration);
+  }
   successIndex.add(successfulIndex ? 1 : 0);
   errorIndex.add(successfulIndex ? 0 : 1);
 }
@@ -134,7 +151,11 @@ function browseProduct() {
   errorRecommendations.add(successfulRecommentations ? 0 : 1);
 
   const successfulProduct = res.status === 200;
-  httpDurationProduct.add(res.timings.duration);
+  if (successfulProduct) {
+    httpDurationProduct.add(res.timings.duration);
+  } else {
+    httpErrorDurationProduct.add(res.timings.duration);
+  }
   successProduct.add(successfulProduct ? 1 : 0);
   errorProduct.add(successfulProduct ? 0 : 1);
 }
@@ -147,7 +168,11 @@ function addToCart() {
   successShippingOnCart.add(errorShipping ? 0 : 1);
   errorShippingOnCart.add(errorShipping ? 1 : 0);
 
-  httpDurationCart.add(res.timings.duration);
+  if (res.status === 200) {
+    httpDurationCart.add(res.timings.duration);
+  } else {
+    httpErrorDurationCart.add(res.timings.duration);
+  }
   successCart.add(res.status === 200 ? 1 : 0);
   errorCart.add(res.status !== 200 ? 1 : 0);
 }
@@ -159,14 +184,23 @@ function viewCart() {
 
   successShippingOnCart.add(errorShipping ? 0 : 1);
   errorShippingOnCart.add(errorShipping ? 1 : 0);
-  httpDurationViewCart.add(res.timings.duration);
+
+  if (res.status === 200) {
+    httpDurationViewCart.add(res.timings.duration);
+  } else {
+    httpErrorDurationViewCart.add(res.timings.duration);
+  }
   successViewCart.add(res.status === 200 ? 1 : 0);
   errorViewCart.add(res.status !== 200 ? 1 : 0);
 }
 
 function setCurrency() {
   const res = http.post(`http://${HOST}/setCurrency`, { currency_code: randomCurrency() });
-  httpDurationCurrency.add(res.timings.duration);
+  if (res.status === 200) {
+    httpDurationCurrency.add(res.timings.duration);
+  } else {
+    httpErrorDurationCurrency.add(res.timings.duration);
+  }
   successCurrency.add(res.status === 200 ? 1 : 0);
   errorCurrency.add(res.status !== 200 ? 1 : 0);
 }
@@ -209,6 +243,8 @@ export async function handleSummary(data) {
     }
   }
 
+  metrics.session_duration = data.metrics.session_duration.values.med;
+
   for (const metricName of Object.keys(metrics)) {
     if (metricName.endsWith('success')) {
       const page = metricName.replace('_success', '');
@@ -217,11 +253,14 @@ export async function handleSummary(data) {
     }
   }
 
-  Object.assign(metrics, {
-    iterations: data.metrics.iterations.values.count,
-    http_reqs: data.metrics.http_reqs.values.count,
-    iteration_duration: data.metrics.iteration_duration.values.med,
-  });
+  for (const metricName of Object.keys(data.metrics.iteration_duration.values)) {
+    Object.assign(metrics, {
+      [`iteration_duration_${metricName}`]: data.metrics.iteration_duration.values[metricName],
+    });
+  }
+
+  metrics.http_reqs = data.metrics.http_reqs.values.count;
+  metrics.iterations = data.metrics.iterations.values.count;
 
   console.log(`checkout_success_rate=${metrics.checkout_success_rate}`);
   await s3.putObject(bucketName, outputPath, JSON.stringify(metrics, null, 2));
