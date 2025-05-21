@@ -1,5 +1,6 @@
 # ResilienceBench Operator
 
+
 ResilienceBench is a language-agnostic benchmark environment to support the experimental evaluation of microservice resiliency patterns, such as Retry and Circuit Breaker. This operator represents an evolution of the original version, also named [resilience bench](https://github.com/ppgia-unifor/resilience-bench). The new version retains the core objectives of the original, but is specifically tailored for microservice-based applications.
 
 ### Usage scenario
@@ -23,7 +24,6 @@ Before you begin development, ensure you have the following prerequisites instal
 - **Docker**: Necessary for building and pushing container images.
 - **kubectl**: The Kubernetes command-line tool, used to interact with your Kubernetes cluster.
 - **A Kubernetes Cluster**: You need an accessible Kubernetes cluster where the operator will be deployed.
-- **Istio**: Ensure Istio is installed and properly configured in your Kubernetes cluster to manage network traffic.
 
 ## Istio dependency
 
