@@ -1,4 +1,4 @@
-# ResilienceBench Operator
+# ResilienceBench-Operator
 
 
 ResilienceBench is a language-agnostic benchmark environment to support the experimental evaluation of microservice resiliency patterns, such as Retry and Circuit Breaker. This operator represents an evolution of the original version, also named [resilience bench](https://github.com/ppgia-unifor/resilience-bench). The new version retains the core objectives of the original, but is specifically tailored for microservice-based applications.
