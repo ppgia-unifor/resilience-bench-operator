@@ -29,21 +29,40 @@ Before you begin development, ensure you have the following prerequisites instal
 - **kubectl**: The Kubernetes command-line tool, used to interact with your Kubernetes cluster.
 - **A Kubernetes Cluster**: You need an accessible Kubernetes cluster where the operator will be deployed.
 
-## Istio dependency
 
-Istio installation is optional; it is required only if you plan to use the Istio sections in the Benchmark custom resource. 
+### Project setup for coding
 
-[Istio Installation Documentation](https://istio.io/latest/docs/setup/install/)
-
-### Project Setup
-
-1. Clone the repository to your local machine and install it:
+1. Clone the repository to build and :
 
    ```bash
-   git clone https://github.com/cmendesce/resilience-bench-operator.git
+   git clone https://github.com/ppgia-unifor/resilience-bench-operator.git
    cd resilience-bench-operator/resilience-bench
    mvn clean install
    ```
+
+2. Open it in your preferred code editor and have fun!
+
+### Project setup for running
+
+1. Clone the repository to your local machine
+
+```bash
+git clone https://github.com/ppgia-unifor/resilience-bench-operator.git
+```
+
+2. Install the CRD, the operator and one of the samples:
+
+To install the CRD:
+
+```bash
+kubectl apply -f ./crd
+```
+
+To install the hipstershop samples:
+
+```bash
+kubectl apply -k ./samples/overlays/hipstershop
+```
 
 ## License
 
