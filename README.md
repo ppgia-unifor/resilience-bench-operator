@@ -3,6 +3,10 @@
 
 ResilienceBench is a language-agnostic benchmark environment to support the experimental evaluation of microservice resiliency patterns, such as Retry and Circuit Breaker. This operator represents an evolution of the original version, also named [resilience bench](https://github.com/ppgia-unifor/resilience-bench). The new version retains the core objectives of the original, but is specifically tailored for microservice-based applications.
 
+### Architecture
+
+![Architecture representation](./resiliencebench-operator-latest.svg)
+
 ### Usage scenario
 
 Consider a microservices-based application like the diagram bellow, where the connectors represent communication between the services. Each service is subject to several failure possibilities and workload variations, and for each of these situations, there is an appropriate configuration of resilience patterns. In this context, the tool's purpose is to automate the creation of test scenarios, exhaustively evaluating all possible scenarios under different load levels and failure conditions with minimal configuration.
