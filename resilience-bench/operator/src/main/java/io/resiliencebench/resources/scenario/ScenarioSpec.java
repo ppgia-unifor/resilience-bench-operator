@@ -1,20 +1,28 @@
 package io.resiliencebench.resources.scenario;
 
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static io.vertx.core.json.JsonObject.mapFrom;
 
 public class ScenarioSpec {
 
+  @JsonPropertyDescription("The workload to be used in the scenario")
   private ScenarioWorkload workload;
 
+  @JsonPropertyDescription("The name of the scenario")
   private String scenario;
 
+  @JsonPropertyDescription("The set of connectors to be configured while running the scenario")
   private List<Connector> connectors = new ArrayList<>();
+
+  private ScenarioFault fault;
 
   public ScenarioSpec() {
   }
@@ -23,6 +31,11 @@ public class ScenarioSpec {
     this.workload = workload;
     this.scenario = scenario;
     this.connectors = connectors;
+  }
+
+  public ScenarioSpec(String scenario, ScenarioWorkload workload, List<Connector> connectors, ScenarioFault fault) {
+    this(scenario, workload, connectors);
+    this.fault = fault;
   }
 
   public ScenarioWorkload getWorkload() {
@@ -37,28 +50,40 @@ public class ScenarioSpec {
     return connectors;
   }
 
+  public ScenarioFault getFault() {
+    return fault;
+  }
 
-  public JsonObject toJson() {
-    var json = new JsonObject();
-    json.put("scenario", scenario);
-    json.put("workload", workload.toJson());
-    json.put("connectors", new JsonArray());
-
+  public JsonArray toConnectorsInJson() {
+    JsonArray json = new JsonArray();
     for (var connector : connectors) {
-      var connectorJson = new JsonObject()
-              .put("name", connector.getName())
-              .put("source", mapFrom(connector.getSource()))
-              .put("destination", mapFrom(connector.getDestination()));
+      var connectorJson = new JsonObject();
+
+      connectorJson.put("name", connector.getName());
+      normalizeEnvs(connectorJson, "source", connector.getSource(), connector.getSource().getEnvs());
+      normalizeEnvs(connectorJson, "destination", connector.getDestination(), connector.getDestination().getEnvs());
 
       if (connector.getFault() != null) {
-        connectorJson.put("fault", connector.getFault().toJson());
+        for (var item : connector.getFault().toJson()) {
+          connectorJson.put(item.getKey(), item.getValue());
+        }
       }
       if (connector.getIstio() != null) {
-        connectorJson.put("istio", connector.getIstio().toJson());
+        for (var item : connector.getIstio().toJson()) {
+          connectorJson.put(item.getKey(), item.getValue());
+        }
       }
-      json.getJsonArray("connectors").add(connectorJson);
+      json.add(connectorJson);
     }
-
     return json;
+  }
+
+  private static void normalizeEnvs(JsonObject connectorJson, String name, Service service, Map<String, JsonNode> envs) {
+    connectorJson.put(name, service.getName());
+    if (envs != null) {
+      for (var key : envs.keySet()) {
+        connectorJson.put(name + "_env_" + key, service.getEnvs().get(key));
+      }
+    }
   }
 }

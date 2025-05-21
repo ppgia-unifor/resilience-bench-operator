@@ -6,8 +6,8 @@ import io.vertx.core.json.JsonObject;
 
 import java.util.Map;
 
-import static io.resiliencebench.resources.Maps.toJsonMap;
-import static io.resiliencebench.resources.Maps.toObjectMap;
+import static io.resiliencebench.support.Maps.toJsonMap;
+import static io.resiliencebench.support.Maps.toObjectMap;
 
 public class IstioPattern {
 
@@ -41,6 +41,14 @@ public class IstioPattern {
   }
 
   public JsonObject toJson() {
-    return JsonObject.mapFrom(this);
+    var jsonTimeout = timeout == null ? JsonObject.of() : JsonObject.mapFrom(timeout);
+    var jsonCircuitBreaker = circuitBreaker == null ? JsonObject.of() : JsonObject.mapFrom(circuitBreaker);
+    var jsonRetry = retry == null ? JsonObject.of() : JsonObject.mapFrom(retry);
+
+    return JsonObject.of(
+            "retry", jsonRetry,
+            "timeout", jsonTimeout,
+            "circuitBreaker", jsonCircuitBreaker
+    );
   }
 }

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Map;
 
-import static io.resiliencebench.resources.Maps.toJsonMap;
+import static io.resiliencebench.support.Maps.toJsonMap;
 
 public class Service {
 

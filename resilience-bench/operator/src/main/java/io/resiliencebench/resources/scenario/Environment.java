@@ -6,8 +6,8 @@ import io.vertx.core.json.JsonObject;
 
 import java.util.Map;
 
-import static io.resiliencebench.resources.Maps.toJsonMap;
-import static io.resiliencebench.resources.Maps.toObjectMap;
+import static io.resiliencebench.support.Maps.toJsonMap;
+import static io.resiliencebench.support.Maps.toObjectMap;
 
 public class Environment {
 

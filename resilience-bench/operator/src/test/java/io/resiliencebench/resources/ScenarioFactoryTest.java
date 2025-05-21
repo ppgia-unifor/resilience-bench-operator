@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static java.util.List.of;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ScenarioFactoryTest {
 
@@ -55,9 +55,9 @@ public class ScenarioFactoryTest {
     var benchmark = new Benchmark();
     benchmark.setSpec(spec);
     var workload = createWorkload(of(10));
-    var executions = ScenarioFactory.create(benchmark, workload);
+    var scenarios = ScenarioFactory.create(benchmark, workload);
 
-    assertEquals(4, executions.size());
+    assertEquals(4, scenarios.size());
   }
 
   @Test
@@ -68,9 +68,9 @@ public class ScenarioFactoryTest {
     var benchmark = new Benchmark();
     benchmark.setSpec(spec);
     var workload = createWorkload(of(10, 20, 30));
-    var executions = ScenarioFactory.create(benchmark, workload);
+    var scenarios = ScenarioFactory.create(benchmark, workload);
 
-    assertEquals(12, executions.size());
+    assertEquals(12, scenarios.size());
   }
 
   @Test
@@ -84,9 +84,9 @@ public class ScenarioFactoryTest {
     var benchmark = new Benchmark();
     benchmark.setSpec(spec);
     var workload = createWorkload(of(10));
-    var executions = ScenarioFactory.create(benchmark, workload);
+    var scenarios = ScenarioFactory.create(benchmark, workload);
 
-    assertEquals(8, executions.size());
+    assertEquals(8, scenarios.size());
   }
 
   @Test
@@ -117,9 +117,9 @@ public class ScenarioFactoryTest {
     var benchmark = new Benchmark();
     benchmark.setSpec(spec);
     var workload = createWorkload(of(10, 20, 30));
-    var executions = ScenarioFactory.create(benchmark, workload);
+    var scenarios = ScenarioFactory.create(benchmark, workload);
 
-    assertEquals(24, executions.size());
+    assertEquals(24, scenarios.size());
   }
 
   @Test
@@ -134,9 +134,9 @@ public class ScenarioFactoryTest {
     var benchmark = new Benchmark();
     benchmark.setSpec(spec);
     var workload = createWorkload(of(10, 20, 30));
-    var executions = ScenarioFactory.create(benchmark, workload);
+    var scenarios = ScenarioFactory.create(benchmark, workload);
 
-    assertEquals(48, executions.size());
+    assertEquals(48, scenarios.size());
   }
 
   @Test
@@ -156,9 +156,34 @@ public class ScenarioFactoryTest {
     var benchmark = new Benchmark();
     benchmark.setSpec(spec);
     var workload = createWorkload(of(10, 20, 30));
-    var executions = ScenarioFactory.create(benchmark, workload);
+    var scenarios = ScenarioFactory.create(benchmark, workload);
 
-    assertEquals(96, executions.size());
+    assertEquals(96, scenarios.size());
+  }
+
+  @Test
+  public void should_create_scenarios_with_global_fault_config() {
+    var spec = new BenchmarkSpec("workload",
+            of(
+                    new ScenarioTemplate("scenario-1", of(
+                            createConnector("connector-1")),
+                            new ScenarioFaultTemplate("envoy", List.of(25, 50), List.of("destination"))
+                    )
+            )
+    );
+
+    var benchmark = new Benchmark();
+    benchmark.setSpec(spec);
+    var workload = createWorkload(of(50));
+    var scenarios = ScenarioFactory.create(benchmark, workload);
+
+    assertEquals(8, scenarios.size());
+
+    for (var scenario : scenarios) {
+      assertNotNull(scenario.getSpec().getFault());
+      var percentage = scenario.getSpec().getFault().getPercentage();
+      assertTrue(percentage == 25 || percentage == 50);
+    }
   }
 
 //  @Test

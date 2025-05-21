@@ -1,0 +1,5 @@
+kubectl delete job --all --all-namespaces
+kubectl delete queue --all --all-namespaces
+kubectl delete scenario --all --all-namespaces
+kubectl delete benchmark --all --all-namespaces
+kubectl delete deployment/resiliencebench-operator

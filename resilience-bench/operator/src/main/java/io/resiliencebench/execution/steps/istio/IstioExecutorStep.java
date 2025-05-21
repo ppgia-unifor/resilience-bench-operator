@@ -9,10 +9,11 @@ import io.resiliencebench.resources.service.ResilientService;
 import io.resiliencebench.support.CustomResourceRepository;
 import org.springframework.stereotype.Service;
 
+import static io.resiliencebench.support.Annotations.VIRTUAL_SERVICE;
 import static java.lang.String.format;
 
 @Service
-public abstract class IstioExecutorStep<TResult extends HasMetadata> extends ExecutorStep<TResult> {
+public abstract class IstioExecutorStep extends ExecutorStep {
 
   private final IstioClient istioClient;
   private final CustomResourceRepository<ResilientService> serviceRepository;
@@ -26,15 +27,19 @@ public abstract class IstioExecutorStep<TResult extends HasMetadata> extends Exe
     this.serviceRepository = serviceRepository;
   }
 
+  public CustomResourceRepository<ResilientService> getServiceRepository() {
+    return serviceRepository;
+  }
+
   protected IstioClient istioClient() {
     return istioClient;
   }
 
-  protected VirtualService findVirtualService(String namespace, String name) {
-    var targetService = serviceRepository.find(namespace, name);
+  public VirtualService findVirtualService(String namespace, String name) {
+    var targetService = getServiceRepository().find(namespace, name);
 
     if (targetService.isPresent()) {
-      var virtualServiceName = targetService.get().getMetadata().getAnnotations().get("resiliencebench.io/virtual-service");
+      var virtualServiceName = targetService.get().getMetadata().getAnnotations().get(VIRTUAL_SERVICE);
       return istioClient
               .v1beta1()
               .virtualServices()

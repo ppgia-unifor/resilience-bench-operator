@@ -1,16 +1,21 @@
 package io.resiliencebench.resources.benchmark;
 
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import io.fabric8.generator.annotation.Nullable;
 
 public class ConnectorTemplate {
 
+  @JsonPropertyDescription("Name of the connector")
   private String name;
+  @JsonPropertyDescription("The source service of the connector. This is the service that will be calling the destination service.")
   private ServiceTemplate source;
+  @JsonPropertyDescription("The destination service of the connector. This is the service that will be called by the source service.")
   private ServiceTemplate destination;
-
+  @JsonPropertyDescription("Specification of the failure type to be injected in the destination service.")
   @Nullable
   private BenchmarkFaultTemplate fault;
   @Nullable
+  @JsonPropertyDescription("The pattern to apply to the connector")
   private PatternTemplate pattern;
 
   public ConnectorTemplate() {

@@ -1,0 +1,183 @@
+apiVersion: resiliencebench.io/v1beta1
+kind: ResilientService
+metadata:
+  name: cartservice
+  annotations:
+    resiliencebench.io/virtual-service: "cartservice" 
+    resiliencebench.io/container: "envoy"
+spec:
+  selector:
+    matchLabels:
+      app: cartservice
+---
+apiVersion: resiliencebench.io/v1beta1
+kind: ResilientService
+metadata:
+  name: paymentservice
+  annotations:
+    resiliencebench.io/envoy-service: paymentservice
+spec:
+  selector:
+    matchLabels:
+      app: paymentservice
+---
+apiVersion: resiliencebench.io/v1beta1
+kind: ResilientService
+metadata:
+  name: currencyservice
+  annotations:
+    resiliencebench.io/virtual-service: "currencyservice" 
+    resiliencebench.io/container: "envoy"
+spec:
+  selector:
+    matchLabels:
+      app: currencyservice
+---
+apiVersion: resiliencebench.io/v1beta1
+kind: ResilientService
+metadata:
+  name: frontendservice
+  annotations:
+    resiliencebench.io/virtual-service: "frontendservice" 
+    resiliencebench.io/container: "envoy"
+spec:
+  selector:
+    matchLabels:
+      app: frontendservice
+---
+apiVersion: resiliencebench.io/v1beta1
+kind: ResilientService
+metadata:
+  name: checkoutservice
+  annotations:
+    resiliencebench.io/virtual-service: "checkoutservice" 
+    resiliencebench.io/container: "server"
+spec:
+  selector:
+    matchLabels:
+      app: checkoutservice
+---
+apiVersion: resiliencebench.io/v1beta1
+kind: ResilientService
+metadata:
+  name: adservice
+  annotations:
+    resiliencebench.io/virtual-service: "adservice" 
+    resiliencebench.io/container: "envoy"
+spec:
+  selector:
+    matchLabels:
+      app: adservice
+---
+apiVersion: resiliencebench.io/v1beta1
+kind: ResilientService
+metadata:
+  name: productcatalogservice
+  annotations:
+    resiliencebench.io/virtual-service: "productcatalogservice" 
+    resiliencebench.io/container: "envoy"
+spec:
+  selector:
+    matchLabels:
+      app: productcatalogservice
+---
+apiVersion: resiliencebench.io/v1beta1
+kind: ResilientService
+metadata:
+  name: recommendationservice
+  annotations:
+    resiliencebench.io/virtual-service: "recommendationservice" 
+    resiliencebench.io/container: "envoy"
+spec:
+  selector:
+    matchLabels:
+      app: recommendationservice
+---
+apiVersion: resiliencebench.io/v1beta1
+kind: ResilientService
+metadata:
+  name: shippingservice
+  annotations:
+    resiliencebench.io/virtual-service: "shippingservice" 
+    resiliencebench.io/container: "envoy"
+spec:
+  selector:
+    matchLabels:
+      app: shippingservice
+---
+apiVersion: resiliencebench.io/v1beta1
+kind: ResilientService
+metadata:
+  name: emailservice
+  annotations:
+    resiliencebench.io/virtual-service: "emailservice" 
+    resiliencebench.io/container: "envoy"
+spec:
+  selector:
+    matchLabels:
+      app: emailservice
+---
+apiVersion: resiliencebench.io/v1beta1
+kind: Workload
+metadata:
+  name: fixed-iterations-loadtest
+spec:
+  options:
+    - name: K6_ITERATIONS
+      value: "1000"
+    - name: K6_NO_THRESHOLDS
+      value: "true"
+    - name: AWS_REGION
+      value: "us-east-1"
+    - name: AWS_ACCESS_KEY_ID
+      value: some-value
+    - name: AWS_SECRET_ACCESS_KEY
+      value: some-value
+    - name: BUCKET_NAME
+      value: phd-carlos-results
+  script:
+    configMap:
+      name: k6-config
+      file: k6.js
+  users: [50, 100, 150]
+---
+apiVersion: resiliencebench.io/v1beta1
+kind: Benchmark
+metadata:
+  name: hipstershop
+spec:
+  workload: fixed-iterations-loadtest
+  scenarios:
+    - name: payment-fault
+      fault:
+        provider: envoy
+        percentages: [25, 50, 75]
+        services:
+         - paymentservice
+      connectors:
+        - name: checkout-payment
+          source:
+            name: checkoutservice
+          destination:
+            name: paymentservice
+    - name: payment-fault-retry
+      fault:
+        provider: envoy
+        percentages: [25, 50, 75]
+        services:
+         - paymentservice
+      connectors:
+        - name: checkout-payment
+          source:
+            name: checkoutservice
+            envs:
+            - name: GRPC_MAX_ATTEMPTS
+              value: ["1", "3", "5"]
+            - name: GRPC_INITIAL_BACKOFF
+              value: ["0.1s", "0.3s", "0.5s"]
+            - name: GRPC_MAX_BACKOFF
+              value: ["15s"]
+            - name: GRPC_BACKOFF_MULTIPLIER
+              value: ["1.1", "1.2", "1.5"]
+          destination:
+            name: paymentservice

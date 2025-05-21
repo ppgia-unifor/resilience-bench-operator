@@ -1,12 +1,16 @@
 package io.resiliencebench.resources.fault;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 
 public abstract class FaultTemplate<P> {
 
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  @JsonPropertyDescription("The percentage of the fault to be applied")
   private P percentage;
+  @JsonPropertyDescription("The delay fault. If applied the delay will be added to the response time")
   private DelayFault delay;
+  @JsonPropertyDescription("The abort fault. If applied the request will be aborted with the specified status code")
   private AbortFault abort;
 
   public FaultTemplate() {

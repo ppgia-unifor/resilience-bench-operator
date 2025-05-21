@@ -1,4 +1,13 @@
-package io.resiliencebench;
+package io.resiliencebench.config;
+
+import java.util.List;
+
+import jakarta.annotation.PreDestroy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import io.fabric8.istio.client.DefaultIstioClient;
 import io.fabric8.istio.client.IstioClient;
@@ -12,25 +21,35 @@ import io.resiliencebench.resources.scenario.Scenario;
 import io.resiliencebench.resources.service.ResilientService;
 import io.resiliencebench.resources.workload.Workload;
 import io.resiliencebench.support.CustomResourceRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-import java.util.List;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
-class OperatorConfiguration {
+public class OperatorConfiguration {
 
   private static final Logger log = LoggerFactory.getLogger(OperatorConfiguration.class);
 
+  private KubernetesClient kubernetesClient;
+  private IstioClient istioClient;
+
   @Bean KubernetesClient kubernetesClient() {
-    return new KubernetesClientBuilder().build();
+    kubernetesClient = new KubernetesClientBuilder().build();
+    return kubernetesClient;
   }
 
   @Bean IstioClient istioClient(KubernetesClient kubernetesClient) {
-    return new DefaultIstioClient(kubernetesClient);
+    istioClient = new DefaultIstioClient(kubernetesClient);
+    return istioClient;
+  }
+
+  @PreDestroy
+  public void closeClients() {
+    if (istioClient != null) {
+      istioClient.close();
+    }
+
+    if (kubernetesClient != null) {
+      kubernetesClient.close();
+    }
   }
 
   @Bean(destroyMethod = "stop")
@@ -64,5 +83,9 @@ class OperatorConfiguration {
 
   @Bean CustomResourceRepository<ResilientService> resilientServiceRepository(KubernetesClient kubernetesClient) {
     return new CustomResourceRepository<>(kubernetesClient, ResilientService.class);
+  }
+
+  @Bean RestTemplate restTemplate() {
+    return new RestTemplate();
   }
 }

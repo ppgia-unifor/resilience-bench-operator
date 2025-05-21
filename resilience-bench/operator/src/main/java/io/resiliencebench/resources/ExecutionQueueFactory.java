@@ -1,15 +1,17 @@
 package io.resiliencebench.resources;
 
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.resiliencebench.resources.benchmark.Benchmark;
 import io.resiliencebench.resources.queue.ExecutionQueue;
 import io.resiliencebench.resources.queue.ExecutionQueueSpec;
-import io.resiliencebench.resources.queue.Item;
+import io.resiliencebench.resources.queue.ExecutionQueueItem;
+import io.resiliencebench.resources.queue.ExecutionQueueStatus;
 import io.resiliencebench.resources.scenario.Scenario;
-
-import java.util.List;
-import java.util.UUID;
-
 import static io.resiliencebench.support.Annotations.OWNED_BY;
 
 public class ExecutionQueueFactory {
@@ -25,12 +27,20 @@ public class ExecutionQueueFactory {
             .withName(benchmark.getMetadata().getName())
             .build();
 
-    var items = scenarios.stream().map(s -> new Item(s.getMetadata().getName()));
+    var now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss"));
+    var itemResultsFile = Paths.get(now, "%s.json").toString();
+
+    var items = scenarios.stream().map(s -> new ExecutionQueueItem(
+            s.getMetadata().getName(), itemResultsFile.formatted(s.getMetadata().getName()))
+    ).toList();
     var spec = new ExecutionQueueSpec(
-            "/results/%s.json".formatted(UUID.randomUUID().toString()),
-            items.toList(),
+            Paths.get(now,  "results.json").toString(),
+            items,
             benchmark.getMetadata().getNamespace()
     );
-    return new ExecutionQueue(spec, meta);
+
+    var queue = new ExecutionQueue(spec, meta);
+    queue.setStatus(new ExecutionQueueStatus(0, items.size(), 0));
+    return queue;
   }
 }
