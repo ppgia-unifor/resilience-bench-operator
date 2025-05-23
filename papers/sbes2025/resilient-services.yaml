@@ -1,0 +1,21 @@
+apiVersion: resiliencebench.io/v1beta1
+kind: ResilientService
+metadata:
+  name: checkoutservice
+  annotations:
+    resiliencebench.io/container: "server"
+spec:
+  selector:
+    matchLabels:
+      app: checkoutservice
+---
+apiVersion: resiliencebench.io/v1beta1
+kind: ResilientService
+metadata:
+  name: paymentservice
+  annotations:
+    resiliencebench.io/container: "envoy"
+spec:
+  selector:
+    matchLabels:
+      app: paymentservice
