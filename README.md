@@ -1,5 +1,6 @@
 # ResilienceBench-Operator
 
+
 ResilienceBench-Operator ia a Kubernetes-native tool designed to automate resilience experiments in microservice applications. It enables engineers and researchers to define and execute fault injection scenarios directly on services running in Kubernetes clusters.
 
 The tool builds on the original [ResilienceBench]((https://github.com/ppgia-unifor/resilience-bench)), expanding its capabilities to real-world deployments through a declarative, CRD-based approach. It simplifies the orchestration of experiments that test patterns like Retry and Circuit Breaker under realistic conditions.
@@ -33,10 +34,10 @@ Before you begin development, ensure you have the following prerequisites instal
 
 ### Project setup for coding
 
-1. Clone the repository to build and :
+1. Clone the repository and build it:
 
    ```bash
-   git clone https://github.com/ppgia-unifor/resilience-bench-operator.git
+   git clone https://github.com/cmendesce/resilience-bench-operator.git
    cd resilience-bench-operator/resilience-bench
    mvn clean install
    ```
@@ -53,15 +54,9 @@ git clone https://github.com/ppgia-unifor/resilience-bench-operator.git
 
 2. Install the CRD, the operator and one of the samples:
 
-To install the CRD:
 
 ```bash
 kubectl apply -f ./crd
-```
-
-To install the hipstershop samples:
-
-```bash
 kubectl apply -k ./samples/overlays/hipstershop
 ```
 
