@@ -1,7 +1,13 @@
-# ResilienceBench Operator
+# ResilienceBench-Operator
 
 
-ResilienceBench is a language-agnostic benchmark environment to support the experimental evaluation of microservice resiliency patterns, such as Retry and Circuit Breaker. This operator represents an evolution of the original version, also named [resilience bench](https://github.com/ppgia-unifor/resilience-bench). The new version retains the core objectives of the original, but is specifically tailored for microservice-based applications.
+ResilienceBench-Operator ia a Kubernetes-native tool designed to automate resilience experiments in microservice applications. It enables engineers and researchers to define and execute fault injection scenarios directly on services running in Kubernetes clusters.
+
+The tool builds on the original [ResilienceBench]((https://github.com/ppgia-unifor/resilience-bench)), expanding its capabilities to real-world deployments through a declarative, CRD-based approach. It simplifies the orchestration of experiments that test patterns like Retry and Circuit Breaker under realistic conditions.
+
+### Architecture
+
+![Architecture representation](./resiliencebench-operator-latest.svg)
 
 ### Usage scenario
 
@@ -25,21 +31,34 @@ Before you begin development, ensure you have the following prerequisites instal
 - **kubectl**: The Kubernetes command-line tool, used to interact with your Kubernetes cluster.
 - **A Kubernetes Cluster**: You need an accessible Kubernetes cluster where the operator will be deployed.
 
-## Istio dependency
 
-Istio installation is optional; it is required only if you plan to use the Istio sections in the Benchmark custom resource. 
+### Project setup for coding
 
-[Istio Installation Documentation](https://istio.io/latest/docs/setup/install/)
-
-### Project Setup
-
-1. Clone the repository to your local machine and install it:
+1. Clone the repository and build it:
 
    ```bash
    git clone https://github.com/cmendesce/resilience-bench-operator.git
    cd resilience-bench-operator/resilience-bench
    mvn clean install
    ```
+
+2. Open it in your preferred code editor and have fun!
+
+### Project setup for running
+
+1. Clone the repository to your local machine
+
+```bash
+git clone https://github.com/ppgia-unifor/resilience-bench-operator.git
+```
+
+2. Install the CRD, the operator and one of the samples:
+
+
+```bash
+kubectl apply -f ./crd
+kubectl apply -k ./samples/overlays/hipstershop
+```
 
 ## License
 
