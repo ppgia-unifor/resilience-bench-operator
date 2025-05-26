@@ -15,7 +15,7 @@
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.1</maven-surefire-plugin.version>
         <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>
-        <fabric8-client.version>6.11.0</fabric8-client.version>
+        <fabric8-client.version>7.3.1</fabric8-client.version>
         <junit.version>5.10.3</junit.version>
         <spring-boot.version>3.0.6</spring-boot.version>
     </properties>
